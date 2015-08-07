@@ -25,7 +25,8 @@ namespace ZGL {
 		// 离散数据
 		class grid_data {
 			_Titem* data = nullptr;
-			std::function< void(const _Tv&) > f = nullptr;
+			z_size_t _c = 0;
+			std::function< _Titem(const _Tv&) > f;
 
 		public :
 			~grid_data() {
@@ -35,24 +36,46 @@ namespace ZGL {
 			// Make discrete date use interval and step
 			// 使用区间和步长生成离散数据
 			grid_data(_Titem begin, _Titem end, _Titem step) {
-				z_size_t ct = (z_size_t)floor< _Titem >((end - begin) / step);
-				if (ct > 0)
-					data = new _Titem[ct];
-				for (z_size_t i = 0; i < ct; i++)
-					data[i] = begin += step;
+				_c = (z_size_t)std::floor((end - begin) / step) + 1;
+				if (_c > 0)
+					data = new _Titem[_c];
+				for (z_size_t i = 0; i < _c; i++, begin += step)
+					data[i] = begin;
 			}
 			// Add discrete data at array
 			// 数组添加数据
 			grid_data(_Titem* src, z_size_t len) {
+				_c = len;
 				if (len > 0)
 					data = new _Titem[len];
-				while (len)
+				while (len--)
 					data[len] = src[len];
 			}
-			// Make discrete date use function
+			// Generate discrete date use function
 			// 使用方法生成离散数据
-			grid_data(const std::function< void(const _Tv&) >& func) {
+			grid_data(const std::function< _Titem(const _Tv&) >& func) {
 				f = func;
+			}
+			// Copy construction
+			// 拷贝构造
+			grid_data(const grid_data& src) {
+				if (src.data) {
+					data = new _Titem[_c];
+					for (z_size_t i = 0; i < _c; i++)
+						data[i] = src.data[i];
+				}
+				if (src.f)
+					f = src.f;
+			}
+			// R-value construction
+			// 右值构造函数
+			grid_data(grid_data&& src) {
+				if (src.data) {
+					data = src.data;
+					src.data = nullptr;
+				}
+				if (src.f)
+					f = src.f;
 			}
 
 			// whether discrete data
@@ -78,35 +101,43 @@ namespace ZGL {
 			_Titem operator[] (const _Tv& idx) const {
 				return f(idx);
 			}
-		};
-		grid_data _grid_data[dim - 1];
+		} ** _grid_data;
 
+		// Grid node
+		// 网格节点
 		class grid_node {
-			grid_node** nodes;
+			grid_node** _nodes;
 			_Tv _dot;
+			const z_size_t _c = 2 * d_dim;
+
 		public :
 			~grid_node() {
-				z_size_t d_size = (z_size_t)pow(2, d_dim);
-				for (z_size_t i = 0; i < d_size; i++) {
-					if (nodes[i])
-						delete nodes[i];
-					nodes[i] = nullptr;
+				for (z_size_t i = 0; i < _c; i++) {
+					if (_nodes[i])
+						delete _nodes[i];
+					_nodes[i] = nullptr;
 				}
-				delete[] nodes;
+				delete[] _nodes;
 			}
 
 			grid_node() {
-				nodes = new grid_node*[(z_size_t)pow(2, d_dim)]{ nullptr };
+				_nodes = new grid_node*[_c]{ nullptr };
 			}
 
 			grid_node(const _Tv& dot)
-				: grid_node(), _dot(dot) { }
+				: grid_node() {
+				_dot = dot;
+			}
 
 			grid_node(_Tv&& dot)
-				: grid_node(), _dot(dot) { }
+				: grid_node() {
+				_dot = dot;
+			}
 
 			grid_node* operator [] (z_size_t opt) {
-				return nodes[opt];
+				if (opt >= _c)
+					throw std::out_of_range("Node pointer in this grid-node is out of range.");
+				return _nodes[opt];
 			}
 
 			// Set dot
@@ -120,28 +151,50 @@ namespace ZGL {
 			void set_dot(_Tv&& dot) {
 				_dot = dot;
 			}
+
+			// Get dot
+			// 获取点
+			_Tv get_dot() const {
+				return _dot;
+			}
+		} _root;
+
+		~gridding() {
+			for (z_size_t i = 0; i < dim - 1; i++) {
+				if (_grid_data[i])
+					delete _grid_data[i];
+				_grid_data[i] = nullptr;
+			}
+			delete[] _grid_data;
 		}
 
-		gridding(grid_data data[dim - 1]) {
-			for (z_size_t i = 0; i < dim - 1, i++)
-				_grid_data[i] = data[i];
+		gridding() {
+			_grid_data = new grid_data*[dim - 1]{ nullptr };
 		}
 
-		gridding(std::initializer_list< grid_data > data) {
+		gridding(grid_data src[dim - 1])
+			: gridding() {
 			for (z_size_t i = 0; i < dim - 1, i++)
-				_grid_data[i] = data[i];
+				_grid_data[i] = new grid_data(src[i]);
+		}
+
+		gridding(std::initializer_list< grid_data > src)
+			: gridding() {
+			z_size_t i = 0;
+			for (const grid_data& s : src) {
+				_grid_data[i] = new grid_data(s);
+				i++;
+			}
 		}
 
 		// Generate discrete dots' map
 		// 生成离散图
-		grid_node discrete() {
-			grid_node _root;
-
+		grid_node& discrete() {
 			_Tidx idx;
 
 			_dis(_root, idx);
 
-			return std::move(_root);
+			return _root;
 		}
 
 		/// Recursion nodes within map
@@ -164,9 +217,13 @@ namespace ZGL {
 			_dt[dim - 1] = _Titem(1);
 			node.set_dot(_dt);
 
-			for (z_size_t i = 0; i < dim - 1; i++) {
+			z_size_t _st = d_dim >> 1;
+			for (z_size_t i = 0; i < _st; i++) {
 				if (!node[i]) {
 					node[i] = new grid_node();
+					// set point to current nodes' pointer at next node
+					// 设置下一个节点指向本节点指针
+					(*node[i])[i + _st] = node;
 					_Tidx _idx(idx);
 					idx[i]++;
 					_dis(node[i], idx);
