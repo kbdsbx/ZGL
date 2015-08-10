@@ -293,7 +293,7 @@ namespace ZGL {
 			_mtx _a = matrix < dim - 2, dim, _Titem >::cofactor < 0, dim >(mpl.dirs);
 
 			_Tsqu _mm (
-				_Tm11(IDENTITY) + (_Tm11&&)(_mtx::transpose(_a) * ((_sqr&&)(_a * _mtx::transpose(_a)) ^ -1) * _a) * 2,
+				(_Tm11&&)(_mtx::transpose(_a) * ((_sqr&&)(_a * _mtx::transpose(_a)) ^ -1) * _a) * 2 - _Tm11(IDENTITY),
 				_Tm12(),
 				_Tm21(),
 				_Tm22(IDENTITY)

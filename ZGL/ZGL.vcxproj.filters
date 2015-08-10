@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="inc.h" />
+    <ClInclude Include="geometry\affine_vector.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\graph.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\gridding.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Icamera.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Igeometry.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Ilight.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Iradiantable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Irenderer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Iseparable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Itrackable.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="linear\matrix.h">
+      <Filter>linear</Filter>
+    </ClInclude>
+    <ClInclude Include="linear\square.h">
+      <Filter>linear</Filter>
+    </ClInclude>
+    <ClInclude Include="linear\vector.h">
+      <Filter>linear</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{3d927e97-cdaa-43fd-866b-d44f2b56542f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{dda15b40-3eab-44cc-9e4c-732c5b5510ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linear">
+      <UniqueIdentifier>{29a6ad06-eb51-48cc-83aa-d8fecd6d8c22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{0eca7c53-2f7c-4cb4-b4d8-a8c2da838fda}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

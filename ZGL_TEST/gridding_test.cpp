@@ -64,10 +64,35 @@ namespace ZGL_TEST
 			// Initialied of nodes pointer
 			// 初始化后的节点指针
 			Assert::IsTrue(n1[3] == nullptr);
+			n1[3] = new ZGL::gridding< 4, 2, double >::grid_node(ZGL::affine_vector< 4, double >{});
 
 			// If count of node pointer is real
 			// 节点指针个数是否正确
 			Assert::ExpectException< std::out_of_range >([&n1]() { ZGL::gridding< 4, 2, double >::grid_node* t = n1[4]; });
+		}
+
+		TEST_METHOD(gridding_init)
+		{
+			// gridding init
+			// 初始化网格
+			ZGL::gridding< 4, 2, double > g1({
+				ZGL::gridding< 4, 2, double >::grid_data(0, 10, 1),
+				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return sin(v[0]); }),
+				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return cos(v[0]); }),
+			});
+		}
+
+		TEST_METHOD(gridding_discrete)
+		{
+			ZGL::gridding< 4, 2, double > g1({
+				ZGL::gridding< 4, 2, double >::grid_data(0, 10, 1),
+				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return sin(v[0]); }),
+				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return cos(v[0]); }),
+			});
+
+			// Discrete grid
+			// 离散网格
+			g1.discrete();
 		}
 	};
 }

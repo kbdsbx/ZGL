@@ -3,6 +3,7 @@
 #include <math.h>
 #include <functional>
 #include <initializer_list>
+#include <map>
 
 #ifndef ZGL_GRIDDING
 #define ZGL_GRIDDING
@@ -55,6 +56,7 @@ namespace ZGL {
 			// 使用方法生成离散数据
 			grid_data(const std::function< _Titem(const _Tv&) >& func) {
 				f = func;
+				_c = -1;
 			}
 			// Copy construction
 			// 拷贝构造
@@ -101,6 +103,12 @@ namespace ZGL {
 			_Titem operator[] (const _Tv& idx) const {
 				return f(idx);
 			}
+
+			// Return count of data
+			// 返回数据数量
+			z_size_t count() const {
+				return _c;
+			}
 		} ** _grid_data;
 
 		// Grid node
@@ -112,7 +120,7 @@ namespace ZGL {
 
 		public :
 			~grid_node() {
-				for (z_size_t i = 0; i < _c; i++) {
+				for (z_size_t i = 0; i < (_c >> 2); i++) {
 					if (_nodes[i])
 						delete _nodes[i];
 					_nodes[i] = nullptr;
@@ -134,7 +142,7 @@ namespace ZGL {
 				_dot = dot;
 			}
 
-			grid_node* operator [] (z_size_t opt) {
+			grid_node*& operator [] (z_size_t opt) {
 				if (opt >= _c)
 					throw std::out_of_range("Node pointer in this grid-node is out of range.");
 				return _nodes[opt];
@@ -158,6 +166,33 @@ namespace ZGL {
 				return _dot;
 			}
 		} _root;
+
+		class iterator {
+			typedef iterator _Tit;
+		public :
+			// Indexs in iterator
+			// 迭代器索引
+			_Tidx _idx;
+			z_size_t _d;
+
+			iterator(const _Tidx& idx, z_size_t d) {
+				_idx = idx;
+				_d = d;
+			}
+
+			void operator * () {
+				for (int i = 0; i < _d; i++) {
+				}
+			}
+
+			void operator ++ () {
+				_idx[_d]++;
+			}
+
+			bool operator != (_Tit it) {
+				return (_idx != it._idx || _d != it._d);
+			}
+		};
 
 		~gridding() {
 			for (z_size_t i = 0; i < dim - 1; i++) {
@@ -207,10 +242,10 @@ namespace ZGL {
 		void _dis(grid_node& node, const _Tidx& idx) {
 			_Tv _dt;
 			for (z_size_t i = 0; i < dim - 1; i++) {
-				if (_grid_data[i].is_data())
-					_dt[i] = _grid_data[i][idx[i]];
-				else if (_grid_data[i].is_function())
-					_dt[i] = _grid_data[i][_dt];
+				if (_grid_data[i]->is_data())
+					_dt[i] = (*(_grid_data[i]))[idx[i]];
+				else if (_grid_data[i]->is_function())
+					_dt[i] = (*(_grid_data[i]))[_dt];
 				else
 					throw "";
 			}
@@ -219,14 +254,16 @@ namespace ZGL {
 
 			z_size_t _st = d_dim >> 1;
 			for (z_size_t i = 0; i < _st; i++) {
+				if (-1 != _grid_data[i]->count() && idx[i] >= _grid_data[i]->count())
+					continue;
 				if (!node[i]) {
 					node[i] = new grid_node();
 					// set point to current nodes' pointer at next node
 					// 设置下一个节点指向本节点指针
-					(*node[i])[i + _st] = node;
+					(*(node[i]))[i + _st] = &node;
 					_Tidx _idx(idx);
-					idx[i]++;
-					_dis(node[i], idx);
+					_idx[i] = _idx[i] + 1;
+					_dis(*(node[i]), _idx);
 				}
 			}
 		}
