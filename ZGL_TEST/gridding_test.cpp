@@ -15,7 +15,7 @@ namespace ZGL_TEST
 		{
 			// Init grid data use interval and step
 			// 使用范围与步长初始化网格数据
-			ZGL::gridding< 4, 2, double >::grid_data g1(0, 10, 2);
+			ZGL::gridding< 4, 2, double >::grid_data g1(0, 2, 10);
 			Assert::AreEqual(g1[0], 0.0);
 			Assert::AreEqual(g1[1], 2.0);
 			Assert::AreEqual(g1[2], 4.0);
@@ -71,28 +71,23 @@ namespace ZGL_TEST
 			Assert::ExpectException< std::out_of_range >([&n1]() { ZGL::gridding< 4, 2, double >::grid_node* t = n1[4]; });
 		}
 
-		TEST_METHOD(gridding_init)
-		{
-			// gridding init
-			// 初始化网格
-			ZGL::gridding< 4, 2, double > g1({
-				ZGL::gridding< 4, 2, double >::grid_data(0, 10, 1),
-				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return sin(v[0]); }),
-				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return cos(v[0]); }),
-			});
-		}
-
 		TEST_METHOD(gridding_discrete)
 		{
-			ZGL::gridding< 4, 2, double > g1({
-				ZGL::gridding< 4, 2, double >::grid_data(0, 10, 1),
-				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return sin(v[0]); }),
-				ZGL::gridding< 4, 2, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return cos(v[0]); }),
+			ZGL::gridding< 4, 1, double > g1({
+				ZGL::gridding< 4, 1, double >::grid_data(0, 1, 10),
+				ZGL::gridding< 4, 1, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return sin(v[0]); }),
+				ZGL::gridding< 4, 1, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return cos(v[0]); }),
 			});
 
 			// Discrete grid
 			// 离散网格
 			g1.discrete();
+
+			Assert::IsTrue(g1[{1}].get_dot() == ZGL::affine_vector< 4, double >{ 1.0, sin(1.0), cos(1.0), 1.0 });
+			Assert::IsTrue(g1[{2}].get_dot() == ZGL::affine_vector< 4, double >{ 2.0, sin(2.0), cos(2.0), 1.0 });
+			Assert::IsTrue(g1[{3}].get_dot() == ZGL::affine_vector< 4, double >{ 3.0, sin(3.0), cos(3.0), 1.0 });
+			Assert::IsTrue(g1[{4}].get_dot() == ZGL::affine_vector< 4, double >{ 4.0, sin(4.0), cos(4.0), 1.0 });
+			Assert::IsTrue(g1[{5}].get_dot() == ZGL::affine_vector< 4, double >{ 5.0, sin(5.0), cos(5.0), 1.0 });
 		}
 	};
 }
