@@ -34,6 +34,7 @@
     <ClInclude Include="linear\square.h" />
     <ClInclude Include="linear\vector.h" />
     <ClInclude Include="scene\scene.h" />
+    <ClInclude Include="zgl.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3C476681-6F77-416C-A37E-996E5C89756A}</ProjectGuid>

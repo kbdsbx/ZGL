@@ -47,8 +47,9 @@ namespace ZGL {
 			}
 			// Make discrete date use interval and step
 			// 使用区间和步长生成离散数据
-			grid_data(_Titem begin, _Titem step, z_size_t len) {
+			grid_data(_Titem begin, _Titem end, z_size_t len) {
 				length = len;
+				_Titem step = (end - begin) / (_Titem)len;
 				if (length > 0) {
 					_data = new _Titem[length];
 				}
@@ -206,6 +207,7 @@ namespace ZGL {
 				return *cur;
 			}
 
+			// todo;
 			void operator ++ () {
 				for (z_size_t i = d_dim; i >= 0; i--) {
 					if (_idx[i] >= _grid->_grid_data_len) {
@@ -223,14 +225,14 @@ namespace ZGL {
 		};
 
 		iterator begin() {
-			return iterator(_Tidx());
+			return iterator(_Tidx(), this);
 		}
 
 		iterator end() {
 			_Tidx idx;
 			for (int i = 0; i < d_dim; i++)
-				idx[i] = _grid_data_len;
-			return iterator(std::move(idx));
+				idx[i] = _grid_data_len - 1;
+			return iterator(std::move(idx), this);
 		}
 
 		const grid_node& operator [] (const _Tidx& idx) {

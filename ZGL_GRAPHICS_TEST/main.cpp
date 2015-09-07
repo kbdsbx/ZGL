@@ -14,7 +14,7 @@ int main() {
 	setcolor(EGERGBA(0, 0, 0, 255));
 
 	// loops;
-	loop_test();
+	test_1();
 
 	closegraph();
 }
