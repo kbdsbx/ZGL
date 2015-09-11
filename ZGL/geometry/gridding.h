@@ -32,14 +32,113 @@ namespace ZGL {
 	public :
 		z_size_t _grid_data_len;
 
+		enum GRID_DATA_TYPE {
+			RANGE = 1,
+			ARRAY = 2,
+			FUNC = 3,
+		}
+
+		// Interface for discrete data
+		// 离散数据接口
+		class Igrid_data {
+		public :
+			z_size_t count;
+
+			// What data maker type is
+			// 数据器类型
+			virtual GRID_DATA_TYPE type() const = 0;
+		}
+
+		// Discrete data is produced using range
+		// 使用区间生成离散数据
+		class grid_data_range
+			: Igrid_data {
+
+			_Titem _begin;
+			_Titem _end;
+			_Titem _step;
+		public :
+			grid_data_range() { }
+			grid_data_range(_Titem begin, _Titem end, z_size_t len) {
+				count = len;
+				_begin = begin;
+				_end = end;
+				_step = (end - begin) / len;
+			}
+			_Titem operator [] (z_size_t idx) const {
+				return begin + idx * _step;
+			}
+			GRID_DATA_TYPE type() {
+				return GRID_DATA_TYPE::RANGE;
+			}
+		}
+
+		// Discrete data array
+		// 离散数据数组
+		class grid_data_array
+			: Igrid_data {
+			_Titem * _data = nullptr;
+
+		public :
+			~grid_data_array() {
+				if (_data) {
+					delete[] _data;
+				}
+				_data = nullptr;
+			}
+			grid_data_array() { }
+			grid_data_array(const _Titem* data, z_size_t len) {
+				count = len;
+				_data = new _Titem[len];
+				while (len--) {
+					_data[i] = data[i];
+				}
+			}
+
+			_Titem operator[] (z_size_t idx) const {
+				return _data[i];
+			}
+			GRID_DATA_TYPE type() {
+				return GRID_DATA_TYPE::ARRAY;
+			}
+		}
+
+		// Discrete data is produced using function
+		// 使用方法生成离散数据
+		class grid_data_function
+			: Igrid_data {
+			std::function< _Titem(const _Tv&) > _func = nullptr;
+
+		public :
+			grid_data_function() { }
+			grid_data_function(const std::function< _Titem(const _Tv&) >& func) {
+				_func = func;
+			}
+
+			_Titem operator[] (const _Tv& v) const {
+				return func(v);
+			}
+
+			GRID_DATA_TYPE type() {
+				return GRID_DATA_TYPE::FUNC;
+			}
+		}
+
+		/*
 		// Discrete data
 		// 离散数据
 		class grid_data {
-			_Titem* _data = nullptr;
-			std::function< _Titem(const _Tv&) > _func;
+			_Titem _begin;
+			_Titem _end;
+
+			_Titem * _data = nullptr;
+
+			std::function< _Titem(const _Tv&) > _func = nullptr;
 
 		public :
 			z_size_t length;
+
+			GRID_DATA_TYPE data_type;
 
 			~grid_data() {
 				if (_data)
@@ -49,12 +148,9 @@ namespace ZGL {
 			// 使用区间和步长生成离散数据
 			grid_data(_Titem begin, _Titem end, z_size_t len) {
 				length = len;
-				_Titem step = (end - begin) / (_Titem)len;
-				if (length > 0) {
-					_data = new _Titem[length];
-				}
-				for (z_size_t i = 0; i < length; i++, begin += step)
-					_data[i] = begin;
+
+				_begin = begin;
+				_end = end;
 			}
 			// Add discrete data at array
 			// 数组添加数据
@@ -119,6 +215,7 @@ namespace ZGL {
 				return _func(idx);
 			}
 		} ** _grid_data;
+		*/
 
 		// Grid node
 		// 网格节点
@@ -174,9 +271,7 @@ namespace ZGL {
 			_Tv get_dot() const {
 				return _dot;
 			}
-		} _root;
-
-		grid_node* _cur;
+		};
 
 		class iterator {
 			typedef iterator _Tit;
@@ -207,10 +302,10 @@ namespace ZGL {
 				return *cur;
 			}
 
-			// todo;
 			void operator ++ () {
-				for (z_size_t i = d_dim; i >= 0; i--) {
-					if (_idx[i] >= _grid->_grid_data_len) {
+				for (z_size_t i = (d_dim - 1); i >= 0; i--) {
+					// todo;
+					if (_idx[i] >= _grid->_grid_data_len && i != 0) {
 						_idx[i] = 0;
 					} else {
 						_idx[i]++;
@@ -224,6 +319,14 @@ namespace ZGL {
 			}
 		};
 
+		// Gridding root;
+		// 网格根节点
+		grid_node _root;
+
+		// Data maker
+		// 数据生成器
+		Igrid_data ** _grid_data;
+
 		iterator begin() {
 			return iterator(_Tidx(), this);
 		}
@@ -231,11 +334,12 @@ namespace ZGL {
 		iterator end() {
 			_Tidx idx;
 			for (int i = 0; i < d_dim; i++)
-				idx[i] = _grid_data_len - 1;
+				// todo;
+				idx[i] = _grid_data_len;
 			return iterator(std::move(idx), this);
 		}
 
-		const grid_node& operator [] (const _Tidx& idx) {
+		const grid_node& operator [] (const _Tidx& idx) const {
 			return * iterator(idx, this);
 		}
 
@@ -248,21 +352,34 @@ namespace ZGL {
 			delete[] _grid_data;
 		}
 
+		// default constructor
+		// 默认构造函数
 		gridding() {
-			_grid_data = new grid_data*[dim - 1]{ nullptr };
+			_grid_data = new Igrid_data*[dim - 1]{ nullptr };
 			_grid_data_len = 0;
 		}
 
+		// consturctor that using array data or function to initialize
+		// 使用数组或函数初始化
 		gridding(grid_data src[dim - 1])
 			: gridding() {
 			for (z_size_t i = 0; i < dim - 1, i++) {
 				_grid_data[i] = new grid_data(src[i]);
-				if (!_grid_data_len && _grid_data[i]->len) {
-					_grid_data_len = _grid_data[i]->len;
+				if (!_grid_data_len && _grid_data[i]->length) {
+					_grid_data_len = _grid_data[i]->length;
 				}
 			}
+
+			_dis(_root, _Tidx());
 		}
 
+		// constructor that using Implicit equation to initialize
+		// 使用隐式方程初始化
+		gridding(std::function< _Titem(_Tv) > func, _Tv max, _Tv min) {
+		}
+
+		// consturctor that using array data or function to initialize
+		// 使用数组或函数初始化
 		gridding(std::initializer_list< grid_data > src)
 			: gridding() {
 			z_size_t i = 0;
@@ -273,13 +390,14 @@ namespace ZGL {
 				}
 				i++;
 			}
+
+			_dis(_root, _Tidx());
 		}
 
 		// Generate discrete dots' map
 		// 生成离散图
 		grid_node& discrete() {
 			_dis(_root, _Tidx());
-
 			return _root;
 		}
 
@@ -293,12 +411,13 @@ namespace ZGL {
 		void _dis(grid_node& node, const _Tidx& idx) {
 			_Tv _dt;
 			for (z_size_t i = 0; i < dim - 1; i++) {
-				if (_grid_data[i]->is_data())
+				if (_grid_data[i]->is_data()) {
 					_dt[i] = (*(_grid_data[i]))[idx[i]];
-				else if (_grid_data[i]->is_function())
+				} else if (_grid_data[i]->is_function()) {
 					_dt[i] = (*(_grid_data[i]))[_dt];
-				else
+				} else {
 					throw "";
+				}
 			}
 			_dt[dim - 1] = _Titem(1);
 			node.set_dot(_dt);

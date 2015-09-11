@@ -81,7 +81,6 @@ namespace ZGL_TEST
 
 			// Discrete grid
 			// ¿Î…¢Õ¯∏Ò
-			g1.discrete();
 
 			Assert::IsTrue(g1[{1}].get_dot() == ZGL::affine_vector< 4, double >{ 1.0, sin(1.0), cos(1.0), 1.0 });
 			Assert::IsTrue(g1[{2}].get_dot() == ZGL::affine_vector< 4, double >{ 2.0, sin(2.0), cos(2.0), 1.0 });
