@@ -11,6 +11,7 @@ namespace ZGL_TEST
 	{
 	public:
 
+		/*
 		TEST_METHOD(gridding_grid_data)
 		{
 			// Init grid data use interval and step
@@ -88,5 +89,6 @@ namespace ZGL_TEST
 			Assert::IsTrue(g1[{4}].get_dot() == ZGL::affine_vector< 4, double >{ 4.0, sin(4.0), cos(4.0), 1.0 });
 			Assert::IsTrue(g1[{5}].get_dot() == ZGL::affine_vector< 4, double >{ 5.0, sin(5.0), cos(5.0), 1.0 });
 		}
+		*/
 	};
 }

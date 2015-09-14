@@ -163,6 +163,43 @@ namespace ZGL {
 		static affine_vector < dim - 1, _Titem > cofactor(const _Tself & opt, z_size_t c) {
 			return (affine_vector < dim - 1, _Titem > &&)_Tbase::cofactor(opt, c);
 		}
+
+		// Vector normalize
+		// œÚ¡øπÈ“ª
+		static _Tself normalize(const _Tself& opt) {
+			_Tself t;
+
+			if (opt[dim - 1]) {
+				for (z_size_t i = 0; i < dim - 1; i++) {
+					t[i] = opt[i] / opt[dim - 1];
+				}
+			} else {
+				_Titem _m = opt.module();
+				if (_m) {
+					for (z_size_t i = 0; i < dim - 1; i++) {
+						t[i] = opt[i] / _m;
+					}
+				}
+			}
+
+			return std::move(t);
+		}
+
+		template < z_size_t rows, z_size_t cols, typename Titem >
+		static matrix< rows, cols, Titem > normalize(const matrix< rows, cols, Titem >& opt) {
+			matrix< rows, cols, Titem > _t(opt);
+
+			for (z_size_t i = 0; i < rows; i++) {
+				_Titem _m = _Tself(opt[i]).module();
+				if (_m) {
+					for (z_size_t j = 0; j < cols; j++) {
+						_t[i][j] = _t[i][j] / _m;
+					}
+				}
+			}
+
+			return std::move(_t);
+		}
 		
 		/********** Affine Transformation ∑¬…‰±‰ªª **********/
 
@@ -265,18 +302,18 @@ namespace ZGL {
 		template < z_size_t dim, z_size_t d_dim, typename _Titem >
 		static _Tsqu scale(const _Titem& scaling, const graph< dim, d_dim, _Titem >& scaling_params) {
 			_Tsqu _tm = translate(scaling_params.pos);
-			_Tsqu _s(IDENTITY);
+			_Tsqu _sm(IDENTITY);
 
 			for (z_size_t i = 0; i < d_dim; i++) {
 				affine_vector< dim - 1, _Titem > _w = _Tself::cofactor(_Tself(scaling_params.dirs[i]), dim - 1);
-				_s = _s * _Tsqu(
+				_sm = _sm * _Tsqu(
 					_Tm11(IDENTITY) + (_Tm11&&)(matrix< dim - 1, dim - 1, _Titem >::transpose(_w) * _w * (scaling - _Titem(1))),
 					_Tm12(),
 					_Tm21(),
 					_Tm22(IDENTITY)
 				);
 			}
-			return (_Tsqu&&)(_tm * _s * (_tm ^ -1));
+			return (_Tsqu&&)((_tm ^ -1) * _sm * _tm);
 		}
 
 		// vector or dot mirror with one plane
@@ -298,7 +335,7 @@ namespace ZGL {
 				_Tm21(),
 				_Tm22(IDENTITY)
 			);
-			return (_Tsqu&&)(_tm * _mm * (_tm ^ -1));
+			return (_Tsqu&&)((_tm ^ -1) * _mm * _tm);
 		}
 
 		// vector or dot shear along one plane
@@ -320,13 +357,13 @@ namespace ZGL {
 			// æµœÒæÿ’Û
 			_mtx _a = matrix < dim - 2, dim, _Titem >::cofactor < 0, dim >(opl.dirs);
 			_Tsqu _om(
-				(_Tm11)(_mtx::transpose(_a) * ((_sqr)(_a * _mtx::transpose(_a)) ^ -1) * _a),
+				(_Tm11&&)(_mtx::transpose(_a) * ((_sqr&&)(_a * _mtx::transpose(_a)) ^ -1) * _a),
 				_Tm12(),
 				_Tm21(),
 				_Tm22(IDENTITY)
 			);
 
-			return (_Tsqu&&)(_tm * _om * (_tm ^ -1));
+			return (_Tsqu&&)((_tm ^ -1) * _om * _tm);
 		}
 
 		// vector or dot perspective projection to one plane

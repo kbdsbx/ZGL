@@ -3,7 +3,13 @@
 #define screen_width 800
 #define screen_height 600
 #define X(x) ( (x) * 100 + ( screen_width / 2 ) )
-#define Y(y) ( (y) * 100 + ( screen_height / 2 ) )
+#define Y(y) ( (-(y)) * 100 + ( screen_height / 2 ) )
+
+void axis() {
+	// X Axis;
+	ege_line(X(-screen_width / 2), Y(0), X(screen_width / 2), Y(0));
+	ege_line(X(0), Y(-screen_height / 2), X(0), Y(screen_height / 2));
+}
 
 // successful.
 void loop_test () {
@@ -16,77 +22,106 @@ void loop_test () {
 #define ZGL_2D
 #include "../../ZGL/zgl.h"
 
-void _drow_line(const gLine& l) {
-	setcolor(EGERGBA(0, 0, 0, 255));
-	vector n, o;
-	for (int i = 0; i < l._grid_data_len; i++) {
-		n = l[{i}].get_dot();
-		if (n != vector_zero && o != vector_zero) {
-			printf("%f %f %f %f \n", n[0], n[1], o[0], o[1]);
-			ege_line(X(n[0]), Y(n[1]), X(o[0]), Y(o[1]));
-		}
-		o = n;
-	}
-}
+// 2D-vector translate successfull;
+void test_2d_vector_translate() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::translate({ -0.3, -1.5, 0});
+	vector v2_2 = v1_2 * vector::translate({ -0.3, -1.5, 0});
 
-void _drow_grid(const gSurf& s) {
-	setcolor(EGERGBA(100, 100, 100, 255));
-	vector n, o;
-	for (int i = 0; i < s._grid_data_len; i++) {
-		for (int j = 0; j < s._grid_data_len; j++) {
-			n = s[{i, j}].get_dot();
-			if (n != vector_zero && o != vector_zero) {
-				ege_line(X(n[0]), Y(n[1]), X(o[0]), Y(o[1]));
-			}
-		}
-	}
-	n = vector_zero, o = vector_zero;
-	for (int i = 0; i < s._grid_data_len; i++) {
-		for (int j = 0; j < s._grid_data_len; j++) {
-			n = s[{j, i}].get_dot();
-			if (n != vector_zero && o != vector_zero) {
-				ege_line(X(n[0]), Y(n[1]), X(o[0]), Y(o[1]));
-			}
-		}
-	}
-}
-
-
-// gridding to line
-void test_1 () {
-	gLine g1({
-		gLine::grid_data(-PI * 2, PI * 2, 800),
-		gLine::grid_data([](vector v) { return atan(v[0]) * sin(v[0]) / cos(v[0]); }),
-	});
-
-	for (auto& g : g1) {
-		g.set_dot(g.get_dot() * .3);
-	}
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
-		vector n, o;
-		for (int i = 0; i < 800; i++) {
-			n = g1[{i}].get_dot();
-			if (n != vector_zero && o != vector_zero) {
-				printf("%f %f %f %f \n", n[0], n[1], o[0], o[1]);
-				ege_line(X(n[0]), Y(n[1]), X(o[0]), Y(o[1]));
-			}
-			o = n;
-		}
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
 	}
 }
 
-void test_2() {
-	gLine xax = xAxis(3);
-	// gLine yax = yAxis(3);
-	// gSurf suf = grid(screen_width, screen_height);
+// 2D-vector scale for original point is successful;
+void test_2d_vector_scale_original() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::scale(2);
+	vector v2_2 = v1_2 * vector::scale(2);
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
-		_drow_line(xax);
-		// _drow_line(yax);
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
 	}
 }
 
+// 2D-vector scale for fix point is successful;
+void test_2d_vector_scale_fix_point() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::scale(2, { -1.0, -1.0, 0 });
+	vector v2_2 = v1_2 * vector::scale(2, { -1.0, -1.0, 0 });
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
+
+// 2D-vector scale along the other direction is sunccessful;
+void test_2d_vector_scale() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::scale(2.0, Graph(v1_2, {
+		{ 1, 0, 0 },
+		{ 0, 0, 0 },
+		{ 0, 0, 1 }
+	}));
+	vector v2_2 = v1_2 * vector::scale(2.0, Graph(v1_2, {
+		{ 1, 0, 0 },
+		{ 0, 0, 0 },
+		{ 0, 0, 1 }
+	}));
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
+
+// 2D-vector mirror with line is successfull;
+void test_2d_vector_mirror() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::mirror(Line({ -1.0, 0.0, 0 }, {
+		{ 1.0, 1.0, 0 },
+	}));
+	vector v2_2 = v1_2 * vector::mirror(Line({ -1.0, 0.0, 0 }, {
+		{ 1.0, 1.0, 0 },
+	}));
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
+
+// 2D-vector orthogonal is successfull;
+void test_2d_vector_orthogonal() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::orthogonal(Line({ -1.0, 0.0, 1 }, {
+		{ 0.0, 1.0, 0 },
+	}));
+	vector v2_2 = v1_2 * vector::orthogonal(Line({ -1.0, 0.0, 1 }, {
+		{ 0.0, 1.0, 0 },
+	}));
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
 
 #undef ZGL_2D
 #endif;

@@ -35,23 +35,39 @@ namespace ZGL {
 		// Ä¬ÈÏ¹¹Ôì
 		_Tself() { };
 
-		_Tself(const _Tv& pos, const _Tax& dirs)
-			: pos(pos), dirs(dirs) { }
+		_Tself(const _Tv& pos, const _Tax& directions)
+			: pos(pos), dirs(directions) {
+			normalize();
+		}
 
-		_Tself(_Tv&& pos, const _Tax& dirs)
-			: pos(pos), dirs(dirs) { }
+		_Tself(_Tv&& pos, const _Tax& directions)
+			: pos(pos), dirs(directions) {
+			normalize();
+		}
 
-		_Tself(const _Tv& pos, _Tax&& dirs)
-			: pos(pos), dirs(dirs) { }
+		_Tself(const _Tv& pos, _Tax&& directions)
+			: pos(pos), dirs(directions) {
+			normalize();
+		}
 
-		_Tself(_Tv&& pos, _Tax&& dirs)
-			: pos(pos), dirs(dirs) { }
+		_Tself(_Tv&& pos, _Tax&& directions)
+			: pos(pos), dirs(directions) {
+			normalize();
+		}
 
-		_Tself(const _Tv& pos, std::initializer_list< std::initializer_list< _Titem > >& dirs)
-			: pos(pos), dirs(dirs) { }
+		_Tself(const _Tv& pos, std::initializer_list< std::initializer_list< _Titem > >& directions)
+			: pos(pos), dirs(directions) {
+			normalize();
+		}
 
-		_Tself(_Tv&& pos, std::initializer_list< std::initializer_list< _Titem > >& dirs)
-			: pos(pos), dirs(dirs) { }
+		_Tself(_Tv&& pos, std::initializer_list< std::initializer_list< _Titem > >& directions)
+			: pos(pos), dirs(directions) {
+			normalize();
+		}
+
+		void normalize() {
+			dirs = _Tv::normalize(dirs);
+		}
 	};
 
 	/// Lower dimensional elements in a multidimensional space and only positions
