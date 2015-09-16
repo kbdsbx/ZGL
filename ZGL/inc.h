@@ -15,6 +15,10 @@ namespace ZGL {
 	typedef double z_item_t;
 #endif // !_WIN64
 
+	// Right handed system
+	// 右手坐标系
+#define RIGHT_HANDED_SYSTEM
+
 	/**
 	 * enums
 	 * 枚举

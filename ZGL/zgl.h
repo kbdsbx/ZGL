@@ -24,6 +24,7 @@ const vector vector_zero;
 typedef ZGL::graph< 3, 3, zgl_item > Graph;
 typedef ZGL::graph< 3, 2, zgl_item > Plane;
 typedef ZGL::graph< 3, 1, zgl_item > Line;
+typedef ZGL::graph< 3, 0, zgl_item > Point;
 
 
 #elif defined ZGL_3D

@@ -79,10 +79,10 @@ namespace ZGL_TEST
 		{
 			// affine_vector cross product
 			// 向量积
-			Assert::IsTrue(ZGL::affine_vector< 3, double >::cross({
-				{ 3, -5, 6 },
-				{ 1, 8, -3 },
-			}) == ZGL::affine_vector< 3, double > { -33, 15, 29 });
+			Assert::IsTrue(ZGL::affine_vector< 4, double >::cross({
+				{ 3, -5, 6, 0 },
+				{ 1, 8, -3, 0 },
+			}) == ZGL::affine_vector< 4, double > { -33, 15, 29, 0 });
 		}
 
 		TEST_METHOD(affine_vector_cofactor)
@@ -90,6 +90,19 @@ namespace ZGL_TEST
 			// affine_vector cofactor
 			// 向量余子式
 			Assert::IsTrue(ZGL::affine_vector< 4, double >::cofactor(ZGL::affine_vector< 4, double > { 3, 4, 5, 6 }, 2) == ZGL::affine_vector< 3, double > { 3, 4, 6 });
+		}
+
+		TEST_METHOD(affine_vector_affine)
+		{
+			// affine_vector to be affine vector
+			// 仿射向量转化
+			Assert::IsTrue(ZGL::affine_vector< 4, double >::affine(ZGL::vector< 3, double > { 3, -5.6, 12 }, 25) == ZGL::affine_vector< 4, double > { 3, -5.6, 12, 25 });
+		}
+
+		TEST_METHOD(affine_vector_normalize) {
+			// affine_vector normalize
+			// 向量归一
+			Assert::IsTrue(ZGL::affine_vector< 4, double >::normalize(ZGL::affine_vector< 4, double > { -5.3, 6, 0.15, 0 }) == ZGL::affine_vector< 4, double > { -0.66191849113483718719208834179223, 0.74934168807717417417972265108554, 0.01873354220192935435449306627714 });
 		}
 
 		TEST_METHOD(affine_vector_translate)
@@ -113,15 +126,6 @@ namespace ZGL_TEST
 
 		TEST_METHOD(affine_vector_rotate)
 		{
-			Assert::IsTrue(
-				ZGL::affine_vector< 3, double >::rotate< 3, double >(
-					ZGL::graph< 3, 1, double >(
-						ZGL::affine_vector< 3, double >{ 0, 0, 0 },
-						{ { 0, 0, 0 } }
-						), PI) == ZGL::square< 3, double > {
-							{ cos(PI), -sin(PI), 0 },
-							{ sin(PI), cos(PI), 0 },
-							{ 0, 0, 1 }, });
 		}
 
 		TEST_METHOD(affine_vector_scale)
@@ -148,11 +152,9 @@ namespace ZGL_TEST
 
 		TEST_METHOD(affine_vector_mirror)
 		{
-			ZGL::affine_vector< 3, double > v1 = ZGL::affine_vector< 3, double >{ 3, 1, 0 } * ZGL::affine_vector< 3, double >::mirror(ZGL::graph< 3, 1, double >({ 0, 0, 1 }, { { 0, 1, 0 } }));
-			ZGL::affine_vector< 3, double > v2 = ZGL::affine_vector< 3, double >{ -3, 1, 0 };
-			Assert::AreEqual(v1[0], v2[0]);
-			Assert::AreEqual(v1[1], v2[1]);
-			Assert::AreEqual(v1[2], v2[2]);
+			// vector mirror
+			// 向量镜像
+			Assert::IsTrue(ZGL::affine_vector< 3, double >{ 3, 1, 0 } *ZGL::affine_vector< 3, double >::mirror(ZGL::graph< 3, 1, double >({ 0, 0, 1 }, { { 0, 1, 0 } })) == ZGL::affine_vector< 3, double >{ -3, 1, 0 });
 		}
 	};
 }

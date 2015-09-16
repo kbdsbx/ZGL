@@ -123,5 +123,19 @@ void test_2d_vector_orthogonal() {
 	}
 }
 
+// 2D-vector rotate is successfull;
+void test_2d_vector_rotate() {
+	vector v1_1{ 1.5, 0.5, 1 };
+	vector v1_2{ -0.5, 0.85, 1 };
+	vector v2_1 = v1_1 * vector::rotate(Point({ 0.0, 0.0, 1 }), 1.5);
+	vector v2_2 = v1_2 * vector::rotate(Point({ 0.0, 0.0, 1 }), 1.5);
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
+
 #undef ZGL_2D
 #endif;

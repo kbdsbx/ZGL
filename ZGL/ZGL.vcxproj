@@ -33,6 +33,7 @@
     <ClInclude Include="linear\matrix.h" />
     <ClInclude Include="linear\square.h" />
     <ClInclude Include="linear\vector.h" />
+    <ClInclude Include="scene\camera.h" />
     <ClInclude Include="scene\scene.h" />
     <ClInclude Include="zgl.h" />
   </ItemGroup>

@@ -26,8 +26,8 @@ namespace ZGL {
 		typedef matrix< dim - 1, 1, _Titem > _Tm12;
 		typedef matrix< 1, dim - 1, _Titem > _Tm21;
 		typedef square< 1, _Titem > _Tm22;
-		typedef graph< dim, 1, _Titem > _Taxis;
 		typedef graph< dim, dim - 2, _Titem > _Tpl;
+		typedef graph< dim, dim - 3, _Titem > _Taxis;
 
 	public :
 		// default constructor
@@ -130,12 +130,21 @@ namespace ZGL {
 			return ((const _Tbase*)this)->angle(opt);
 		}
 
+		void normalize() {
+			(*this) = _Tself::normalize(*this);
+		}
+
 		// Cross product
-		// only 3 dimension and 7 dimension
+		// only 3 dimension or 7 dimension
 		// 向量积
 		// 仅用于三维或七维
-		static _Tself cross(const _Tself opt[dim - 1]) {
-			return (_Tself&&)_Tbase::cross(opt);
+		static _Tself cross(const _Tself opt[dim - 2]) {
+			vector< dim - 1, _Titem > _t[dim - 2], _r;
+			for (z_size_t i = 0; i < dim - 2; i++) {
+				_t[i] = (vector< dim - 1, _Titem >)affine_vector< dim, _Titem >::cofactor(opt[i], dim - 1);
+			}
+			_r = vector< dim - 1, _Titem >::cross(_t);
+			return (_Tself&&)_Tself::affine(_r, _Titem(0));
 		}
 
 		// Cross product
@@ -143,7 +152,13 @@ namespace ZGL {
 		// 向量积
 		// 仅用于三维或七维
 		static _Tself cross(const std::initializer_list< _Tself >& opt) {
-			return (_Tself&&)_Tbase::cross((const std::initializer_list< _Tbase >&)opt);
+			_Tself _t[dim - 2];
+			z_size_t i = 0;
+			for (const _Tself& o : opt) {
+				_t[i] = o;
+				i++;
+			}
+			return (_Tself&&)cross(_t);
 		}
 
 		// determinant value for vector array
@@ -162,6 +177,17 @@ namespace ZGL {
 		// 向量余子式
 		static affine_vector < dim - 1, _Titem > cofactor(const _Tself & opt, z_size_t c) {
 			return (affine_vector < dim - 1, _Titem > &&)_Tbase::cofactor(opt, c);
+		}
+
+		// To be affine vector
+		// 转换为仿射向量
+		static _Tself affine(const vector< dim - 1, _Titem > opt, _Titem w) {
+			_Tself _r;
+			for (z_size_t i = 0; i < dim - 1; i++) {
+				_r[i] = opt[i];
+			}
+			_r[dim - 1] = w;
+			return (_Tself&&)_r;
 		}
 
 		// Vector normalize
@@ -185,6 +211,8 @@ namespace ZGL {
 			return std::move(t);
 		}
 
+		// Vector group normalize
+		// 向量组归一
 		template < z_size_t rows, z_size_t cols, typename Titem >
 		static matrix< rows, cols, Titem > normalize(const matrix< rows, cols, Titem >& opt) {
 			matrix< rows, cols, Titem > _t(opt);
@@ -214,9 +242,9 @@ namespace ZGL {
 			);
 		}
 
+		// test unsuccessful;
 		// dot or vector translates arround one axis
 		// 点或向量绕轴旋转
-		template < z_size_t dim, typename _Titem >
 		static _Tsqu rotate(const _Taxis& axis, double radian) {
 			// translate matrix
 			// 平移矩阵
@@ -265,12 +293,12 @@ namespace ZGL {
 			// R_{i}:	将物体绕坐标轴旋转的矩阵
 			// j:		轴的数量，同时也是维度
 			// 使用如上网站处理LateX公式
-			_sm = _sm * _tm;
-			for (z_size_t i = 0; i < dim - 1; i++)
-				_sm = _sm * _rm[i];
-			for (z_size_t i = dim - 2; i >= 0; i--)
-				_sm = _sm * (_rm[i] ^ -1);
 			_sm = _sm * (_tm ^ -1);
+			for (z_size_t i = 0; i < dim - 1; i++)
+				_sm = _sm * (_rm[i] ^ -1);
+			for (z_size_t i = dim - 2; i >= 0; i--)
+				_sm = _sm * _rm[i];
+			_sm = _sm * _tm;
 
 			return std::move(_sm);
 		}
@@ -278,10 +306,11 @@ namespace ZGL {
 		// only clockwise with rotate of 2 dimension
 		// 2维顺时针旋转
 		template < typename _Titem >
-		static square< 2, _Titem > rotate (const graph< 2, 1, _Titem >& axis, double radian) {
-			return square < 2, _Titem > {
-				{ cos(radian), -sin(radian) },
-				{ sin(radian), cos(radian) }
+		static square< 3, _Titem > rotate (const graph< 3, 0, _Titem >& axis, double radian) {
+			return square < 3, _Titem > {
+				{ cos(radian), -sin(radian), _Titem(0) },
+				{ sin(radian), cos(radian), _Titem(0) },
+				{ _Titem(0), _Titem(0), _Titem(1) }
 			};
 		}
 

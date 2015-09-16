@@ -45,6 +45,9 @@
       <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="zgl.h" />
+    <ClInclude Include="scene\camera.h">
+      <Filter>scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="geometry">

@@ -77,7 +77,7 @@ namespace ZGL {
 	///       空间维度
 	/// Titem: Type of item within multidimensional space
 	///		  多维空间中的元素类型
-	template < int dim, typename Titem >
+	template < z_size_t dim, typename Titem >
 	class graph < dim, 0, Titem > {
 		typedef Titem _Titem;
 		typedef affine_vector< dim, _Titem > _Tv;
@@ -93,9 +93,9 @@ namespace ZGL {
 		// 默认构造
 		graph < dim, 0, _Titem > () { };
 
-		graph < dim, 0, _Titem > (const _Tv& pos, const _Tax& dirs) : pos(pos) { }
+		graph < dim, 0, _Titem > (const _Tv& pos) : pos(pos) { }
 
-		graph < dim, 0, _Titem > (_Tv&& pos, _Tax&& dirs) : pos(pos) { }
+		graph < dim, 0, _Titem > (_Tv&& pos) : pos(pos) { }
 	};
 
 	template < int d_dim, typename Titem >
