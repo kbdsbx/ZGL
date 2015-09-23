@@ -55,16 +55,6 @@ namespace ZGL {
 			normalize();
 		}
 
-		_Tself(const _Tv& pos, std::initializer_list< std::initializer_list< _Titem > >& directions)
-			: pos(pos), dirs(directions) {
-			normalize();
-		}
-
-		_Tself(_Tv&& pos, std::initializer_list< std::initializer_list< _Titem > >& directions)
-			: pos(pos), dirs(directions) {
-			normalize();
-		}
-
 		void normalize() {
 			dirs = _Tv::normalize(dirs);
 		}
@@ -81,7 +71,7 @@ namespace ZGL {
 	class graph < dim, 0, Titem > {
 		typedef Titem _Titem;
 		typedef affine_vector< dim, _Titem > _Tv;
-		typedef matrix< 0, dim, _Titem > _Tax;
+		typedef matrix< 1, dim, _Titem > _Tax;
 
 	public:
 		// fixed point that is position of elements at
@@ -91,11 +81,19 @@ namespace ZGL {
 	public:
 		// default constructor
 		// Ä¬ÈÏ¹¹Ôì
-		graph < dim, 0, _Titem > () { };
+		graph < dim, 0, Titem >() { };
 
-		graph < dim, 0, _Titem > (const _Tv& pos) : pos(pos) { }
+		graph < dim, 0, Titem >(const _Tv& pos, const _Tax& directions)
+			: pos(pos) { }
 
-		graph < dim, 0, _Titem > (_Tv&& pos) : pos(pos) { }
+		graph < dim, 0, Titem >(_Tv&& pos, const _Tax& directions)
+			: pos(pos) { }
+
+		graph < dim, 0, Titem >(const _Tv& pos, _Tax&& directions)
+			: pos(pos) { }
+
+		graph < dim, 0, Titem >(_Tv&& pos, _Tax&& directions)
+			: pos(pos) { }
 	};
 
 	template < int d_dim, typename Titem >

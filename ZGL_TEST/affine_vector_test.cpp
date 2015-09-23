@@ -131,11 +131,11 @@ namespace ZGL_TEST
 		TEST_METHOD(affine_vector_scale)
 		{
 			// the matrix is vector or dot scaling relative orighinal
-			// 向量或点绕原点旋转矩阵
+			// 向量或点绕原点缩放矩阵
 			Assert::IsTrue(ZGL::affine_vector< 3, double > { 1, 2, 0 } * ZGL::affine_vector< 3, double >::scale(2.0) == ZGL::affine_vector < 3, double > { 2, 4, 0 });
 
 			// vector or dot scaling relative other dot
-			// 向量或点绕任意点旋转矩阵
+			// 向量或点绕任意点缩放矩阵
 			Assert::IsTrue(
 				ZGL::affine_vector< 3, double >::scale(1.5, ZGL::affine_vector < 3, double >{ 3.2, 5.1, 1 }) == ZGL::square< 3, double > {
 					{ 1.5, 0, 0 },

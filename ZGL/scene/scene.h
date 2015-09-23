@@ -27,6 +27,20 @@ namespace ZGL {
 		// 添加光源
 		void add_light(const Ilight* light) {
 		}
+
+		void shadow() {
+			// 1. 指定几何对象
+
+			// 2. 视图与投影变换
+
+			// 3. 光照计算
+
+			// 4. 隐藏面消除
+
+			// 5. 窗口变换
+
+			// 6. 栅格化操作
+		}
 	};
 }
 

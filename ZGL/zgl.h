@@ -34,6 +34,11 @@ typedef ZGL::affine_vector< 4, zgl_item > vector;
 const dot dot_zero { 0, 0, 1 };
 const vector vector_zero;
 
+typedef ZGL::graph< 4, 4, zgl_item > Graph;
+typedef ZGL::graph< 4, 3, zgl_item > Solid;
+typedef ZGL::graph< 4, 2, zgl_item > Line;
+typedef ZGL::graph< 4, 1, zgl_item > Point;
+
 #elif defined ZGL_2D && defined ZGL_3D
 
 #endif

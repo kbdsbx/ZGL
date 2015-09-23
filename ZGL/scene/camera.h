@@ -98,6 +98,44 @@ namespace ZGL {
 			};
 			return r * (_Tv4::translate(_position) ^ -1);
 		}
+
+		// Yaw
+		// Æ«º½
+		void yaw(_Titem rad) {
+			_forward = _forward * _Tv4::rotate(_Tline(_position, _upward), rad);
+			normalize();
+		}
+
+		// Roll
+		// ·­¹ö
+		void roll(_Titem rad) {
+			_upward = _upward * _Tv4::rotate(_Tline(_position, _rightward), rad);
+			normalize();
+		}
+
+		// Pitch
+		// ¸©Ñö
+		void pitch(_Titem rad) {
+			_upward = _upward * _Tv4::rotate(_Tline(_position, _rightward), rad);
+		}
+
+		// Traverse
+		// ºáÒÆ
+		void traverse(_Titem len) {
+			_position = _position + _rightward * len;
+		}
+
+		// Lift
+		// Éý½µ
+		void lift(_Titem len) {
+			_position = _position + _upward * len;
+		}
+
+		// Retreat
+		// ½øÍË
+		void retreat(_Titem len) {
+			_position = _position + _forward * len;
+		}
 	};
 }
 

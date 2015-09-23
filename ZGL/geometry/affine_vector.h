@@ -242,10 +242,10 @@ namespace ZGL {
 			);
 		}
 
-		// test unsuccessful;
 		// dot or vector translates arround one axis
 		// 点或向量绕轴旋转
-		static _Tsqu rotate(const _Taxis& axis, double radian) {
+		template < z_size_t dim >
+		static square< dim, _Titem > rotate(const graph< dim, dim - 3, _Titem >& axis, double radian) {
 			// translate matrix
 			// 平移矩阵
 			_Tsqu _tm = translate(axis.pos);
@@ -269,14 +269,17 @@ namespace ZGL {
 				for (z_size_t si = 0; si < dim - 2; si++)
 					_dir[0][si] = axis.dirs[0][si];
 
-				double _rd = (i == dim - 1 ? radian : _ap.angle(_ax));
+				double _rd = (i == dim - 2 ? radian : _ap.angle(_ax));
 
-				square< dim - 1, _Titem > _sub_vect = affine_vector< dim - 1, _Titem >::rotate(graph< dim - 1, 1, _Titem >(affine_vector< dim - 1, _Titem >(), _dir), _rd);
+				square< dim - 1, _Titem > _sub_vect =
+					affine_vector< dim - 1, _Titem >::rotate(
+						graph< dim - 1, dim - 4, _Titem >(
+							affine_vector< dim - 1, _Titem >(), _dir), _rd);
 
-				for (z_size_t si = 0, si_t = 0; si < dim; si++)
+				for (z_size_t si = 0, si_t = 0; si < dim - 2; si++)
 					if (si == i)
 						si_t = 1;
-					else for (z_size_t sj = 0, sj_t = 0; sj < dim; sj++)
+					else for (z_size_t sj = 0, sj_t = 0; sj < dim - 2; sj++)
 						if (sj == i)
 							sj_t = 1;
 						else
@@ -294,7 +297,7 @@ namespace ZGL {
 			// j:		轴的数量，同时也是维度
 			// 使用如上网站处理LateX公式
 			_sm = _sm * (_tm ^ -1);
-			for (z_size_t i = 0; i < dim - 1; i++)
+			for (z_size_t i = 0; i < dim - 3; i++)
 				_sm = _sm * (_rm[i] ^ -1);
 			for (z_size_t i = dim - 2; i >= 0; i--)
 				_sm = _sm * _rm[i];
@@ -305,12 +308,12 @@ namespace ZGL {
 
 		// only clockwise with rotate of 2 dimension
 		// 2维顺时针旋转
-		template < typename _Titem >
-		static square< 3, _Titem > rotate (const graph< 3, 0, _Titem >& axis, double radian) {
+		template <>
+		static square< 3, _Titem > rotate(const graph< 3, 0, _Titem >& axis, double radian) {
 			return square < 3, _Titem > {
-				{ cos(radian), -sin(radian), _Titem(0) },
-				{ sin(radian), cos(radian), _Titem(0) },
-				{ _Titem(0), _Titem(0), _Titem(1) }
+				{ cos(radian), -sin(radian), 0 },
+				{ sin(radian), cos(radian), 0 },
+				{ 0, 0, 1 },
 			};
 		}
 
