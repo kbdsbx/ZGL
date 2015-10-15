@@ -20,14 +20,15 @@ void loop_test () {
 
 #ifndef ZGL_2D
 #define ZGL_2D
+#undef  ZGL_3D
 #include "../../ZGL/zgl.h"
 
 // 2D-vector translate successfull;
 void test_2d_vector_translate() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::translate({ -0.3, -1.5, 0});
-	vector v2_2 = v1_2 * vector::translate({ -0.3, -1.5, 0});
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::translate({ -0.3, -1.5, 0});
+	Vector v2_2 = v1_2 * Vector::translate({ -0.3, -1.5, 0});
 
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
@@ -39,10 +40,10 @@ void test_2d_vector_translate() {
 
 // 2D-vector scale for original point is successful;
 void test_2d_vector_scale_original() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::scale(2);
-	vector v2_2 = v1_2 * vector::scale(2);
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::scale(2);
+	Vector v2_2 = v1_2 * Vector::scale(2);
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		axis();
@@ -53,10 +54,10 @@ void test_2d_vector_scale_original() {
 
 // 2D-vector scale for fix point is successful;
 void test_2d_vector_scale_fix_point() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::scale(2, { -1.0, -1.0, 0 });
-	vector v2_2 = v1_2 * vector::scale(2, { -1.0, -1.0, 0 });
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::scale(2, { -1.0, -1.0, 0 });
+	Vector v2_2 = v1_2 * Vector::scale(2, { -1.0, -1.0, 0 });
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		axis();
@@ -67,14 +68,14 @@ void test_2d_vector_scale_fix_point() {
 
 // 2D-vector scale along the other direction is sunccessful;
 void test_2d_vector_scale() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::scale(2.0, Graph(v1_2, {
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::scale(2.0, Graph(v1_2, {
 		{ 1, 0, 0 },
 		{ 0, 0, 0 },
 		{ 0, 0, 1 }
 	}));
-	vector v2_2 = v1_2 * vector::scale(2.0, Graph(v1_2, {
+	Vector v2_2 = v1_2 * Vector::scale(2.0, Graph(v1_2, {
 		{ 1, 0, 0 },
 		{ 0, 0, 0 },
 		{ 0, 0, 1 }
@@ -89,12 +90,12 @@ void test_2d_vector_scale() {
 
 // 2D-vector mirror with line is successfull;
 void test_2d_vector_mirror() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::mirror(Line({ -1.0, 0.0, 0 }, {
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::mirror(Line({ -1.0, 0.0, 0 }, {
 		{ 1.0, 1.0, 0 },
 	}));
-	vector v2_2 = v1_2 * vector::mirror(Line({ -1.0, 0.0, 0 }, {
+	Vector v2_2 = v1_2 * Vector::mirror(Line({ -1.0, 0.0, 0 }, {
 		{ 1.0, 1.0, 0 },
 	}));
 
@@ -107,12 +108,12 @@ void test_2d_vector_mirror() {
 
 // 2D-vector orthogonal is successfull;
 void test_2d_vector_orthogonal() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::orthogonal(Line({ -1.0, 0.0, 1 }, {
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::orthogonal(Line({ -1.0, 0.0, 1 }, {
 		{ 0.0, 1.0, 0 },
 	}));
-	vector v2_2 = v1_2 * vector::orthogonal(Line({ -1.0, 0.0, 1 }, {
+	Vector v2_2 = v1_2 * Vector::orthogonal(Line({ -1.0, 0.0, 1 }, {
 		{ 0.0, 1.0, 0 },
 	}));
 
@@ -125,10 +126,10 @@ void test_2d_vector_orthogonal() {
 
 // 2D-vector rotate is successfull;
 void test_2d_vector_rotate() {
-	vector v1_1{ 1.5, 0.5, 1 };
-	vector v1_2{ -0.5, 0.85, 1 };
-	vector v2_1 = v1_1 * vector::rotate(Point({ 0.0, 0.0, 1.0 }, { { 0, 0, 0 } }), 1.5);
-	vector v2_2 = v1_2 * vector::rotate(Point({ 0.0, 0.0, 1.0 }, { { 0, 0, 0 } }), 1.5);
+	Vector v1_1{ 1.5, 0.5, 1 };
+	Vector v1_2{ -0.5, 0.85, 1 };
+	Vector v2_1 = v1_1 * Vector::rotate(Point({ 0.0, 0.0, 1.0 }, { { 0, 0, 0 } }), 1.5);
+	Vector v2_2 = v1_2 * Vector::rotate(Point({ 0.0, 0.0, 1.0 }, { { 0, 0, 0 } }), 1.5);
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		axis();
@@ -142,13 +143,14 @@ void test_2d_vector_rotate() {
 
 #ifndef ZGL_3D
 #define ZGL_3D
+#undef  ZGL_2D
 #include "../../ZGL/zgl.h"
 
 void test_3d_vector_rotate() {
-	vector v1_1{ 1.5, 0.5, -.8, 1 };
-	vector v1_2{ -0.5, 0.85, 0.6, 1 };
-	vector v2_1 = v1_1 * vector::rotate(Point({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
-	vector v2_2 = v1_2 * vector::rotate(Point({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
+	Vector v1_1{ 1.5, 0.5, -.8, 1 };
+	Vector v1_2{ -0.5, 0.85, 0.6, 1 };
+	Vector v2_1 = v1_1 * Vector::rotate(Point({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
+	Vector v2_2 = v1_2 * Vector::rotate(Point({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
 }
 
 #undef ZGL_3D

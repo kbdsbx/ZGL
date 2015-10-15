@@ -14,286 +14,332 @@ namespace ZGL {
 	///
 	/// dim: Dimensions of space for gridding in
 	///       网格所在维度
+	/// d_dim: elements' dimension
+	///	      元素维度
 	/// Titem: Type of item within gridding
 	///       网格项类型
-	template < z_size_t dim, typename Titem >
+	template < z_size_t dim, z_size_t d_dim, typename Titem >
 	class gridding
 		: public Iseparable {
-	protected :
 		typedef Titem _Titem;
-		typedef gridding < dim, _Titem > _Tself;
+		typedef gridding< dim, d_dim, _Titem > _Tself;
 		typedef affine_vector < dim, _Titem > _Tv;
-
-	protected :
+		typedef vector< d_dim, _Titem > _Tval;
+		typedef vector< d_dim + 1, z_size_t > _Tidx;
 
 	public :
-		enum GRID_DATA_TYPE {
-			RANGE = 1,
-			ARRAY = 2,
-			FUNC = 3,
-		};
 
-		// Interface for discrete data
-		// 离散数据接口
-		class Igrid_data {
-		public :
-			// Count for data
-			// 数据数量
-			z_size_t count;
-
-			// What data maker type is
-			// 数据器类型
-			virtual GRID_DATA_TYPE type() const = 0;
-
-			virtual ~Igrid_data() = 0;
-		};
-
-		// Discrete data is produced using range
-		// 使用区间生成离散数据
-		class grid_data_range
-			: Igrid_data {
-
-			_Titem _begin;
+		// Data for making Gridding, The count equal of d_dim param.
+		// 用于生成网格的数据
+		class grid_data {
+			// Discrete data is produced using range
+			// 使用区间生成离散数据
+			_Titem _start;
 			_Titem _end;
 			_Titem _step;
-		public :
-			grid_data_range() { }
-			grid_data_range(_Titem begin, _Titem end, _Titem step) {
-				count = (z_size_t)((end - begin) / step);
-				_begin = begin;
-				_end = end;
-				_step = step;
-			}
-			_Titem operator [] (z_size_t idx) const {
-				return _begin + idx * _step;
-			}
-			GRID_DATA_TYPE type() {
-				return GRID_DATA_TYPE::RANGE;
-			}
-		};
 
-		// Discrete data array
-		// 离散数据数组
-		class grid_data_array
-			: Igrid_data {
-			_Titem * _data = nullptr;
+			// Discrete data array
+			// 离散数据数组
+			_Titem* _arr = nullptr;
+
+			// Length of array or making data with range
+			// 获取或生成的数据量
+			z_size_t _len;
+
+			// Type of data
+			//		1: Array
+			//		2: Range
+			// 数据类型
+			z_size_t _flag;
 
 		public :
-			~grid_data_array() {
-				if (_data) {
-					delete[] _data;
+
+			grid_data() { }
+
+			grid_data(_Titem start, _Titem step, _Titem end)
+				: _start(start), _end(end), _step(step) {
+				_len = (z_size_t)floor((_end - _start) / _step) + 1;
+				_flag = 2;
+			}
+
+			grid_data(_Titem* arr, z_size_t len) {
+				_len = len;
+				_arr = new _Titem[_len];
+				while (len--)
+					_arr[len] = arr[len];
+				_flag = 1;
+			}
+
+			grid_data(const grid_data& src) {
+				*this = src;
+			}
+
+			grid_data(grid_data&& src) {
+				*this = src;
+			}
+
+			grid_data& operator = (const grid_data& src) {
+				_flag = src._flag;
+
+				_start = src._start;
+				_end = src._end;
+				_step = src._step;
+
+				_len = src._len;
+				if (src._flag == 1) {
+					_arr = new _Titem[_len];
+					z_size_t i = src._len;
+					while (i--)
+						_arr[i] = src._arr[i];
 				}
-				_data = nullptr;
-			}
-			grid_data_array() { }
-			grid_data_array(const _Titem* data, z_size_t len) {
-				count = len;
-				_data = new _Titem[len];
-				while (len--) {
-					_data[i] = data[i];
-				}
-			}
 
-			_Titem operator[] (z_size_t idx) const {
-				return _data[i];
+				return *this;
 			}
-			GRID_DATA_TYPE type() {
-				return GRID_DATA_TYPE::ARRAY;
-			}
-		};
+			
+			grid_data& operator = (grid_data&& src) {
+				_flag = src._flag;
 
-		// Function 
-		// 函数
-		class grid_data_function
-			: Igrid_data {
-			std::function< _Titem(const _Tv&) > _func = nullptr;
+				_start = src._start;
+				_end = src._end;
+				_step = src._step;
 
-		public :
-			grid_data_function() { }
-			grid_data_function(const std::function< _Titem(const _Tv&) >& func) {
-				count = 0;
-				_func = func;
+				_len = src._len;
+				_arr = src._arr;
+				src._arr = nullptr;
+
+				return *this;
 			}
 
-			_Titem operator[] (const _Tv& v) const {
-				return _func(v);
-			}
+			_Titem operator [](z_size_t idx) {
+				if (idx > _len)
+					throw std::out_of_range( "Index of this data is out of range." );
 
-			GRID_DATA_TYPE type() {
-				return GRID_DATA_TYPE::FUNC;
-			}
-		};
-
-		// Grid node
-		// 网格节点
-		class grid_node {
-			grid_node** _nodes;
-			_Tv _dot;
-			const _Tself* _grid;
-
-		public :
-			~grid_node() {
-				for (z_size_t i = 0; i < _grid->arg_dim; i++) {
-					if (_nodes[i])
-						delete _nodes[i];
-					_nodes[i] = nullptr;
-				}
-				delete[] _nodes;
-			}
-
-			grid_node(const _Tself* grid) {
-				_grid = grid;
-				_nodes = new grid_node* [_grid->arg_dim << 1]{ nullptr };
-			}
-
-			grid_node(const _Tv& dot, const _Tself* grid)
-				: grid_node(grid), _dot(dot) { }
-
-			grid_node(_Tv&& dot, const _Tself* grid)
-				: grid_node(grid), _dot(dot) { }
-
-			grid_node*& operator [] (z_size_t opt) {
-				if (opt >= (_grid->arg_dim << 1))
-					throw std::out_of_range("Node pointer in this grid-node is out of range.");
-				return _nodes[opt];
-			}
-
-			// Set dot
-			// 设置点
-			void set_dot(const _Tv& dot) {
-				_dot = dot;
-			}
-
-			// Set dot
-			// 设置点
-			void set_dot(_Tv&& dot) {
-				_dot = dot;
-			}
-
-			// Get dot
-			// 获取点
-			_Tv get_dot() const {
-				return _dot;
-			}
-		};
-
-		/*************** Gridding ***************/
-
-		// Gridding root;
-		// 网格根节点
-		grid_node* _root;
-
-		// Argument dimension
-		// 变量维度
-		z_size_t arg_dim;
-
-		// Data maker
-		// 数据生成器
-		Igrid_data ** _grid_data;
-
-		~gridding() {
-			delete[] _grid_data;
-			delete _root;
-		}
-
-	private :
-		// default constructor
-		// 默认构造函数
-		gridding() {
-			_grid_data = new Igrid_data * [dim - 1]{ nullptr };
-			arg_dim = 0;
-		}
-
-	public :
-		// consturctor that using array data or function to initialize
-		// 使用数组或函数初始化
-		gridding(Igrid_data src[dim - 1])
-			: gridding() {
-			for (z_size_t i = 0; i < dim - 1, i++) {
-				_grid_data[i] = src[i];
-				if (_grid_data[i]->type() != GRID_DATA_TYPE::FUNC)
-					arg_dim++;
-			}
-
-			if (arg_dim == dim)
-				throw "";
-
-			_root = new grid_node(this);
-
-			_dis(_root, _Tidx());
-		}
-
-		// consturctor that using array data or function to initialize
-		// 使用数组或函数初始化
-		gridding(std::initializer_list< Igrid_data* > src)
-			: gridding() {
-			z_size_t i = 0;
-			for (Igrid_data* s : src) {
-				_grid_data[i] = s;
-				if (_grid_data[i]->type() != GRID_DATA_TYPE::FUNC)
-					arg_dim++;
-				i++;
-			}
-
-			if (arg_dim == dim)
-				throw "";
-
-			_root = new grid_node(this);
-
-			_dis(_root, _Tidx());
-		}
-
-		// constructor that using Implicit equation to initialize
-		// 使用隐式方程初始化
-		gridding(std::function< _Titem(_Tv) > func, _Tv max, _Tv min) {
-		}
-
-		// Generate discrete dots' map
-		// 生成离散图
-		grid_node& discrete() {
-			z_size_t* idx = new z_size_t[arg_dim]{ 0 };
-			_dis(_root, idx);
-			return _root;
-		}
-
-		/// Recursion nodes within map
-		/// 递归图节点
-		///
-		/// node : current node
-		///	       当前节点
-		/// idx  : current index of node
-		///        当前节点索引
-		void _dis(grid_node* node, z_size_t idx) {
-			_Tv _dt;
-			for (z_size_t i = 0; i < dim - 1; i++) {
-				switch (_grid_data[i]->type()) {
-				case GRID_DATA_TYPE::ARRAY :
-				case GRID_DATA_TYPE::RANGE :
-					_dt[i] = (*(_grid_data[i]))[idx[i]];
-					break;
-				case GRID_DATA_TYPE::FUNC :
-					_dt[i] = (*(_grid_data[i]))[_dt];
-					break;
-				default:
+				switch (_flag) {
+				case 1:
+					return _arr[idx];
+				case 2:
+					return _start + idx * _step;
+				default :
 					throw "";
 				}
 			}
-			_dt[dim - 1] = _Titem(1);
-			node.set_dot(_dt);
 
-			for (z_size_t i = 0; i < arg_dim; i++) {
-				if (idx[i] >= _grid_data[i]->count)
-					continue;
-				if (!node[i]) {
-					node[i] = new grid_node();
-					// set point to current nodes' pointer at next node
-					// 设置下一个节点指向本节点指针
-					(*(node[i]))[i + d_dim] = &node;
-					_Tidx _idx(idx);
-					_idx[i] = _idx[i] + 1;
-					_dis(*(node[i]), _idx);
-				}
+			// Length of array or making data with range, Readonly
+			// 获取或生成的数据量，只读
+			z_size_t len() const {
+				return _len;
 			}
+		};
+
+		// Range for making Gridding
+		// 用于生成网格的范围范围
+		class grid_range {
+			// range of coordinate in implicit function graphic.
+			// 隐式方程的图形范围
+			_Titem _min;
+			_Titem _max;
+
+		public:
+			grid_range() { }
+
+			grid_range(_Titem min, _Titem max)
+				: _min(min), _max(max) { }
+
+			grid_range& operator = (const grid_range& src) {
+				_min = src._min;
+				_max = src._max;
+
+				return *this;
+			}
+
+			// Min of coordinate
+			// 坐标最小值
+			_Titem min_s() const {
+				return _min;
+			}
+
+			// Max of coordinate
+			// 坐标最大值
+			_Titem max_s() const {
+				return _max;
+			}
+		};
+
+		// Iterator in gridding
+		// 网格迭代器
+		class iterator {
+			typedef iterator _Tit;
+		public :
+			_Tidx _idx;
+			const _Tself* _grid;
+
+			iterator(const _Tself* grid) :
+				_grid(grid) { }
+
+			iterator(const _Tidx& idx, const _Tself* grid)
+				: _idx(idx), _grid(grid) { }
+
+			iterator(_Tidx&& idx, const _Tself* grid)
+				: _idx(idx), _grid(grid) { }
+
+			iterator(const _Tit& it)
+				: _idx(it._idx), _grid(it._grid) { }
+
+			iterator(_Tit&& it)
+				: _idx(it._idx), _grid(it._grid) { }
+
+			_Tv& operator * () {
+				z_size_t c = 0;
+				for (z_size_t i = 0; i < d_dim - 1; i++)
+					c += _idx[i] * _grid->_data[i].len();
+				c += _idx[d_dim - 1];
+				return _grid->_root[c];
+			}
+
+			iterator& operator ++ () {
+				for (z_size_t i = 0; i < d_dim; i++) {
+					if ((_idx[i] + 1) < _grid->_data[i].len()) {
+						_idx[i]++;
+						goto end;
+					}
+					_idx[i] = 0;
+				}
+				_idx[d_dim] = 1;
+			end :
+				return *this;
+			}
+
+			bool operator != (const _Tit& it) const {
+				return _idx != it._idx;
+			}
+		};
+
+		///** Result **///
+
+		// root node
+		// 根节点
+		_Tv * _root;
+
+		///** Data and equation **///
+
+		// Data making
+		// 构造数据
+		grid_data _data[d_dim];
+
+		// equation in coordinate
+		// 坐标函数
+		std::function< _Titem(_Tval) > _funcs[dim - 1];
+
+		///** coordinate Range and implicit function **///
+
+		// Range of coordinate in implicit function
+		// 隐式方法的坐标范围
+		grid_range _range[d_dim];
+
+		// implicit function
+		// 隐式函数
+		std::function< bool(_Tv) > _i_func;
+
+	private :
+		gridding() {
+		}
+
+	public :
+		~gridding() {
+			delete[] _root;
+		}
+
+		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval) > funcs[dim])
+			: gridding() {
+			z_size_t i = d_dim, c = 1;
+			while (i--)
+				_data[i] = data[i];
+
+			i = dim;
+			while (i--)
+				_funcs[i] = funcs[i];
+
+			i = d_dim;
+			while (i--)
+				c *= -data[i].len();
+
+			_dis();
+		}
+
+		gridding(const std::initializer_list< grid_data > data, const std::initializer_list< std::function< _Titem(_Tval) > > funcs) {
+			z_size_t i = 0, c = 1;
+			for (auto d : data) {
+				_data[i] = d;
+				i++;
+			}
+
+			i = 0;
+			for (auto f : funcs) {
+				_funcs[i] = f;
+				i++;
+			}
+
+			i = d_dim;
+			while (i--) {
+				c *= _data[i].len();
+			}
+
+			_root = new _Tv[c];
+
+			_dis();
+		}
+
+		gridding(const grid_range range[d_dim], const std::function< bool(_Tv) > i_func)
+			: gridding() {
+			z_size_t i = d_dim;
+			while (i--)
+				_range[i] = range[i];
+
+			_i_func = i_func;
+
+			_im_dis();
+		}
+
+		void _dis() {
+			for (iterator it = begin(); it != end(); ++it) {
+				_Tv _dt;
+				_Tval val;
+				// Getting params for coordinate function;
+				// 获取坐标方程参数
+				for (z_size_t i = 0; i < d_dim; i++) {
+					val[i] = _data[i][it._idx[i]];
+				}
+				// Sent params into coordinate function to compute.
+				// 将参数传递至坐标方程进行计算
+				for (z_size_t i = 0; i < dim - 1; i++) {
+					_dt[i] = _funcs[i](val);
+				}
+				// Set 1 because it is the dot.
+				// 设置节点为点元素
+				_dt[dim - 1] = 1;
+				(*it) = _dt;
+			}
+		}
+
+		void _im_dis() {
+			// TODO;
+		}
+
+		///*** Iterator ***///
+
+		// iterator begin, the index is { 0, 0, 0, 0 } in 3D gridding etc.
+		// 迭代开始位置，例：3D网格索引为idx{ 0, 0, 0, 0 }
+		iterator begin() const {
+			return iterator(_Tidx(), this);
+		}
+
+		// iterator end, the index is { 0, 0, 0, 1 } in 3D gridding etc.
+		// 迭代结束位置，例：3D索引为idx{ 0, 0, 0, 1 }
+		iterator end() const {
+			iterator _it(_Tidx(), this);
+			_it._idx[d_dim] = 1;
+
+			return std::move(_it);
 		}
 	};
 }

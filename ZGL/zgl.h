@@ -9,36 +9,32 @@
 #include "geometry/graph.h"
 #include "geometry/gridding.h"
 
+#include "scene/camera.h"
 
 #endif // !ZGL_H
 
 typedef double zgl_item;
 
-#if defined ZGL_2D
+// 2D
 
-typedef ZGL::affine_vector< 3, zgl_item > dot;
-typedef ZGL::affine_vector< 3, zgl_item > vector;
-const dot dot_zero { 0, 0, 1 };
-const vector vector_zero;
+typedef ZGL::affine_vector< 3, zgl_item > Dot2;
+typedef ZGL::affine_vector< 3, zgl_item > Vector2;
+const Dot2 Dot2_Zero { 0, 0, 1 };
+const Vector2 Vector2_Zero;
 
-typedef ZGL::graph< 3, 3, zgl_item > Graph;
-typedef ZGL::graph< 3, 2, zgl_item > Plane;
-typedef ZGL::graph< 3, 1, zgl_item > Line;
-typedef ZGL::graph< 3, 0, zgl_item > Point;
+typedef ZGL::graph< 3, 3, zgl_item > Graph2;
+typedef ZGL::graph< 3, 2, zgl_item > Plane2;
+typedef ZGL::graph< 3, 1, zgl_item > Line2;
+typedef ZGL::graph< 3, 0, zgl_item > Point2;
 
+// 3D
 
-#elif defined ZGL_3D
+typedef ZGL::affine_vector< 4, zgl_item > Dot3;
+typedef ZGL::affine_vector< 4, zgl_item > Vector3;
+const Dot3 Dot3_Zero { 0, 0, 1 };
+const Vector3 Vector3_Zero;
 
-typedef ZGL::affine_vector< 4, zgl_item > dot;
-typedef ZGL::affine_vector< 4, zgl_item > vector;
-const dot dot_zero { 0, 0, 1 };
-const vector vector_zero;
-
-typedef ZGL::graph< 4, 4, zgl_item > Graph;
-typedef ZGL::graph< 4, 3, zgl_item > Solid;
-typedef ZGL::graph< 4, 2, zgl_item > Line;
-typedef ZGL::graph< 4, 1, zgl_item > Point;
-
-#elif defined ZGL_2D && defined ZGL_3D
-
-#endif
+typedef ZGL::graph< 4, 4, zgl_item > Graph3;
+typedef ZGL::graph< 4, 3, zgl_item > Solid3;
+typedef ZGL::graph< 4, 2, zgl_item > Line3;
+typedef ZGL::graph< 4, 1, zgl_item > Point3;

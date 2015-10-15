@@ -11,7 +11,6 @@ namespace ZGL_TEST
 	{
 	public:
 
-		/*
 		TEST_METHOD(gridding_grid_data)
 		{
 			// Init grid data use interval and step
@@ -23,6 +22,7 @@ namespace ZGL_TEST
 			Assert::AreEqual(g1[3], 6.0);
 			Assert::AreEqual(g1[4], 8.0);
 			Assert::AreEqual(g1[5], 10.0);
+			Assert::AreEqual(g1.len(), 6);
 
 			// Init grid data use array
 			// 使用数组初始化网格数据
@@ -34,61 +34,97 @@ namespace ZGL_TEST
 			Assert::AreEqual(g2[3], 6.0);
 			Assert::AreEqual(g2[4], 8.0);
 			Assert::AreEqual(g2[5], 10.0);
-
-			// Generate discrete date use function
-			// 使用方法生成离散数据
-			ZGL::gridding< 4, 2, double >::grid_data g3([](const ZGL::affine_vector< 4, double >& v) { return v[0] * v[1]; });
-			Assert::AreEqual(g3[ZGL::affine_vector< 4, double > { 2.0, 3.0, 0, 0 }], 6.0);
-
-			// Test about is_data or is_function
-			// 测试数据类型相关
-			Assert::AreEqual(g1.is_data(), true);
-			Assert::AreNotEqual(g2.is_function(), true);
-			Assert::AreEqual(g3.is_function(), true);
+			Assert::AreEqual(g2.len(), 6);
 		}
 
-		TEST_METHOD(gridding_grid_node)
+		TEST_METHOD(gridding_grid_range)
 		{
-			// Init grid node
-			// 初始化网格节点
-			ZGL::gridding< 4, 2, double >::grid_node n1(ZGL::affine_vector< 4, double >{ 1.0, 2.0, 3.0, 1 });
+			// Init grid range
+			// 初始化坐标范围
+			ZGL::gridding< 4, 2, double >::grid_range r( -5.0, 5.0 );
 
-			// Getting node
-			// 获取节点
-			Assert::IsTrue(n1.get_dot() == ZGL::affine_vector< 4, double >{ 1.0, 2.0, 3.0, 1 });
-
-			// Setting node
-			// 设置节点
-			n1.set_dot(ZGL::affine_vector< 4, double >{ 2.0, 4.0, 8.0, 1 });
-			Assert::IsTrue(n1.get_dot() == ZGL::affine_vector< 4, double >{ 2.0, 4.0, 8.0, 1 });
-
-			// Initialied of nodes pointer
-			// 初始化后的节点指针
-			Assert::IsTrue(n1[3] == nullptr);
-			n1[3] = new ZGL::gridding< 4, 2, double >::grid_node(ZGL::affine_vector< 4, double >{});
-
-			// If count of node pointer is real
-			// 节点指针个数是否正确
-			Assert::ExpectException< std::out_of_range >([&n1]() { ZGL::gridding< 4, 2, double >::grid_node* t = n1[4]; });
+			// If range of coordinate is truly;
+			// 坐标范围是否正确
+			Assert::AreEqual(r.max_s(), 5.0);
+			Assert::AreEqual(r.min_s(), -5.0);
 		}
 
-		TEST_METHOD(gridding_discrete)
+		TEST_METHOD(gridding_init)
+		{
+			// Init gridding
+			// 初始化网格
+			ZGL::gridding< 4, 1, double > g1({
+				ZGL::gridding< 4, 1, double >::grid_data(0, 2, 10)
+			}, {
+				[](ZGL::vector< 1, double > v) { return sin(v[0]); },
+				[](ZGL::vector< 1, double > v) { return cos(v[0]); },
+				[](ZGL::vector< 1, double > v) { return 0.0; }
+			});
+		}
+
+		TEST_METHOD(gridding_iterator)
 		{
 			ZGL::gridding< 4, 1, double > g1({
-				ZGL::gridding< 4, 1, double >::grid_data(0, 1, 10),
-				ZGL::gridding< 4, 1, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return sin(v[0]); }),
-				ZGL::gridding< 4, 1, double >::grid_data([](ZGL::affine_vector< 4, double > v) { return cos(v[0]); }),
+				ZGL::gridding< 4, 1, double >::grid_data(0, 2, 10)
+			}, {
+				[](ZGL::vector< 1, double > v) { return v[0]; },
+				[](ZGL::vector< 1, double > v) { return v[0]; },
+				[](ZGL::vector< 1, double > v) { return 0.0; }
 			});
 
-			// Discrete grid
-			// 离散网格
+			int i = 0;
 
-			Assert::IsTrue(g1[{1}].get_dot() == ZGL::affine_vector< 4, double >{ 1.0, sin(1.0), cos(1.0), 1.0 });
-			Assert::IsTrue(g1[{2}].get_dot() == ZGL::affine_vector< 4, double >{ 2.0, sin(2.0), cos(2.0), 1.0 });
-			Assert::IsTrue(g1[{3}].get_dot() == ZGL::affine_vector< 4, double >{ 3.0, sin(3.0), cos(3.0), 1.0 });
-			Assert::IsTrue(g1[{4}].get_dot() == ZGL::affine_vector< 4, double >{ 4.0, sin(4.0), cos(4.0), 1.0 });
-			Assert::IsTrue(g1[{5}].get_dot() == ZGL::affine_vector< 4, double >{ 5.0, sin(5.0), cos(5.0), 1.0 });
+			Assert::AreEqual(g1._data[0].len(), 6);
+
+			for (ZGL::gridding< 4, 1, double >::iterator it = g1.begin(); it != g1.end(); ++it) {
+				// Debuggggggggggggging;
+				switch (i) {
+				case 0:
+					Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 0, 0, 0, 1 });
+					break;
+				case 1:
+					Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 2, 2, 0, 1 });
+					break;
+				case 2:
+					Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 4, 4, 0, 1 });
+					break;
+				case 3:
+					Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 6, 6, 0, 1 });
+					break;
+				case 4:
+					Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 8, 8, 0, 1 });
+					break;
+				case 5:
+					Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 10, 10, 0, 1 });
+					break;
+				case 6:
+					throw "";
+					break;
+				}
+				i++;
+			}
+
+			// If iterator is working and count of gridding nodes is right.
+			// 迭代器工作与否并且计数是否正确
+			Assert::AreEqual(i, 6);
+
+			double d[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+			ZGL::gridding< 4, 3, double > g2({
+				ZGL::gridding< 4, 3, double >::grid_data(0, 2, 10), // 6
+				ZGL::gridding< 4, 3, double >::grid_data(-5, 1, 5), // 11
+				ZGL::gridding< 4, 3, double >::grid_data(d, 10),	// 10
+			}, {
+				[](ZGL::vector< 3, double > v) { return v[0]; },
+				[](ZGL::vector< 3, double > v) { return v[1]; },
+				[](ZGL::vector< 3, double > v) { return v[2]; },
+			});
+
+			i = 0;
+
+			for (auto it = g2.begin(); it != g2.end(); ++it)
+				i++;
+
+			Assert::AreEqual(i, 660);
 		}
-		*/
 	};
 }
