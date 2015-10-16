@@ -401,7 +401,17 @@ namespace ZGL {
 		// vector or dot perspective projection to one plane
 		// 向量或点透视投影至某一平面
 		static _Tsqu perspective(const _Tpl& persp_plane, const _Tself& view) {
-			throw "";
+			affine_vector< dim - 1, _Titem > _n = _Tself::cofactor(_Tself(persp_plane.dirs), dim - 1);
+			affine_vector< dim - 1, _Titem > _v = _Tself::cofactor(view, dim - 1);
+			affine_vector< dim - 1, _Titem > _p = _Tself::cofactor(persp_plane.pos, dim - 1);
+			_Tsqu _pm(
+				(_Tm11&&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * _v * _Titem(-1) + _Tm11(IDENTITY) * ((_v - _p) PRO_DOT _n)),
+				(_Tm12&&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * -1),
+				(_Tm21&&)(_v * (_p PRO_DOT _n)),
+				_Tm22({ {_v PRO_DOT _n} })
+			);
+
+			return _pm;
 		}
 	};
 }

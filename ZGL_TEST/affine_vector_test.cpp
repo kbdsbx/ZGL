@@ -156,5 +156,12 @@ namespace ZGL_TEST
 			// 向量镜像
 			Assert::IsTrue(ZGL::affine_vector< 3, double >{ 3, 1, 0 } *ZGL::affine_vector< 3, double >::mirror(ZGL::graph< 3, 1, double >({ 0, 0, 1 }, { { 0, 1, 0 } })) == ZGL::affine_vector< 3, double >{ -3, 1, 0 });
 		}
+
+		TEST_METHOD(affine_vector_perspective)
+		{
+			// vector perspective
+			// 向量投影
+			Assert::IsTrue(ZGL::affine_vector< 3, double >{ 3, 1, 0 } *ZGL::affine_vector< 3, double >::perspective(ZGL::graph< 3, 1, double >({ 0, 0, 1 }, { { 0, 1, 0 } }), ZGL::affine_vector< 3, double >{ 0, 0, 1 }) == ZGL::affine_vector< 3, double >{ -3, 1, 0 });
+		}
 	};
 }
