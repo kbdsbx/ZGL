@@ -28,6 +28,10 @@ namespace ZGL {
 		typedef vector< d_dim + 1, z_size_t > _Tidx;
 
 	public :
+		typedef vector< d_dim, _Titem > Targ;
+		typedef affine_vector < dim, _Titem > Tval;
+
+	public :
 
 		// Data for making Gridding, The count equal of d_dim param.
 		// 用于生成网格的数据

@@ -130,6 +130,8 @@ namespace ZGL {
 			return ((const _Tbase*)this)->angle(opt);
 		}
 
+		// normalize
+		// น้าปปฏ
 		void normalize() {
 			(*this) = _Tself::normalize(*this);
 		}

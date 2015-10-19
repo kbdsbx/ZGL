@@ -19,22 +19,25 @@ typedef double zgl_item;
 
 typedef ZGL::affine_vector< 3, zgl_item > Dot2;
 typedef ZGL::affine_vector< 3, zgl_item > Vector2;
-const Dot2 Dot2_Zero { 0, 0, 1 };
-const Vector2 Vector2_Zero;
 
 typedef ZGL::graph< 3, 3, zgl_item > Graph2;
 typedef ZGL::graph< 3, 2, zgl_item > Plane2;
 typedef ZGL::graph< 3, 1, zgl_item > Line2;
 typedef ZGL::graph< 3, 0, zgl_item > Point2;
 
+typedef ZGL::gridding< 3, 2, zgl_item > Surface2;
+typedef ZGL::gridding< 3, 1, zgl_item > Curved2;
+
 // 3D
 
 typedef ZGL::affine_vector< 4, zgl_item > Dot3;
 typedef ZGL::affine_vector< 4, zgl_item > Vector3;
-const Dot3 Dot3_Zero { 0, 0, 1 };
-const Vector3 Vector3_Zero;
 
 typedef ZGL::graph< 4, 4, zgl_item > Graph3;
 typedef ZGL::graph< 4, 3, zgl_item > Solid3;
 typedef ZGL::graph< 4, 2, zgl_item > Line3;
 typedef ZGL::graph< 4, 1, zgl_item > Point3;
+
+typedef ZGL::gridding< 4, 3, zgl_item > Grid3;
+typedef ZGL::gridding< 4, 2, zgl_item > Surface3;
+typedef ZGL::gridding< 4, 1, zgl_item > Curved3;
