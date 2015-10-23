@@ -18,9 +18,6 @@ void loop_test () {
 	}
 }
 
-#ifndef ZGL_2D
-#define ZGL_2D
-#undef  ZGL_3D
 #include "../../ZGL/zgl.h"
 
 // 2D-vector translate successfull;
@@ -158,20 +155,9 @@ void test_2d_gridding_line() {
 	}
 }
 
-#undef ZGL_2D
-#endif;
-
-#ifndef ZGL_3D
-#define ZGL_3D
-#undef  ZGL_2D
-#include "../../ZGL/zgl.h"
-
 void test_3d_vector_rotate() {
 	Vector3 v1_1{ 1.5, 0.5, -.8, 1 };
 	Vector3 v1_2{ -0.5, 0.85, 0.6, 1 };
 	Vector3 v2_1 = v1_1 * Vector3::rotate(Point3({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
 	Vector3 v2_2 = v1_2 * Vector3::rotate(Point3({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
 }
-
-#undef ZGL_3D
-#endif;

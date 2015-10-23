@@ -28,8 +28,12 @@ namespace ZGL {
 		typedef vector< d_dim + 1, z_size_t > _Tidx;
 
 	public :
-		typedef vector< d_dim, _Titem > Targ;
-		typedef affine_vector < dim, _Titem > Tval;
+		// Equation in coordinate' argument type
+		// 坐标函数参数类型
+		typedef _Tval Targ;
+		// Iterator values' type
+		// 迭代器值类型
+		typedef _Tv Tval;
 
 	public :
 
@@ -135,40 +139,6 @@ namespace ZGL {
 			}
 		};
 
-		// Range for making Gridding
-		// 用于生成网格的范围范围
-		class grid_range {
-			// range of coordinate in implicit function graphic.
-			// 隐式方程的图形范围
-			_Titem _min;
-			_Titem _max;
-
-		public:
-			grid_range() { }
-
-			grid_range(_Titem min, _Titem max)
-				: _min(min), _max(max) { }
-
-			grid_range& operator = (const grid_range& src) {
-				_min = src._min;
-				_max = src._max;
-
-				return *this;
-			}
-
-			// Min of coordinate
-			// 坐标最小值
-			_Titem min_s() const {
-				return _min;
-			}
-
-			// Max of coordinate
-			// 坐标最大值
-			_Titem max_s() const {
-				return _max;
-			}
-		};
-
 		// Iterator in gridding
 		// 网格迭代器
 		class iterator {
@@ -234,19 +204,8 @@ namespace ZGL {
 		// 坐标函数
 		std::function< _Titem(_Tval) > _funcs[dim - 1];
 
-		///** coordinate Range and implicit function **///
-
-		// Range of coordinate in implicit function
-		// 隐式方法的坐标范围
-		grid_range _range[d_dim];
-
-		// implicit function
-		// 隐式函数
-		std::function< bool(_Tv) > _i_func;
-
 	private :
-		gridding() {
-		}
+		gridding() { }
 
 	public :
 		~gridding() {
@@ -293,17 +252,6 @@ namespace ZGL {
 			_dis();
 		}
 
-		gridding(const grid_range range[d_dim], const std::function< bool(_Tv) > i_func)
-			: gridding() {
-			z_size_t i = d_dim;
-			while (i--)
-				_range[i] = range[i];
-
-			_i_func = i_func;
-
-			_im_dis();
-		}
-
 		void _dis() {
 			for (iterator it = begin(); it != end(); ++it) {
 				_Tv _dt;
@@ -323,10 +271,6 @@ namespace ZGL {
 				_dt[dim - 1] = 1;
 				(*it) = _dt;
 			}
-		}
-
-		void _im_dis() {
-			// TODO;
 		}
 
 		///*** Iterator ***///
