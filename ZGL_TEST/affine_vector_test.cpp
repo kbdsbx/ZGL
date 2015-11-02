@@ -124,8 +124,11 @@ namespace ZGL_TEST
 			Assert::IsTrue(ZGL::affine_vector< 4, double >{ -5, 3.2, 6, 0 } * ZGL::affine_vector< 4, double >::translate(ZGL::affine_vector< 4, double >{ 1, 42, -5.2, 0 }) == ZGL::affine_vector< 4, double > { -5, 3.2, 6, 0 });
 		}
 
-		TEST_METHOD(affine_vector_rotate)
+		TEST_METHOD(affine_vector_rotate4)
 		{
+			// vector rotate in R3
+			// 三维向量旋转
+			Assert::IsTrue(ZGL::affine_vector < 4, double >{ 0, 1, 2, 0 } *ZGL::affine_vector< 4, double >::rotate(ZGL::graph< 4, 1, double >({ 0, 0, 0, 1 }, { { 3.0, -1.0, 2.2, 0 } }), 1.5) == ZGL::affine_vector< 4, double > {-0.44882291945667563, -1.6957874544506419, 1.3866733199633570, 0});
 		}
 
 		TEST_METHOD(affine_vector_scale)
@@ -133,15 +136,6 @@ namespace ZGL_TEST
 			// the matrix is vector or dot scaling relative orighinal
 			// 向量或点绕原点缩放矩阵
 			Assert::IsTrue(ZGL::affine_vector< 3, double > { 1, 2, 0 } * ZGL::affine_vector< 3, double >::scale(2.0) == ZGL::affine_vector < 3, double > { 2, 4, 0 });
-
-			// vector or dot scaling relative other dot
-			// 向量或点绕任意点缩放矩阵
-			Assert::IsTrue(
-				ZGL::affine_vector< 3, double >::scale(1.5, ZGL::affine_vector < 3, double >{ 3.2, 5.1, 1 }) == ZGL::square< 3, double > {
-					{ 1.5, 0, 0 },
-					{ 0, 1.5, 0 },
-					{ 1.6, 2.55, 1 },
-			});
 
 			// vector or dot scaling to directions relative other dot
 			// 向量或点相对一点沿任意方向缩放
@@ -157,11 +151,13 @@ namespace ZGL_TEST
 			Assert::IsTrue(ZGL::affine_vector< 3, double >{ 3, 1, 0 } *ZGL::affine_vector< 3, double >::mirror(ZGL::graph< 3, 1, double >({ 0, 0, 1 }, { { 0, 1, 0 } })) == ZGL::affine_vector< 3, double >{ -3, 1, 0 });
 		}
 
+		/*
 		TEST_METHOD(affine_vector_perspective)
 		{
 			// vector perspective
 			// 向量投影
 			Assert::IsTrue(ZGL::affine_vector< 3, double >{ 3, 1, 0 } *ZGL::affine_vector< 3, double >::perspective(ZGL::graph< 3, 1, double >({ 0, 0, 1 }, { { 0, 1, 0 } }), ZGL::affine_vector< 3, double >{ 0, 0, 1 }) == ZGL::affine_vector< 3, double >{ -3, 1, 0 });
 		}
+		*/
 	};
 }

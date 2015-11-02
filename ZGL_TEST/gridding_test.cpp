@@ -37,18 +37,6 @@ namespace ZGL_TEST
 			Assert::AreEqual(g2.len(), 6);
 		}
 
-		TEST_METHOD(gridding_grid_range)
-		{
-			// Init grid range
-			// 初始化坐标范围
-			ZGL::gridding< 4, 2, double >::grid_range r( -5.0, 5.0 );
-
-			// If range of coordinate is truly;
-			// 坐标范围是否正确
-			Assert::AreEqual(r.max_s(), 5.0);
-			Assert::AreEqual(r.min_s(), -5.0);
-		}
-
 		TEST_METHOD(gridding_init)
 		{
 			// Init gridding

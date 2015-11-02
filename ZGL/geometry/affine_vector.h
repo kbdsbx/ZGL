@@ -244,79 +244,36 @@ namespace ZGL {
 			);
 		}
 
-		// dot or vector translates arround one axis
-		// 点或向量绕轴旋转
-		template < z_size_t dim >
-		static square< dim, _Titem > rotate(const graph< dim, dim - 3, _Titem >& axis, double radian) {
-			// translate matrix
-			// 平移矩阵
-			_Tsqu _tm = translate(axis.pos);
-			// rotate orthogonal matrix
-			// 旋转正交矩阵
-			_Tsqu _rm[dim - 1] = { _Tsqu(IDENTITY) };
-			// result of rotate matrix 
-			// 旋转矩阵解
-			_Tsqu _sm(IDENTITY);
+		// unfinished about higher-dimension
 
-			for (z_size_t i = 0; i < dim - 1; i++) {
-				_Tself _ap(axis.dirs[0]), _ax;
-				// list
-				// 序列
-				_ap[i] = 0;
-				_ax[i == dim - 2 ? 0 : i + 1] = 1;
+		// vector rotate for 3-dim
+		// 3D向量旋转
+		static square< 4, _Titem > rotate(const graph< 4, 1, _Titem >& axis, double radian) {
+			typedef square< 4, _Titem > _Tsqu;
+			typedef square< 3, _Titem > _Tm11;
+			typedef matrix< 3, 1, _Titem > _Tm12;
+			typedef matrix< 1, 3, _Titem > _Tm21;
+			typedef square< 1, _Titem > _Tm22;
+			typedef affine_vector< 4, double > _Tv4;
+			typedef affine_vector< 3, double > _Tv3;
 
-				// makes new axis with sub vector rotate
-				// 为子向量旋转创建新的旋转轴
-				matrix< 1, dim - 1, _Titem > _dir;
-				for (z_size_t si = 0; si < dim - 2; si++)
-					_dir[0][si] = axis.dirs[0][si];
+			_Tv3 dir = (_Tv3&&)matrix< 1, 4, double >::cofactor< 0, 4 >(axis.dirs);
+			_Tm11 _x;
+			_x[0][1] = axis.dirs[0][2];
+			_x[0][2] = axis.dirs[0][1] * -1;
+			_x[1][0] = axis.dirs[0][2] * -1;
+			_x[1][2] = axis.dirs[0][0];
+			_x[2][0] = axis.dirs[0][1];
+			_x[2][1] = axis.dirs[0][0] * -1;
 
-				double _rd = (i == dim - 2 ? radian : _ap.angle(_ax));
+			_Tm11 _m11 = (_Tm11&&)(_Tm11(IDENTITY) * cos(radian) + (_Tm11&&)(_Tv3::transpose(dir) * dir) * (1.0 - cos(radian)) + _x * sin(radian));
+			_Tm12 _m12;
+			_Tm21 _m21 = (_Tm21&&)(_Tv4::cofactor(axis.pos, 3) * (_m11 * -1 + _Tm11(IDENTITY)));
+			_Tm22 _m22(IDENTITY);
 
-				square< dim - 1, _Titem > _sub_vect =
-					affine_vector< dim - 1, _Titem >::rotate(
-						graph< dim - 1, dim - 4, _Titem >(
-							affine_vector< dim - 1, _Titem >(), _dir), _rd);
+			_Tsqu _rm(_m11, _m12, _m21, _m22);
 
-				for (z_size_t si = 0, si_t = 0; si < dim - 2; si++)
-					if (si == i)
-						si_t = 1;
-					else for (z_size_t sj = 0, sj_t = 0; sj < dim - 2; sj++)
-						if (sj == i)
-							sj_t = 1;
-						else
-							_rm[i][si][sj] = _sub_vect[si - si_t][sj - sj_t];
-			}
-
-			// R =  T \times \prod_{i = 0}^{j - 1} R_{i} \times R_{j} \times \prod_{i = j-1}^{1} R_{i}^{-1} \times T^{-1}
-			// T:		matrix that is translate sth to original point
-			// R_{i}:	matrix that is rotate sth around the axes of coordinate
-			// j:		count of axes, else this is dimension
-			// copy into http://latex.codecogs.com/eqneditor/editor.php
-			// 
-			// T:		将物体平移至原点的矩阵
-			// R_{i}:	将物体绕坐标轴旋转的矩阵
-			// j:		轴的数量，同时也是维度
-			// 使用如上网站处理LateX公式
-			_sm = _sm * (_tm ^ -1);
-			for (z_size_t i = 0; i < dim - 3; i++)
-				_sm = _sm * (_rm[i] ^ -1);
-			for (z_size_t i = dim - 2; i >= 0; i--)
-				_sm = _sm * _rm[i];
-			_sm = _sm * _tm;
-
-			return std::move(_sm);
-		}
-
-		// only clockwise with rotate of 2 dimension
-		// 2维顺时针旋转
-		template <>
-		static square< 3, _Titem > rotate(const graph< 3, 0, _Titem >& axis, double radian) {
-			return square < 3, _Titem > {
-				{ cos(radian), -sin(radian), 0 },
-				{ sin(radian), cos(radian), 0 },
-				{ 0, 0, 1 },
-			};
+			return std::move(_rm);
 		}
 
 		// vector scaling or dot scaling relative origin
@@ -403,7 +360,8 @@ namespace ZGL {
 		// vector or dot perspective projection to one plane
 		// 向量或点透视投影至某一平面
 		static _Tsqu perspective(const _Tpl& persp_plane, const _Tself& view) {
-			affine_vector< dim - 1, _Titem > _n = _Tself::cofactor(_Tself(persp_plane.dirs), dim - 1);
+			/*
+			affine_vector< dim - 1, _Titem > _n = _Tself::cofactor((_Tself&&)persp_plane.dirs, dim - 1);
 			affine_vector< dim - 1, _Titem > _v = _Tself::cofactor(view, dim - 1);
 			affine_vector< dim - 1, _Titem > _p = _Tself::cofactor(persp_plane.pos, dim - 1);
 			_Tsqu _pm(
@@ -414,6 +372,8 @@ namespace ZGL {
 			);
 
 			return _pm;
+			*/
+			throw "";
 		}
 	};
 }

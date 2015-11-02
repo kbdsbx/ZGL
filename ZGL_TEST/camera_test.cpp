@@ -29,5 +29,30 @@ namespace ZGL_TEST
 			// 相机向上向量
 			Assert::IsTrue(cm.upward() == ZGL::affine_vector< 4, double > { 0.33447396319323332798390107972635, 0.93130094126615904760517456886306, 0.14424189662708187269305734063199, 0 });
 		}
+
+		TEST_METHOD(camera_move)
+		{
+			ZGL::camera cm({ 5, 0.3, 1, 1 }, { -3, 1, 0.5, 0 }, { 5.6, 3, 0, 0 });
+
+			// Camera traverse
+			// 相机横移
+			cm.traverse(1.5);
+			Assert::IsTrue(cm.position() == ZGL::affine_vector< 4, double >{ 4.8494132416826927057, 0.58109528219230694938, -0.46571111428845766464, 1 });
+
+			// Camera retreat
+			// 相机前进
+			cm.retreat(1.5);
+			Assert::IsTrue(cm.position() == ZGL::affine_vector< 4, double > { 3.443849384685238116, 1.049616567858125146, -0.23145047145554856635, 1 });
+
+			// Camera lift
+			// 相机上升
+			cm.lift(1.5);
+			Assert::IsTrue(cm.position() == ZGL::affine_vector< 4, double > { 3.945560329475088108, 2.4465679797573637174, -0.01508762651492575731, 1 });
+		}
+
+		TEST_METHOD(camera_rotate)
+		{
+			ZGL::camera cm({ 5, 0.3, 1, 1 }, { -3, 1, 0.5, 0 }, { 5.6, 3, 0, 0 });
+		}
 	};
 }

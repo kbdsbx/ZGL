@@ -210,6 +210,7 @@ namespace ZGL {
 
 		// Vector Cofactor
 		// 向量余子式
+		// c : base in 0
 		template < z_size_t dim, typename _Titem >
 		static vector < dim - 1, _Titem > cofactor(const vector < dim, _Titem > & opt, z_size_t c) {
 			vector < dim - 1, _Titem > _t;

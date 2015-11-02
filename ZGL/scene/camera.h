@@ -109,7 +109,7 @@ namespace ZGL {
 		// Roll
 		// ·­¹ö
 		void roll(_Titem rad) {
-			_upward = _upward * _Tv4::rotate(_Tline(_position, _rightward), rad);
+			_upward = _upward * _Tv4::rotate(_Tline(_position, _forward), rad);
 			normalize();
 		}
 
@@ -117,6 +117,7 @@ namespace ZGL {
 		// ¸©Ñö
 		void pitch(_Titem rad) {
 			_upward = _upward * _Tv4::rotate(_Tline(_position, _rightward), rad);
+			normalize();
 		}
 
 		// Traverse
