@@ -48,6 +48,9 @@
     <ClInclude Include="scene\camera.h">
       <Filter>scene</Filter>
     </ClInclude>
+    <ClInclude Include="interface\Iscene.h">
+      <Filter>interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="geometry">

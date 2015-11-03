@@ -28,6 +28,7 @@
     <ClInclude Include="interface\Ilight.h" />
     <ClInclude Include="interface\Iradiantable.h" />
     <ClInclude Include="interface\Irenderer.h" />
+    <ClInclude Include="interface\Iscene.h" />
     <ClInclude Include="interface\Iseparable.h" />
     <ClInclude Include="interface\Itrackable.h" />
     <ClInclude Include="linear\matrix.h" />
