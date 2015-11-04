@@ -1,0 +1,18 @@
+#include "../../geometry/gridding.h"
+#include "../../geometry/gridding-implicitly.h"
+#include "../../interface/Igeometry.h"
+
+#ifndef ZGL_SCENE_UNIT_SURFACE
+#define ZGL_SCENE_UNIT_SURFACE
+
+namespace ZGL {
+
+	// Surface in 3-dim
+	// 3DÇúÃæ
+	class surface
+		: public gridding < 4, 2, z_item_t > {
+	};
+
+}
+
+#endif // !ZGL_SCENE_UNIT_SURFACE

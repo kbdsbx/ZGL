@@ -129,6 +129,9 @@ namespace ZGL {
 
 	template < z_size_t dim, z_size_t d_dim, typename Titem >
 	class graph;
+
+	// Interface
+	// ½Ó¿Ú
 }
 
 #endif // !ZGL_INC

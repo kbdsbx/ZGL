@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="geometry\affine_vector.h" />
     <ClInclude Include="geometry\graph.h" />
+    <ClInclude Include="geometry\gridding-implicitly.h" />
     <ClInclude Include="geometry\gridding.h" />
     <ClInclude Include="inc.h" />
     <ClInclude Include="interface\Icamera.h" />
@@ -28,15 +29,22 @@
     <ClInclude Include="interface\Ilight.h" />
     <ClInclude Include="interface\Iradiantable.h" />
     <ClInclude Include="interface\Irenderer.h" />
-    <ClInclude Include="interface\Iscene.h" />
     <ClInclude Include="interface\Iseparable.h" />
+    <ClInclude Include="interface\Ishadowable.h" />
+    <ClInclude Include="interface\Isolid.h" />
     <ClInclude Include="interface\Itrackable.h" />
     <ClInclude Include="linear\matrix.h" />
     <ClInclude Include="linear\square.h" />
     <ClInclude Include="linear\vector.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="scene\camera.h" />
     <ClInclude Include="scene\scene.h" />
+    <ClInclude Include="scene\scene_grid.h" />
+    <ClInclude Include="scene\unit\surface.h" />
     <ClInclude Include="zgl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ZGL.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3C476681-6F77-416C-A37E-996E5C89756A}</ProjectGuid>

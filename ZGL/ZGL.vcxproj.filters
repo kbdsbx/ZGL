@@ -41,14 +41,27 @@
     <ClInclude Include="linear\vector.h">
       <Filter>linear</Filter>
     </ClInclude>
-    <ClInclude Include="scene\scene.h">
-      <Filter>scene</Filter>
-    </ClInclude>
     <ClInclude Include="zgl.h" />
     <ClInclude Include="scene\camera.h">
       <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="interface\Iscene.h">
+    <ClInclude Include="interface\Isolid.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\scene_grid.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene\unit\surface.h">
+      <Filter>scene\unit</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="geometry\gridding-implicitly.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\Ishadowable.h">
       <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,5 +78,11 @@
     <Filter Include="scene">
       <UniqueIdentifier>{0eca7c53-2f7c-4cb4-b4d8-a8c2da838fda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="scene\unit">
+      <UniqueIdentifier>{61c5b909-093a-4658-a00e-cc90547c50d4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ZGL.rc" />
   </ItemGroup>
 </Project>

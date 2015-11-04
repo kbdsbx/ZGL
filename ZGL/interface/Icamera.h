@@ -6,6 +6,7 @@ namespace ZGL {
 	// Camera interface
 	// 相机接口
 	class Icamera {
+	public :
 	};
 }
 
