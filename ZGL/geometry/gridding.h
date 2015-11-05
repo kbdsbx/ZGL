@@ -3,7 +3,6 @@
 #include <math.h>
 #include <functional>
 #include <initializer_list>
-#include <map>
 
 #ifndef ZGL_GRIDDING
 #define ZGL_GRIDDING
@@ -25,7 +24,9 @@ namespace ZGL {
 		typedef gridding< dim, d_dim, _Titem > _Tself;
 		typedef affine_vector < dim, _Titem > _Tv;
 		typedef vector< d_dim, _Titem > _Tval;
-		typedef vector< d_dim + 1, z_size_t > _Tidx;
+
+		typedef iterator< d_dim, _Tv > _Tit;
+		typedef typename _Tit::Tidx _Tidx;
 
 	public :
 		// Equation in coordinate' argument type
@@ -139,6 +140,7 @@ namespace ZGL {
 			}
 		};
 
+		/*
 		// Iterator in gridding
 		// 网格迭代器
 		class iterator {
@@ -187,6 +189,7 @@ namespace ZGL {
 				return _idx != it._idx;
 			}
 		};
+		*/
 
 		///** Result **///
 
@@ -203,6 +206,8 @@ namespace ZGL {
 		// equation in coordinate
 		// 坐标函数
 		std::function< _Titem(_Tval) > _funcs[dim - 1];
+
+		_Tidx _max;
 
 	private :
 		gridding() { }
@@ -223,8 +228,12 @@ namespace ZGL {
 				_funcs[i] = funcs[i];
 
 			i = d_dim;
-			while (i--)
-				c *= -data[i].len();
+			while (i--) {
+				c *= _data[i].len();
+				_max[i] = _data[i].len();
+			}
+
+			_root = new _Tv[c];
 
 			_dis();
 		}
@@ -245,6 +254,7 @@ namespace ZGL {
 			i = d_dim;
 			while (i--) {
 				c *= _data[i].len();
+				_max[i] = _data[i].len();
 			}
 
 			_root = new _Tv[c];
@@ -253,7 +263,7 @@ namespace ZGL {
 		}
 
 		void _dis() {
-			for (iterator it = begin(); it != end(); ++it) {
+			for (auto it = begin(); it != end(); ++it) {
 				_Tv _dt;
 				_Tval val;
 				// Getting params for coordinate function;
@@ -277,14 +287,14 @@ namespace ZGL {
 
 		// iterator begin, the index is { 0, 0, 0, 0 } in 3D gridding etc.
 		// 迭代开始位置，例：3D网格索引为idx{ 0, 0, 0, 0 }
-		iterator begin() const {
-			return iterator(_Tidx(), this);
+		_Tit begin() const {
+			return _Tit(_max, _root);
 		}
 
 		// iterator end, the index is { 0, 0, 0, 1 } in 3D gridding etc.
 		// 迭代结束位置，例：3D索引为idx{ 0, 0, 0, 1 }
-		iterator end() const {
-			iterator _it(_Tidx(), this);
+		const _Tit end() const {
+			_Tit _it(_max, _root);
 			_it._idx[d_dim] = 1;
 
 			return std::move(_it);

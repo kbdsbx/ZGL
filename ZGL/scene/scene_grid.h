@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "../interface/Iseparable.h"
+#include "unit/surface.h"
 #include <map>
 #include <vector>
 
@@ -9,14 +9,15 @@
 namespace ZGL {
 	class scene_grid
 		: public scene {
+		typedef __int8 _Tid;
 		// Cameras in scene
 		// 场景中的摄像机
-		std::map< z_size_t, const camera* > cameras;
-		std::vector< const Iseparable* > grids;
+		std::map< _Tid, camera* > cameras;
+		std::vector< const surface& > grids;
 
 	public :
-		int add_camera(const camera* cm) {
-			for (z_size_t i = 0; i < INT32_MAX; i++) {
+		int add_camera(camera* cm) {
+			for (_Tid i = INT8_MIN; i < INT8_MAX; i++) {
 				if (!cameras[i]) {
 					cameras[i] = cm;
 					return i;
@@ -25,15 +26,20 @@ namespace ZGL {
 			throw "so much camera!";
 		}
 
-		int add_solid(const Iseparable* sd) {
+		int add_solid(const surface& sd) {
 			grids.push_back(sd);
+			return 0;
 		}
 
 		int add_light(const Ilight* lt) {
 			throw "";
 		}
 
-		int dimension_reduction() {
+		int dimension_reduction(_Tid cm_id) {
+			auto _m = cameras[cm_id]->view();
+			for (auto grid : grids)
+				for (auto p : grid)
+					p = p * _m;
 		};
 	};
 }

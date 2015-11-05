@@ -64,7 +64,7 @@ namespace ZGL_TEST
 
 			Assert::AreEqual(g1._data[0].len(), 6);
 
-			for (ZGL::gridding< 4, 1, double >::iterator it = g1.begin(); it != g1.end(); ++it) {
+			for (auto it = g1.begin(); it != g1.end(); ++it) {
 				// Debuggggggggggggging;
 				switch (i) {
 				case 0:
