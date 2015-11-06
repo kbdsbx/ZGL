@@ -121,20 +121,6 @@ void test_2d_vector_orthogonal() {
 	}
 }
 
-// 2D-vector rotate is successfully;
-void test_2d_vector_rotate() {
-	Vector2 v1_1{ 1.5, 0.5, 1 };
-	Vector2 v1_2{ -0.5, 0.85, 1 };
-	Vector2 v2_1 = v1_1 * Vector2::rotate(Point2({ 0.0, 0.0, 1.0 }, { { 0, 0, 0 } }), 1.5);
-	Vector2 v2_2 = v1_2 * Vector2::rotate(Point2({ 0.0, 0.0, 1.0 }, { { 0, 0, 0 } }), 1.5);
-
-	for (; is_run(); delay_fps(60), cleardevice()) {
-		axis();
-		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
-		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
-	}
-}
-
 // 2D-vector curved line is successfully;
 void test_2d_gridding_line() {
 	Curved2 c1({
@@ -155,9 +141,38 @@ void test_2d_gridding_line() {
 	}
 }
 
-void test_3d_vector_rotate() {
-	Vector3 v1_1{ 1.5, 0.5, -.8, 1 };
-	Vector3 v1_2{ -0.5, 0.85, 0.6, 1 };
-	Vector3 v2_1 = v1_1 * Vector3::rotate(Point3({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
-	Vector3 v2_2 = v1_2 * Vector3::rotate(Point3({ 1.0, 0.5, -0.5, 1.0 }, { { -1, 1.0, 0.0, 0 } }), 1.5);
+void test_3d_scene() {
+	ZGL::scene_grid scene;
+
+	ZGL::camera cm({ 4, 4, 4, 0 }, { -1, -1, -1, 0 }, { -1, -1, 0, 0 });
+	ZGL::surface sf({
+		ZGL::surface::grid_data(-PI * 2, .1, PI * 2),
+		ZGL::surface::grid_data(-PI * 2, .1, PI * 2),
+		ZGL::surface::grid_data(-5, .1, 5),
+	}, {
+		[](ZGL::surface::Targ a) { return sin(a[0]); },
+		[](ZGL::surface::Targ a) { return cos(a[1]); },
+		[](ZGL::surface::Targ a) { return a[2]; },
+	});
+	char cid = scene.add_camera(&cm);
+	scene.add_solid(&sf);
+
+	scene.modeling_trans();
+	// scene.viewing_trans(cid);
+	// scene.projection_trans(0);
+	scene.viewport_trans(100, 800, 600);
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		for (auto grids : scene.material_grids) {
+			std::vector< ZGL::surface::segment > rs;
+			grids->each(ZGL::surface::Tidx(), rs);
+			for (auto c : rs) {
+				auto x1 = c.frist[0];
+				auto y1 = c.frist[1];
+				auto x2 = c.last[0];
+				auto y2 = c.last[1];
+				ege_line(x1, y1, x2, y2);
+			}
+		}
+	}
 }

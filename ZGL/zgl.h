@@ -10,6 +10,7 @@
 #include "geometry/gridding.h"
 
 #include "scene/camera.h"
+#include "scene/scene_grid.h"
 
 #endif // !ZGL_H
 

@@ -9,10 +9,7 @@ namespace ZGL {
 
 	// Surface in 3-dim
 	// 3DÇúÃæ
-	class surface
-		: public gridding < 4, 2, z_item_t > {
-	};
-
+	typedef gridding< 4, 2, z_item_t > surface;
 }
 
 #endif // !ZGL_SCENE_UNIT_SURFACE

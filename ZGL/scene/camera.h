@@ -88,8 +88,7 @@ namespace ZGL {
 
 		// Camera transformation matrix
 		// Ïà»ú±ä»»¾ØÕó
-		_Tm4 view() {
-			normalize();
+		_Tm4 view() const {
 			return _Tm4 {
 				{ _rightward[0], _upward[0], _forward[0], 0 },
 				{ _rightward[1], _upward[1], _forward[1], 0 },

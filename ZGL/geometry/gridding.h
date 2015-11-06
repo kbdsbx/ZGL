@@ -3,6 +3,7 @@
 #include <math.h>
 #include <functional>
 #include <initializer_list>
+#include <vector>
 
 #ifndef ZGL_GRIDDING
 #define ZGL_GRIDDING
@@ -35,8 +36,18 @@ namespace ZGL {
 		// Iterator values' type
 		// 迭代器值类型
 		typedef _Tv Tval;
+		// Iterator indexs' type
+		// 迭代器索引类型
+		typedef _Tidx Tidx;
 
 	public :
+		struct segment{
+			_Tv frist;
+			_Tv last;
+
+			segment(const _Tv& sFrist, const _Tv& sLast)
+				: frist(sFrist), last(sLast) { }
+		};
 
 		// Data for making Gridding, The count equal of d_dim param.
 		// 用于生成网格的数据
@@ -298,6 +309,17 @@ namespace ZGL {
 			_it._idx[d_dim] = 1;
 
 			return std::move(_it);
+		}
+
+		void each(_Tidx idx, std::vector< segment >& res) const {
+			for (z_size_t d = 0; d < d_dim; d++) {
+				_Tidx nidx(idx);
+				nidx[d]++;
+				if (nidx[d] <= _max[d]) {
+					res.push_back(segment(_root[idx], _root[nidx]));
+				}
+				each(nidx, res);
+			}
 		}
 	};
 }

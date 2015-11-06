@@ -25,8 +25,6 @@ namespace ZGL {
 		typedef square < dim, _Titem > _Tsquare;
 
 	public:
-		~vector() { }
-
 		// default constructor
 		// Ä¬ÈÏ¹¹Ôì
 		vector()

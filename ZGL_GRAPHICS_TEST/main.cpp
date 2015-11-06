@@ -14,7 +14,7 @@ int main() {
 	setcolor(EGERGBA(0, 0, 0, 255));
 
 	// loops;
-	test_2d_gridding_line();
+	test_3d_scene();
 
 	closegraph();
 }

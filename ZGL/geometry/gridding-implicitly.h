@@ -86,8 +86,8 @@ namespace ZGL {
 			_dis();
 		}
 
-		_dis() {
-		};
+		void _dis() {
+		}
 	};
 }
 
