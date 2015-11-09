@@ -5,7 +5,7 @@
 #ifndef ZGL_SCENE_UNIT_SURFACE
 #define ZGL_SCENE_UNIT_SURFACE
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	// Surface in 3-dim
 	// 3DÇúÃæ

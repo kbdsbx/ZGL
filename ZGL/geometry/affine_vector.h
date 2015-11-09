@@ -5,7 +5,7 @@
 #ifndef ZGL_AFFINE_VECTOR
 #define ZGL_AFFINE_VECTOR
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	/// The vector or dot that is in affine transfromations
 	/// 仿射变换中的向量或点
@@ -46,10 +46,12 @@ namespace ZGL {
 		_Tself(const _Tself& src)
 			: _Tbase(src) { }
 
+#ifdef ZGL_ENABLE_RVALUE
 		// constructor that using Rvalue params
 		// 使用右值构造
 		_Tself(_Tself&& src)
 			: _Tbase(src) { }
+#endif
 
 		// constructor that using initializer_list in cpp-11
 		// 使用C++11的初始化列表
@@ -66,12 +68,11 @@ namespace ZGL {
 			return *this;
 		}
 
+#ifdef ZGL_ENABLE_RVALUE
 		virtual _Tself& operator = (_Tself&& src) {
-			v = src.v;
-			src.v = nullptr;
-
-			return *this;
+			return (_Tself&&)(*(_Tbase*)this = src);
 		}
+#endif
 
 		bool operator == (const _Tself& opt) const {
 			return (*(const _Tbase*)this) == opt;
@@ -82,28 +83,28 @@ namespace ZGL {
 		}
 
 		_Tself operator + (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this + opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this + opt));
 		}
 
 		_Tself operator - (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this - opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this - opt));
 		}
 
 		_Tself operator * (const _Titem opt) const {
-			return (_Tself&&)(*(const _Tbase*)this * opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
 		_Tself operator / (const _Titem& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this / opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
 		_Tself operator / (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this / opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
 		template < z_size_t rows >
 		_Tself operator * (const matrix < dim, rows, _Titem >& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this * opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
 		_Titem operator PRO_DOT (const _Tself& opt) const {
@@ -111,11 +112,11 @@ namespace ZGL {
 		}
 
 		_Tself operator PRO_PARALLEL (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this PRO_PARALLEL opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this PRO_PARALLEL opt));
 		}
 
 		_Tself operator PRO_UPRIGHT (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this PRO_UPRIGHT opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this PRO_UPRIGHT opt));
 		}
 
 		// Vector module
@@ -146,7 +147,7 @@ namespace ZGL {
 				_t[i] = (vector< dim - 1, _Titem >)affine_vector< dim, _Titem >::cofactor(opt[i], dim - 1);
 			}
 			_r = vector< dim - 1, _Titem >::cross(_t);
-			return (_Tself&&)_Tself::affine(_r, _Titem(0));
+			return STD_MOVE(_Tself::affine(_r, _Titem(0)));
 		}
 
 		// Cross product
@@ -160,7 +161,7 @@ namespace ZGL {
 				_t[i] = o;
 				i++;
 			}
-			return (_Tself&&)cross(_t);
+			return STD_MOVE(cross(_t));
 		}
 
 		// determinant value for vector array
@@ -178,7 +179,7 @@ namespace ZGL {
 		// Vector Cofactor
 		// 向量余子式
 		static affine_vector < dim - 1, _Titem > cofactor(const _Tself & opt, z_size_t c) {
-			return (affine_vector < dim - 1, _Titem > &&)_Tbase::cofactor(opt, c);
+			return STD_MOVE((affine_vector < dim - 1, _Titem > &)_Tbase::cofactor(opt, c));
 		}
 
 		// To be affine vector
@@ -189,7 +190,7 @@ namespace ZGL {
 				_r[i] = opt[i];
 			}
 			_r[dim - 1] = w;
-			return (_Tself&&)_r;
+			return STD_MOVE(_r);
 		}
 
 		// Vector normalize
@@ -210,7 +211,7 @@ namespace ZGL {
 				}
 			}
 
-			return std::move(t);
+			return STD_MOVE(t);
 		}
 
 		// Vector group normalize
@@ -228,7 +229,7 @@ namespace ZGL {
 				}
 			}
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 		
 		/********** Affine Transformation 仿射变换 **********/
@@ -236,12 +237,12 @@ namespace ZGL {
 		// dot or vector translation
 		// 点或向量平移
 		static _Tsqu translate(const _Tself& trans_vector) {
-			return (_Tsqu&&)_Tsqu(
+			return STD_MOVE(_Tsqu(
 				_Tm11(IDENTITY),
 				_Tm12(),
-				_Tm21((_Tm21&&)cofactor(trans_vector, dim - 1)),
+				_Tm21(cofactor(trans_vector, dim - 1)),
 				_Tm22(IDENTITY)
-			);
+			));
 		}
 
 		// unfinished about higher-dimension
@@ -257,7 +258,7 @@ namespace ZGL {
 			typedef affine_vector< 4, double > _Tv4;
 			typedef affine_vector< 3, double > _Tv3;
 
-			_Tv3 dir = (_Tv3&&)matrix< 1, 4, double >::cofactor< 0, 4 >(axis.dirs);
+			_Tv3 dir = STD_MOVE((_Tv3&)matrix< 1, 4, double >::cofactor< 0, 4 >(axis.dirs));
 			_Tm11 _x;
 			_x[0][1] = axis.dirs[0][2];
 			_x[0][2] = axis.dirs[0][1] * -1;
@@ -266,14 +267,14 @@ namespace ZGL {
 			_x[2][0] = axis.dirs[0][1];
 			_x[2][1] = axis.dirs[0][0] * -1;
 
-			_Tm11 _m11 = (_Tm11&&)(_Tm11(IDENTITY) * cos(radian) + (_Tm11&&)(_Tv3::transpose(dir) * dir) * (1.0 - cos(radian)) + _x * sin(radian));
+			_Tm11 _m11 = _Tm11(IDENTITY) * cos(radian) + STD_MOVE((_Tm11&)(_Tv3::transpose(dir) * dir)) * (1.0 - cos(radian)) + _x * sin(radian);
 			_Tm12 _m12;
-			_Tm21 _m21 = (_Tm21&&)(_Tv4::cofactor(axis.pos, 3) * (_m11 * -1 + _Tm11(IDENTITY)));
+			_Tm21 _m21 = _Tv4::cofactor(axis.pos, 3) * (_m11 * -1 + _Tm11(IDENTITY));
 			_Tm22 _m22(IDENTITY);
 
 			_Tsqu _rm(_m11, _m12, _m21, _m22);
 
-			return std::move(_rm);
+			return STD_MOVE(_rm);
 		}
 
 		// vector scaling or dot scaling relative origin
@@ -298,13 +299,13 @@ namespace ZGL {
 			for (z_size_t i = 0; i < d_dim; i++) {
 				affine_vector< dim - 1, _Titem > _w = _Tself::cofactor(_Tself(scaling_params.dirs[i]), dim - 1);
 				_sm = _sm * _Tsqu(
-					_Tm11(IDENTITY) + (_Tm11&&)(matrix< dim - 1, dim - 1, _Titem >::transpose(_w) * _w * (scaling - _Titem(1))),
+					_Tm11(IDENTITY) + STD_MOVE((_Tm11&)(matrix< dim - 1, dim - 1, _Titem >::transpose(_w) * _w * (scaling - _Titem(1)))),
 					_Tm12(),
 					_Tm21(),
 					_Tm22(IDENTITY)
 				);
 			}
-			return (_Tsqu&&)((_tm ^ -1) * _sm * _tm);
+			return STD_MOVE((_tm ^ -1) * _sm * _tm);
 		}
 
 		// vector or dot mirror with one plane
@@ -321,12 +322,12 @@ namespace ZGL {
 			_mtx _a = matrix < dim - 2, dim, _Titem >::cofactor < 0, dim >(mpl.dirs);
 
 			_Tsqu _mm (
-				(_Tm11&&)(_mtx::transpose(_a) * ((_sqr&&)(_a * _mtx::transpose(_a)) ^ -1) * _a) * 2 - _Tm11(IDENTITY),
+				STD_MOVE((_Tm11&)(_mtx::transpose(_a) * STD_MOVE((_sqr&)(_a * _mtx::transpose(_a)) ^ -1) * _a)) * 2 - _Tm11(IDENTITY),
 				_Tm12(),
 				_Tm21(),
 				_Tm22(IDENTITY)
 			);
-			return (_Tsqu&&)((_tm ^ -1) * _mm * _tm);
+			return (_tm ^ -1) * _mm * _tm;
 		}
 
 		// vector or dot shear along one plane
@@ -348,13 +349,13 @@ namespace ZGL {
 			// 镜像矩阵
 			_mtx _a = matrix < dim - 2, dim, _Titem >::cofactor < 0, dim >(opl.dirs);
 			_Tsqu _om(
-				(_Tm11&&)(_mtx::transpose(_a) * ((_sqr&&)(_a * _mtx::transpose(_a)) ^ -1) * _a),
+				STD_MOVE((_Tm11&)(_mtx::transpose(_a) * STD_MOVE((_sqr&)(_a * _mtx::transpose(_a)) ^ -1) * _a)),
 				_Tm12(),
 				_Tm21(),
 				_Tm22(IDENTITY)
 			);
 
-			return (_Tsqu&&)((_tm ^ -1) * _om * _tm);
+			return (_tm ^ -1) * _om * _tm;
 		}
 
 		// vector or dot perspective projection to one plane
@@ -376,6 +377,7 @@ namespace ZGL {
 			throw "";
 		}
 	};
-}
+
+_ZGL_END
 
 #endif // !ZGL_AFFINE_VECTOR

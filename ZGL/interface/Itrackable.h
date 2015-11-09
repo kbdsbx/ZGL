@@ -4,7 +4,7 @@
 #ifndef ZGL_ITRACKABLE
 #define ZGL_ITRACKABLE
 
-namespace ZGL {
+_ZGL_BEGIN
 	// Trackable interface
 	// 允许被光线追踪渲染
 	class Itrackable

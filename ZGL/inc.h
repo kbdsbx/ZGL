@@ -1,9 +1,13 @@
 #include <type_traits>
+#include <stdexcept>
 
 #ifndef ZGL_INC
 #define ZGL_INC
 
-namespace ZGL {
+#define _ZGL_BEGIN namespace ZGL {
+#define _ZGL_END }
+
+_ZGL_BEGIN
 
 	// about type
 	// 类型相关
@@ -18,6 +22,24 @@ namespace ZGL {
 	// Right handed system
 	// 右手坐标系
 #define RIGHT_HANDED_SYSTEM
+
+
+	// debug and rvalue references
+	// 调试环境与右值
+#if defined _DEBUG || !define __cpp_rvalue_references
+
+	#define ZGL_DISABLE_RVALUE
+	#define STD_MOVE
+	#define ZGL_RVALUE(T) ((T)&)
+
+#else
+
+	#define ZGL_ENABLE_RVALUE
+	#define STD_MOVE std::move
+	#define ZGL_RVALUE(T) (T&&)
+
+#endif
+
 
 	/**
 	 * enums
@@ -93,10 +115,18 @@ namespace ZGL {
 	// 比较两个长双精度浮点数是否相等
 	#define LONG_DOUBLE_EQ( x, y ) (((x) - (y) >= -LONG_DOUBLE_EPSINON) && ((x) - (y) <= LONG_DOUBLE_EPSINON))
 
+	using invalid_type = std::invalid_argument;
+
+	template < typename T >
+	inline bool floating_eq(T x, T y) { throw invalid_type( "Comparing floating type only." ); }
+
+	template <>
 	inline bool floating_eq(float x, float y) { return (x - y) >= -(10e-5) && (x - y) <= (10e-5); }
 
+	template <>
 	inline bool floating_eq(double x, double y) { return (x - y) >= -(10e-13) && (x - y) <= (10e-13); }
 
+	template <>
 	inline bool floating_eq(long double x, long double y) { return (x - y) >= -(10e-15) && (x - y) <= (10e-15); }
 
 	/**
@@ -132,6 +162,7 @@ namespace ZGL {
 
 	// Interface
 	// 接口
-}
+
+_ZGL_END
 
 #endif // !ZGL_INC

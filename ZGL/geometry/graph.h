@@ -4,7 +4,7 @@
 #ifndef ZGL_GRAPH
 #define ZGL_GRAPH
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	/// Lower dimensional elements in a multidimensional space
 	/// 多维空间中的低纬度元素

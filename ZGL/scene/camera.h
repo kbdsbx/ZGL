@@ -6,14 +6,14 @@
 #ifndef ZGL_CAMERA
 #define ZGL_CAMERA
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	// Camera in 3D
 	// 3D相机
 	class camera
 		: Icamera {
 		typedef camera _Tself;
-		typedef double _Titem;
+		typedef z_item_t _Titem;
 		typedef affine_vector< 4, _Titem > _Tv4;
 		typedef square< 4, _Titem > _Tm4;
 		typedef graph< 4, 1, _Titem > _Tline;
@@ -38,7 +38,7 @@ namespace ZGL {
 			: _position(src._position), _forward(src._forward), _upward(src._upward) { }
 
 		camera(_Tself&& src)
-			: _position(std::move(src._position)), _forward(std::move(src._forward)), _upward(std::move(src._upward)) { }
+			: _position(STD_MOVE(src._position)), _forward(STD_MOVE(src._forward)), _upward(STD_MOVE(src._upward)) { }
 
 		// dot for position
 		// 相机位置

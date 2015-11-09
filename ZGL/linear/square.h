@@ -7,7 +7,7 @@
 #ifndef ZGL_SQUARE
 #define ZGL_SQUARE
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	/// Square matrix
 	/// 方阵
@@ -48,10 +48,12 @@ namespace ZGL {
 		square(const _Tself& src)
 			: _Tbase(src) { }
 
+#ifdef ZGL_ENABLE_RVALUE
 		// constructor that using Rvalue params
 		// 使用右值构造
 		square(_Tself&& src)
 			: _Tbase(src) { }
+#endif
 
 		// constructor that using initializer_list in cpp-11
 		// 使用C++11的初始化列表
@@ -72,19 +74,20 @@ namespace ZGL {
 		}
 
 		virtual _Tself& operator = (const _Tself& src) {
-			z_size_t i = dim * dim;
-			while (i--)
-				v[0][i] = src[0][i];
+			for (z_size_t i = 0; i < dim; i++)
+				for (z_size_t j = 0; j < dim; j++)
+					v[i][j] = src[i][j];
 
 			return *this;
 		}
 
+#ifdef ZGL_ENABLE_RVALUE
 		virtual const _Tself& operator = (_Tself&& src) {
 			v = src.v;
-			src.v = nullptr;
-
+			src.v = 0;
 			return *this;
 		}
+#endif
 
 		bool operator == (const _Tself& opt) const {
 			return (*(const _Tbase*)this) == opt;
@@ -95,37 +98,37 @@ namespace ZGL {
 		}
 
 		_Tself operator + (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this + opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this + opt));
 		}
 
 		_Tself operator - (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this - opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this - opt));
 		}
 
 		_Tself operator * (const _Titem& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this * opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
 		_Tself operator * (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this * opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
 		_Tself operator / (const _Titem& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this / opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
 		_Tself operator / (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this / opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
-		_Tself operator ^ (z_size_t opt) const {
+		_Tself operator ^ (int opt) const {
 			if (opt == 0) {
 				return _Tself(ZGL_SQUARE_MATRIX_TYPE::IDENTITY);
 			} else {
 				_Tself _s(*this);
 				for (z_size_t i = 1; i < abs(opt); i++)
 					_s = _s * *this;
-				return std::move(opt > 0 ? _s : _Tself::inverse(_s));
+				return STD_MOVE(opt > 0 ? _s : _Tself::inverse(_s));
 			}
 		}
 
@@ -161,7 +164,7 @@ namespace ZGL {
 		// 矩阵转置
 		template < z_size_t dim, typename _Titem >
 		static square < dim, _Titem > transpose(const square < dim, _Titem >& opt) {
-			return (_Tself&&)_Tbase::transpose(opt);
+			return STD_MOVE((_Tself&)_Tbase::transpose(opt));
 		}
 
 		// Cofactor
@@ -180,7 +183,7 @@ namespace ZGL {
 				else
 					_mr = 1;
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 
 		// Matrix inverse
@@ -195,7 +198,7 @@ namespace ZGL {
 						_t[j][i] = determinant(cofactor(opt, i + 1, j + 1)) * (z_size_t)pow(-1.0, i + j + 2);
 
 				_t = _t * (_Titem(1) / _det);
-				return std::move(_t);
+				return STD_MOVE(_t);
 			} else {
 				throw "";
 			}
@@ -224,6 +227,7 @@ namespace ZGL {
 			throw "";
 		}
 	};
-}
+
+_ZGL_END
 
 #endif // !ZGL_SQUARE

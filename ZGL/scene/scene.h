@@ -6,7 +6,7 @@
 #ifndef ZGL_SCENE
 #define ZGL_SCENE
 
-namespace ZGL {
+_ZGL_BEGIN
 	
 	// Scene
 	// ³¡¾°

@@ -2,7 +2,7 @@
 #ifndef ZGL_ILIGHT
 #define ZGL_ILIGHT
 
-namespace ZGL {
+_ZGL_BEGIN
 	// Light interface
 	// 光源接口
 	class Ilight {

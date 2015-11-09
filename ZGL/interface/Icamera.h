@@ -2,7 +2,7 @@
 #ifndef ZGL_ICAMERA
 #define ZGL_ICAMERA
 
-namespace ZGL {
+_ZGL_BEGIN
 	// Camera interface
 	// 相机接口
 	class Icamera {

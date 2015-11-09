@@ -162,17 +162,19 @@ void test_3d_scene() {
 	// scene.projection_trans(0);
 	scene.viewport_trans(100, 800, 600);
 
+	std::vector< ZGL::surface::segment > rs;
+	for (auto grids : scene.material_grids) {
+		grids->each(rs);
+	}
 	for (; is_run(); delay_fps(60), cleardevice()) {
-		for (auto grids : scene.material_grids) {
-			std::vector< ZGL::surface::segment > rs;
-			grids->each(ZGL::surface::Tidx(), rs);
-			for (auto c : rs) {
-				auto x1 = c.frist[0];
-				auto y1 = c.frist[1];
-				auto x2 = c.last[0];
-				auto y2 = c.last[1];
-				ege_line(x1, y1, x2, y2);
-			}
+		auto i = 0;
+		for (auto r : rs) {
+			auto x1 = (r.frist[0]);
+			auto y1 = (r.frist[1]);
+			auto x2 = (r.last[0]);
+			auto y2 = (r.last[1]);
+			ege_line(x1, y1, x2, y2);
+			i++;
 		}
 	}
 }

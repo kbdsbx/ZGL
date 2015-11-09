@@ -7,7 +7,7 @@
 #ifndef ZGL_VECTOR
 #define ZGL_VECTOR
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	/// Vector
 	/// 向量
@@ -44,10 +44,12 @@ namespace ZGL {
 		vector(const _Tself& src)
 			: _Tbase(src) { }
 
+#ifdef ZGL_ENABLE_RVALUE
 		// constructor that using Rvalue params
 		// 使用右值构造
 		vector(_Tself&& src)
 			: _Tbase(src) { }
+#endif
 
 		// constructor that using initializer_list in cpp-11
 		// 使用C++11的初始化列表
@@ -64,12 +66,13 @@ namespace ZGL {
 			return *this;
 		}
 
+#ifdef ZGL_ENABLE_RVALUE
 		virtual _Tself& operator = (_Tself&& src) {
 			v = src.v;
-			src.v = nullptr;
-
+			src.v = 0;
 			return *this;
 		}
+#endif
 
 		bool operator == (const _Tself& opt) const {
 			return (*(const _Tbase*)this) == opt;
@@ -80,28 +83,28 @@ namespace ZGL {
 		}
 
 		_Tself operator + (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this + opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this + opt));
 		}
 
 		_Tself operator - (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this - opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this - opt));
 		}
 
 		_Tself operator * (const _Titem opt) const {
-			return (_Tself&&)(*(const _Tbase*)this * opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
 		template < z_size_t rows >
 		vector < rows, _Titem > operator * (const matrix < dim, rows, _Titem >& opt) const {
-			return (vector< rows, _Titem >&&)(*(const _Tbase *)this * opt);
+			return STD_MOVE((vector< rows, _Titem >&)(*(const _Tbase *)this * opt));
 		}
 
 		_Tself operator / (const _Titem& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this / opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
 		_Tself operator / (const _Tself& opt) const {
-			return (_Tself&&)(*(const _Tbase*)this / opt);
+			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
 		_Titem operator PRO_DOT (const _Tself& opt) const {
@@ -145,13 +148,13 @@ namespace ZGL {
 						for (z_size_t k = 0; k < dim; k++)
 							_m[j][k] = _Titem(1);
 
-						_t[i][j] = std::move(_m);
+						_t[i][j] = STD_MOVE(_m);
 					} else {
 						_Tsquare _m(ZERO);
 						for (z_size_t k = 0; k < dim; k++)
 							_m[k][k] = opt[i - 1][j];
 
-						_t[i][j] = std::move(_m);
+						_t[i][j] = STD_MOVE(_m);
 					}
 
 			square< dim, _Tsquare > _ms(_t);
@@ -161,7 +164,7 @@ namespace ZGL {
 			for (z_size_t i = 0; i < dim; i++)
 				_ft[i] = _rs[i][i];
 
-			return std::move(_ft);
+			return STD_MOVE(_ft);
 		}
 
 		// Cross product
@@ -219,9 +222,10 @@ namespace ZGL {
 				else
 					_mc = 1;
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 	};
-}
+
+_ZGL_END
 
 #endif // !ZGL_VECTOR

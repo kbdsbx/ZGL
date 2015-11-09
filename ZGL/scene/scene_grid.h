@@ -6,7 +6,7 @@
 #ifndef ZGL_SCENE_GRID
 #define ZGL_SCENE_GRID
 
-namespace ZGL {
+_ZGL_BEGIN
 	class scene_grid
 		: public scene {
 		typedef __int8 _Tid;

@@ -3,7 +3,7 @@
 #ifndef ZGL_IRADIANTABLE
 #define ZGL_IRADIANTABLE
 
-namespace ZGL {
+_ZGL_BEGIN
 	// Can be radiant interface
 	// ‘ –Ì±ª∑¯…‰∂»‰÷»æ
 	class Iradiantable

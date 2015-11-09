@@ -4,7 +4,7 @@
 #ifndef ZGL_ISEPARABLE
 #define ZGL_ISEPARABLE
 
-namespace ZGL {
+_ZGL_BEGIN
 	// Iterator in gridding
 	// Íø¸ñµü´úÆ÷
 	/// d_dim: elements' dimension
@@ -40,9 +40,9 @@ namespace ZGL {
 
 		Tv& operator * () {
 			z_size_t c = 0;
-			for (z_size_t i = 0; i < d_dim - 1; i++)
+			for (z_size_t i = d_dim - 1; i > 0; i--)
 				c += _idx[i] * _max[i];
-			c += _idx[d_dim - 1];
+			c += _idx[0];
 			return _root[c];
 		}
 

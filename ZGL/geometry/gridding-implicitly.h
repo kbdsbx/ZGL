@@ -7,7 +7,7 @@
 #ifndef ZGL_GRIDDING_IMPLICITLY
 #define ZGL_GRIDDING_IMPLICITLY
 
-namespace ZGL {
+_ZGL_BEGIN
 	/// Gridding Implicitly
 	/// ÒþÊ½Íø¸ñ
 	///

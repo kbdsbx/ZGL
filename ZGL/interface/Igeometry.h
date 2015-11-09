@@ -3,7 +3,7 @@
 #ifndef ZGL_IGEOMETRY
 #define ZGL_IGEOMETRY
 
-namespace ZGL {
+_ZGL_BEGIN
 	// Solid geometry interface
 	// 实体几何接口
 	class Igeometry

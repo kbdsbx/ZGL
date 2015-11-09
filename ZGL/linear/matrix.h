@@ -5,7 +5,7 @@
 #ifndef ZGL_MATRIX
 #define ZGL_MATRIX
 
-namespace ZGL {
+_ZGL_BEGIN
 
 	/// Matrix
 	/// 矩阵
@@ -22,26 +22,44 @@ namespace ZGL {
 		typedef matrix< rows, cols, Titem > _Tself;
 
 	protected :
+#ifdef ZGL_DISABLE_RVALUE
+		_Titem v[rows][cols] = { };
+#endif
+#ifdef ZGL_ENABLE_RVALUE
 		_Titem **v;
+#endif
 
 	public :
 		~matrix() {
+#ifdef ZGL_ENABLE_RVALUE
 			if (v) {
 				delete[] v[0];
 				delete[] v;
 			}
+#endif
 		}
 		// default constructor as initializer as zero matrix
 		// 默认构造初始化零矩阵
 		matrix() {
+#ifdef ZGL_ENABLE_RVALUE
 			v = new _Titem*[rows];
 			v[0] = new _Titem[rows * cols];
 			for (z_size_t i = 1; i < rows; i++)
 				v[i] = v[i - 1] + cols;
 			z_size_t i = rows * cols;
 			while (i--)
-				v[0][i] = 0;
+				v[0][i] = _Titem(0);
+#endif
 		}
+
+#ifdef ZGL_ENABLE_RVALUE
+		// constructor that using Rvalue params
+		// 使用右值构造
+		matrix(matrix&& src) {
+			v = src.v;
+			src.v = nullptr;
+		}
+#endif
 
 		// constructor that using item array
 		// 使用数组的构造函数
@@ -63,23 +81,18 @@ namespace ZGL {
 					v[i][j] = src[i][j];
 		}
 
-		// constructor that using Rvalue params
-		// 使用右值构造
-		matrix(matrix&& src) {
-			v = src.v;
-			src.v = nullptr;
-		}
-
 		// constructor that using initializer_list in cpp-11
 		// 使用C++11的初始化列表
 		matrix(const std::initializer_list< std::initializer_list< _Titem > >& src)
 			: matrix() {
 			z_size_t i = 0;
 			for (const std::initializer_list< _Titem >& _s : src) {
+				z_size_t j = 0;
 				for (const _Titem& _t : _s) {
-					v[0][i] = _t;
-					i++;
+					v[i][j] = _t;
+					j++;
 				}
+				i++;
 			}
 		}
 
@@ -105,64 +118,34 @@ namespace ZGL {
 		}
 
 		_Titem* operator [] (z_size_t opt) const {
-			return v[opt];
+			return (_Titem*)(v[opt]);
 		}
 
 		virtual const _Tself& operator = (const _Tself& src) {
-			z_size_t i = rows * cols;
-			while (i--)
-				v[0][i] = src[0][i];
+			for (z_size_t i = 0; i < rows; i++)
+				for (z_size_t j = 0; j < cols; j++)
+					v[i][j] = src[i][j];
 
 			return *this;
 		}
 
+#ifdef ZGL_ENABLE_RVALUE
 		virtual const _Tself& operator = (_Tself&& src) {
 			v = src.v;
 			src.v = nullptr;
-
 			return *this;
 		}
+#endif
 
 		template < typename _Titem >
 		bool operator == (const matrix < rows, cols, _Titem >& opt) const {
-			z_size_t i = rows * cols;
-			while (i--)
-				if (v[0][i] != opt[0][i])
-					return false;
+			for (z_size_t i = 0; i < rows; i++)
+				for (z_size_t j = 0; j < cols; j++)
+					if (std::is_floating_point< _Titem >::value ? (!floating_eq< _Titem >(v[i][j], opt[i][j])) : (v[i][j] != opt[i][j]))
+						return false;
 
 			return true;
 		}
-
-		template <>
-		bool operator == (const matrix < rows, cols, float >& opt) const {
-			z_size_t i = rows * cols;
-			while (i--)
-				if (!floating_eq(v[0][i], opt[0][i]))
-					return false;
-
-			return true;
-		}
-
-		template <>
-		bool operator == (const matrix < rows, cols, double >& opt) const {
-			z_size_t i = rows * cols;
-			while (i--)
-				if (!floating_eq(v[0][i], opt[0][i]))
-					return false;
-
-			return true;
-		}
-
-		template <>
-		bool operator == (const matrix < rows, cols, long double >& opt) const {
-			z_size_t i = rows * cols;
-			while (i--)
-				if (!floating_eq(v[0][i], opt[0][i]))
-					return false;
-
-			return true;
-		}
-
 
 		bool operator != (const _Tself& opt) const {
 			return !(*this == opt);
@@ -170,25 +153,25 @@ namespace ZGL {
 
 		_Tself operator + (const _Tself& opt) const {
 			_Tself _t;
-			z_size_t i = rows * cols;
-			while (i--)
-				_t[0][i] = v[0][i] + opt[0][i];
+			for (z_size_t i = 0; i < rows; i++)
+				for (z_size_t j = 0; j < cols; j++)
+					_t[i][j] = v[i][j] + opt[i][j];
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 
 		_Tself operator - (const _Tself& opt) const {
 			_Tself _t = *this + opt * -1;
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 
 		_Tself operator * (const _Titem& opt) const {
 			_Tself _t;
-			z_size_t i = rows * cols;
-			while (i--)
-				_t[0][i] = v[0][i] * opt;
+			for (z_size_t i = 0; i < rows; i++)
+				for (z_size_t j = 0; j < cols; j++)
+					_t[i][j] = v[i][j] * opt;
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 
 		template < z_size_t n_cols >
@@ -199,11 +182,11 @@ namespace ZGL {
 					for (z_size_t k = 0; k < cols; k++)
 						_t[i][j] = _t[i][j] + v[i][k] * opt[k][j];
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 
 		_Tself operator / (const _Titem& opt) const {
-			return (_Tself&&)(*this * (_Titem(1) / opt));
+			return STD_MOVE((_Tself&)(*this * (_Titem(1) / opt)));
 		}
 
 		_Tself operator / (const _Tself& opt) const {
@@ -219,7 +202,7 @@ namespace ZGL {
 				for (z_size_t j = 0; j < cols; j++)
 					_t[j][i] = opt[i][j];
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 
 		// Cofactor
@@ -238,12 +221,13 @@ namespace ZGL {
 				else
 					_mr = 1;
 
-			return std::move(_t);
+			return STD_MOVE(_t);
 		}
 	};
 
 	template < z_size_t rows, z_size_t cols, typename Titem >
 	class matrix < rows, cols, Titem, typename std::enable_if_t < (rows < 0) || (cols < 0) > > { };
-}
+
+_ZGL_END
 
 #endif // !ZGL_MATRIX

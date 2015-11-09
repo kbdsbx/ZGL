@@ -8,7 +8,7 @@
 #ifndef ZGL_GRIDDING
 #define ZGL_GRIDDING
 
-namespace ZGL {
+_ZGL_BEGIN
 	/// Gridding
 	/// Íø¸ñ
 	///
@@ -41,9 +41,12 @@ namespace ZGL {
 		typedef _Tidx Tidx;
 
 	public :
-		struct segment{
-			_Tv frist;
-			_Tv last;
+		class segment{
+		public :
+			const _Tv& frist;
+			const _Tv& last;
+
+			segment() { }
 
 			segment(const _Tv& sFrist, const _Tv& sLast)
 				: frist(sFrist), last(sLast) { }
@@ -294,6 +297,12 @@ namespace ZGL {
 			}
 		}
 
+		_Tv operator [] (_Tidx idx) {
+			z_size_t c = 1;
+			for (z_size_t i = 0; i < d_dim; i++)
+				c *= idx[d_dim];
+		}
+
 		///*** Iterator ***///
 
 		// iterator begin, the index is { 0, 0, 0, 0 } in 3D gridding etc.
@@ -308,17 +317,18 @@ namespace ZGL {
 			_Tit _it(_max, _root);
 			_it._idx[d_dim] = 1;
 
-			return std::move(_it);
+			return STD_MOVE(_it);
 		}
 
-		void each(_Tidx idx, std::vector< segment >& res) const {
-			for (z_size_t d = 0; d < d_dim; d++) {
-				_Tidx nidx(idx);
-				nidx[d]++;
-				if (nidx[d] <= _max[d]) {
-					res.push_back(segment(_root[idx], _root[nidx]));
+		void each(std::vector< segment >& res) const {
+			for (_Tit it = begin(); it != end(); ++it) {
+				for (z_size_t d = 0; d < d_dim; d++) {
+					_Tidx _idx = it._idx;
+					_idx[d] = _idx[d] + 1;
+					if (_idx[d] < _max[d]) {
+						res.push_back(segment(*it, *_Tit(_idx, _max, _root)));
+					}
 				}
-				each(nidx, res);
 			}
 		}
 	};
