@@ -99,6 +99,6 @@ _ZGL_BEGIN
 	template < int d_dim, typename Titem >
 	class graph < 0, d_dim, Titem > {
 	};
-}
+_ZGL_END
 
 #endif // !ZGL_GRAPH

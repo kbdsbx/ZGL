@@ -23,6 +23,7 @@ _ZGL_BEGIN
 
 		~scene_grid() {
 			/*
+			// Why it mustn't be delete ?
 			for (auto grids : material_grids)
 				delete grids;
 			*/
@@ -52,7 +53,7 @@ _ZGL_BEGIN
 				for (auto grid : material_grids)
 					delete grid;
 
-				for (const auto& grid : grids)
+				for (decltype(auto) grid : grids)
 					material_grids.push_back(new surface(*grid));
 			}
 
@@ -110,6 +111,7 @@ _ZGL_BEGIN
 			return 0;
 		}
 	};
-}
+
+_ZGL_END
 
 #endif // ZGL_SCENE_GRID

@@ -10,6 +10,7 @@ _ZGL_BEGIN
 	// Surface in 3-dim
 	// 3DÇúÃæ
 	typedef gridding< 4, 2, z_item_t > surface;
-}
+
+_ZGL_END
 
 #endif // !ZGL_SCENE_UNIT_SURFACE

@@ -39,10 +39,19 @@ _ZGL_BEGIN
 			: _idx(it._idx), _max(it._max), _root(it._root) { }
 
 		Tv& operator * () {
-			z_size_t c = 0;
-			for (z_size_t i = d_dim - 1; i > 0; i--)
-				c += _idx[i] * _max[i];
-			c += _idx[0];
+			z_size_t c = 0, _t;
+			// 计数器进制
+			for (z_size_t i = 0; i < d_dim; i++) {
+				_t = _idx[i];
+				// 如果不是个位数，则循环累乘低位进制
+				if (i) {
+					for (z_size_t j = (i - 1); j >= 0; j--) {
+						_t *= _max[j];
+					}
+				}
+				c += _t;
+			}
+
 			return _root[c];
 		}
 

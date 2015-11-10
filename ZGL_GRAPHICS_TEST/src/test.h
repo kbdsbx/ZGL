@@ -144,22 +144,21 @@ void test_2d_gridding_line() {
 void test_3d_scene() {
 	ZGL::scene_grid scene;
 
-	ZGL::camera cm({ 4, 4, 4, 0 }, { -1, -1, -1, 0 }, { -1, -1, 0, 0 });
+	ZGL::camera cm({ 0, 6, PI, 1 }, { 0, -1, 0, 0 }, { 0, 0, 1, 0 });
 	ZGL::surface sf({
-		ZGL::surface::grid_data(-PI * 2, .1, PI * 2),
-		ZGL::surface::grid_data(-PI * 2, .1, PI * 2),
-		ZGL::surface::grid_data(-5, .1, 5),
+		ZGL::surface::grid_data(0, PI / 15, PI),
+		ZGL::surface::grid_data(0, PI / 15, PI * 2),
 	}, {
-		[](ZGL::surface::Targ a) { return sin(a[0]); },
-		[](ZGL::surface::Targ a) { return cos(a[1]); },
-		[](ZGL::surface::Targ a) { return a[2]; },
+		[](ZGL::surface::Targ a) { return a[0] * sin(a[1]); },
+		[](ZGL::surface::Targ a) { return a[0] * cos(a[1]); },
+		[](ZGL::surface::Targ a) { return a[1] / 1; },
 	});
 	char cid = scene.add_camera(&cm);
 	scene.add_solid(&sf);
 
 	scene.modeling_trans();
-	// scene.viewing_trans(cid);
-	// scene.projection_trans(0);
+	scene.viewing_trans(cid);
+	// scene.projection_trans(6);
 	scene.viewport_trans(100, 800, 600);
 
 	std::vector< ZGL::surface::segment > rs;

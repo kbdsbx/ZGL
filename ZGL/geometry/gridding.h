@@ -332,6 +332,6 @@ _ZGL_BEGIN
 			}
 		}
 	};
-}
+_ZGL_END
 
 #endif // !ZGL_GRIDDING

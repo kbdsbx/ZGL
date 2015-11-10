@@ -1,6 +1,7 @@
 #include "../inc.h"
 #include <math.h>
 #include <initializer_list>
+#include <array>
 
 #ifndef ZGL_MATRIX
 #define ZGL_MATRIX

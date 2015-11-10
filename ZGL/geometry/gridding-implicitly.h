@@ -89,6 +89,7 @@ _ZGL_BEGIN
 		void _dis() {
 		}
 	};
-}
+
+_ZGL_END
 
 #endif // !ZGL_GRIDDING_IMPLICITLY
