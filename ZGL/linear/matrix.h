@@ -132,6 +132,11 @@ _ZGL_BEGIN
 
 #ifdef ZGL_ENABLE_RVALUE
 		virtual const _Tself& operator = (_Tself&& src) {
+			if (v) {
+				delete[] v[0];
+				delete[] v;
+			}
+
 			v = src.v;
 			src.v = nullptr;
 			return *this;

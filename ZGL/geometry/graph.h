@@ -58,6 +58,45 @@ _ZGL_BEGIN
 		void normalize() {
 			dirs = _Tv::normalize(dirs);
 		}
+
+		// orthogonalize linear independent vector group
+		// 将线性无关向量组正交化
+		void orthogonalize() {
+			for (z_size_t i = 1; i < d_dim; i++) {
+				_Tv t(dirs[i]);
+				for (z_size_t j = (i - 1); j >= 0; j--)
+					t = t PRO_UPRIGHT _Tv(dirs[j]);
+				for (z_size_t j = 0; j < dim; j++)
+					dirs[i][j] = t[j];
+			}
+
+			normalize();
+		}
+
+		// normal vector for plane
+		// 计算平面法向量
+		//      p : the point that out of this plane
+		//          平面外的一点
+		// [exception] : this point is in the plane.
+		//          点再平面内
+		_Tv n(const _Tv& p) const {
+			if ((dim - d_dim) != 2)
+				throw "";
+
+			_Tv _t(pos);
+			_Tself _plane(*this);
+
+			_plane.orthogonalize();
+
+			for (z_size_t i = 0; i < d_dim; i++) {
+				_t = _t + ((p - _plane.pos) PRO_PARALLEL _Tv(_plane.dirs[i]));
+			}
+
+			if (_t == _Tv{ _Titem(0), _Titem(0), _Titem(0), _Titem(1) })
+				throw "this point is in the plane.";
+
+			return STD_MOVE(_Tv::normalize(_t));
+		}
 	};
 
 	/// Lower dimensional elements in a multidimensional space and only positions
