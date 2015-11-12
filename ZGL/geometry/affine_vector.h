@@ -70,7 +70,8 @@ _ZGL_BEGIN
 
 #ifdef ZGL_ENABLE_RVALUE
 		virtual _Tself& operator = (_Tself&& src) {
-			return (_Tself&&)(*(_Tbase*)this = src);
+			(*(_Tbase*)this = src);
+			return *this;
 		}
 #endif
 
@@ -305,7 +306,7 @@ _ZGL_BEGIN
 					_Tm22(IDENTITY)
 				);
 			}
-			return STD_MOVE((_tm ^ -1) * _sm * _tm);
+			return (_tm ^ -1) * _sm * _tm;
 		}
 
 		// vector or dot mirror with one plane
@@ -361,20 +362,19 @@ _ZGL_BEGIN
 		// vector or dot perspective projection to one plane
 		// 向量或点透视投影至某一平面
 		static _Tsqu perspective(const _Tpl& persp_plane, const _Tself& view) {
-			/*
-			affine_vector< dim - 1, _Titem > _n = _Tself::cofactor((_Tself&&)persp_plane.dirs, dim - 1);
-			affine_vector< dim - 1, _Titem > _v = _Tself::cofactor(view, dim - 1);
-			affine_vector< dim - 1, _Titem > _p = _Tself::cofactor(persp_plane.pos, dim - 1);
+			affine_vector< dim - 1, _Titem >
+				_n = _Tself::cofactor(persp_plane.n(view), dim - 1),
+				_v = _Tself::cofactor(view, dim - 1),
+				_p = _Tself::cofactor(persp_plane.pos, dim - 1);
+
 			_Tsqu _pm(
-				(_Tm11&&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * _v * _Titem(-1) + _Tm11(IDENTITY) * ((_v - _p) PRO_DOT _n)),
-				(_Tm12&&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * -1),
-				(_Tm21&&)(_v * (_p PRO_DOT _n)),
-				_Tm22({ {_v PRO_DOT _n} })
+				STD_MOVE((_Tm11&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * _v) * _Titem(-1) + _Tm11(IDENTITY) * ((_v - _p) PRO_DOT _n)),
+				STD_MOVE((_Tm12&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * -1)),
+				STD_MOVE((_Tm21&)(_v * (_p PRO_DOT _n))),
+				_Tm22 { { _v PRO_DOT _n } }
 			);
 
-			return _pm;
-			*/
-			throw "";
+			return STD_MOVE(_pm);
 		}
 	};
 

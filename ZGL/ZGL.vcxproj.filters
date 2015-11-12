@@ -64,6 +64,9 @@
     <ClInclude Include="interface\Ishadowable.h">
       <Filter>interface</Filter>
     </ClInclude>
+    <ClInclude Include="io\mouse.h">
+      <Filter>scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="geometry">

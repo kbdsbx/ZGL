@@ -85,13 +85,14 @@ _ZGL_BEGIN
 				{ 0, 1, 0, 0 },
 			});
 
-			auto _tm = _Tv4::orthogonal(plane);
+			// auto _tm = _Tv4::orthogonal(plane);
+			auto _tm = _Tv4::perspective(plane, { 0, 0, 0, 1 });
 
 			// projection transformation
 			// ͶӰ�任
 			for (decltype(auto) grid : material_grids) {
 				for (decltype(auto) p : *grid) {
-					p = p * _tm;
+					p = _Tv4::normalize(p * _tm);
 				}
 			}
 

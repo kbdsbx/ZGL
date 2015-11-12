@@ -33,6 +33,7 @@
     <ClInclude Include="interface\Ishadowable.h" />
     <ClInclude Include="interface\Isolid.h" />
     <ClInclude Include="interface\Itrackable.h" />
+    <ClInclude Include="io\mouse.h" />
     <ClInclude Include="linear\matrix.h" />
     <ClInclude Include="linear\square.h" />
     <ClInclude Include="linear\vector.h" />

@@ -89,14 +89,6 @@ _ZGL_BEGIN
 		// Camera transformation matrix
 		// Ïà»ú±ä»»¾ØÕó
 		_Tm4 view() const {
-			/*
-			return STD_MOVE(_Tm4{
-				{ _rightward[0], _upward[0], _forward[0], 0 },
-				{ _rightward[1], _upward[1], _forward[1], 0 },
-				{ _rightward[2], _upward[2], _forward[2], 0 },
-				{ _position[0] * -1, _position[1] * -1, _position[2] * -1, 1 },
-			});
-			*/
 			return STD_MOVE(_Tm4 {
 				{ _rightward[0], _rightward[1], _rightward[2], 0 },
 				{ _upward[0], _upward[1], _upward[2], 0 },

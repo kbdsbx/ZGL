@@ -121,6 +121,27 @@ void test_2d_vector_orthogonal() {
 	}
 }
 
+// 2D-vector perspective is successfully;
+void test_2d_vector_perspective() {
+	Vector2 v1_1{ 1.5, 0.5, 1 };
+	Vector2 v1_2{ -0.5, 0.85, 1 };
+	Vector2 v2_1 = v1_1 * Vector2::perspective(Line2({ -1.0, 0.0, 1 }, {
+		{ 0.0, 1.0, 0 },
+	}), { -1.5, 0, 0, 1 });
+	Vector2 v2_2 = v1_2 * Vector2::perspective(Line2({ -1.0, 0.0, 1 }, {
+		{ 0.0, 1.0, 0 },
+	}), { -1.5, 0, 0, 1 });
+
+	v2_1.normalize();
+	v2_2.normalize();
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
+
 // 2D-vector curved line is successfully;
 void test_2d_gridding_line() {
 	Curved2 c1({
@@ -147,25 +168,52 @@ void test_3d_scene() {
 	ZGL::camera cm({ 0, 6, PI, 1 }, { 0, -1, 0, 0 }, { 0, 0, 1, 0 });
 	ZGL::surface sf({
 		ZGL::surface::grid_data(0, PI / 15, PI),
-		ZGL::surface::grid_data(0, PI / 15, PI * 2),
+		ZGL::surface::grid_data(0, PI / 15, PI * 10),
 	}, {
 		[](ZGL::surface::Targ a) { return a[0] * sin(a[1]); },
 		[](ZGL::surface::Targ a) { return a[0] * cos(a[1]); },
-		[](ZGL::surface::Targ a) { return a[1] / 1; },
+		[](ZGL::surface::Targ a) { return a[1] / 5; },
 	});
 	char cid = scene.add_camera(&cm);
 	scene.add_solid(&sf);
 
 	scene.modeling_trans();
 	scene.viewing_trans(cid);
-	// scene.projection_trans(6);
+	scene.projection_trans(2);
 	scene.viewport_trans(100, 800, 600);
 
-	std::vector< ZGL::surface::segment > rs;
-	for (auto grids : scene.material_grids) {
-		grids->each(rs);
-	}
+	ZGL::mouse _mouse;
+	ZGL::mouse::mouse_msg _old_msg;
+	_mouse.on(mouse_flag_left | mouse_msg_move, [&](ZGL::mouse::mouse_msg msg) {
+		cm.traverse((msg.x - _old_msg.x) / 100);
+		cm.lift((msg.y - _old_msg.y) / 100);
+		_old_msg = msg;
+		printf("%d", msg.x);
+		printf("%d", msg.y);
+	});
+
 	for (; is_run(); delay_fps(60), cleardevice()) {
+		if (mousemsg()) {
+			_mouse.monitoring([&]() {
+				ZGL::mouse::mouse_msg _msg;
+				auto emsg = getmouse();
+				_msg.x = emsg.x;
+				_msg.y = emsg.y;
+				_msg.flags = emsg.flags;
+				_msg.msg = (ZGL::mouse::mouse_msg::mouse_msg_type)emsg.msg;
+				_msg.wheel = emsg.wheel;
+
+				printf("%d %d %d %d %d\n", _msg.x, _msg.y, _msg.flags, _msg.msg, ((UINT)_msg.flags | (UINT)_msg.msg));
+
+				return STD_MOVE(_msg);
+			});
+		}
+
+		std::vector< ZGL::surface::segment > rs;
+		for (auto grids : scene.material_grids) {
+			grids->each(rs);
+		}
+
 		auto i = 0;
 		for (auto r : rs) {
 			auto x1 = (r.frist[0]);

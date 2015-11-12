@@ -68,8 +68,8 @@ _ZGL_BEGIN
 
 #ifdef ZGL_ENABLE_RVALUE
 		virtual _Tself& operator = (_Tself&& src) {
-			v = src.v;
-			src.v = 0;
+			(*(const _Tbase*)this) == opt;
+
 			return *this;
 		}
 #endif
