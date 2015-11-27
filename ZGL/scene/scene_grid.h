@@ -15,11 +15,11 @@ _ZGL_BEGIN
 		// Cameras in scene
 		// 场景中的摄像机
 		std::map< _Tid, const camera* > cameras;
-		std::vector< const surface* > grids;
+		std::vector< surface > grids;
 
 	public :
 
-		std::vector< surface* > material_grids;
+		std::vector< surface > material_grids;
 
 		~scene_grid() {
 			/*
@@ -39,23 +39,16 @@ _ZGL_BEGIN
 			throw "so much camera!";
 		}
 
-		int add_solid(const surface* sd) {
+		int add_solid(const surface& sd) {
 			grids.push_back(sd);
 			return 0;
 		}
 
 		int modeling_trans() {
 			material_grids.clear();
-			if (grids.size() == material_grids.size() && grids.size() != 0) {
-				for (z_size_t i = 0; i < grids.size(); i++)
-					*(material_grids[i]) = *(grids[i]);
-			} else {
-				for (auto grid : material_grids)
-					delete grid;
 
-				for (decltype(auto) grid : grids)
-					material_grids.push_back(new surface(*grid));
-			}
+			for (decltype(auto) grid : grids)
+				material_grids.push_back(surface(grid));
 
 			return 0;
 		}
@@ -66,7 +59,7 @@ _ZGL_BEGIN
 			// Translate to camera view
 			// 相机空间
 			for (decltype(auto) grid : material_grids) {
-				for (decltype(auto) p : *grid) {
+				for (decltype(auto) p : grid) {
 					p = p * _m;
 				}
 			}
@@ -91,7 +84,7 @@ _ZGL_BEGIN
 			// projection transformation
 			// 投影变换
 			for (decltype(auto) grid : material_grids) {
-				for (decltype(auto) p : *grid) {
+				for (decltype(auto) p : grid) {
 					p = _Tv4::normalize(p * _tm);
 				}
 			}
@@ -103,7 +96,7 @@ _ZGL_BEGIN
 			// viewport transformation
 			// 视口变换
 			for (decltype(auto) grid : material_grids) {
-				for (decltype(auto) p : *grid) {
+				for (decltype(auto) p : grid) {
 					p[0] = p[0] * scale + width / 2;
 					p[1] = -p[1] * scale + height / 2;
 				}

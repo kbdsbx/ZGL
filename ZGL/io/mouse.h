@@ -8,89 +8,115 @@
 
 _ZGL_BEGIN
 
+	enum ZGL_MOUSE_TYPE {
+		LEFT_CLICK = 0x01U,
+		RIGHT_CLICK = 0x02U,
+		MIDDLE_CLICK = 0x04U,
+		MOVE = 0x08U,
+		WHEEL = 0x10U,
+	};
+
 	class mouse {
 		typedef unsigned int _Tflag;
 		typedef int _Tpx;
 	public :
 		struct mouse_status {
-			_Tpx x;
-			_Tpx y;
-			_Tpx wheel;
-			_Tflag flags;
+			_Tpx x = 0;
+			_Tpx y = 0;
+			_Tpx wheel = 0;
+			_Tflag flags = 0U;
 
 			void set_left() {
-				flags |= 0x01;
+				flags |= LEFT_CLICK;
 			}
 
 			void reset_left() {
-				flags &= ~0x01;
+				flags &= ~LEFT_CLICK;
 			}
 
 			void set_right() {
-				flags |= 0x02;
+				flags |= RIGHT_CLICK;
 			}
 
 			void reset_right() {
-				flags &= ~0x02;
+				flags &= ~RIGHT_CLICK;
 			}
 
 			void set_mid() {
-				flags |= 0x04;
+				flags |= MIDDLE_CLICK;
 			}
 
-			void reset_right() {
-				flags &= ~0x04;
+			void reset_mid() {
+				flags &= ~MIDDLE_CLICK;
 			}
 
 			void set_move() {
-				flags |= 0x08;
+				flags |= MOVE;
 			}
 
 			void reset_move() {
-				flags &= ~0x08;
+				flags &= ~MOVE;
 			}
 
 			void set_wheel() {
-				flags |= 0x10;
+				flags |= WHEEL;
 			}
 
 			void reset_wheel() {
-				flags &= ~0x10;
+				flags &= ~WHEEL;
 			}
-		};
-		struct mouse_msg {
-			_Tpx			x;
-			_Tpx			y;
-			_Tpx			wheel;
-			enum mouse_msg_type {
-				mouse_msg_down = 0x10,
-				mouse_msg_up = 0x20,
-				mouse_msg_move = 0x40,
-				mouse_msg_wheel = 0x80,
-			} msg;
-			_Tflag			flags;
 		};
 	private :
-		std::map< z_size_t, std::vector< std::function< void(const mouse_msg&) > > > _ops;
+		std::map< z_size_t, std::vector< std::function< void(const mouse_status&) > > > _ops;
 
-		mouse_msg _msg;
+		mouse_status _msg;
 	public :
 
-		int on(z_size_t opt, std::function< void(const mouse_msg&) > func) {
+		// events binding
+		// 事件绑定
+		// Return : the event's function id in current event.
+		// 返回 : 当前事件的绑定方法索引
+		size_t on(z_size_t opt, std::function< void(const mouse_status&) > func) {
+			size_t id = 0;
 			if (!(_ops[opt].size())) {
-				_ops[opt] = std::vector< std::function< void(const mouse_msg&) > >{ func };
+				_ops[opt] = std::vector< std::function< void(const mouse_status&) > >{ func };
+				id = 1;
 			} else {
 				_ops[opt].push_back(func);
+				id = _ops[opt].size();
 			}
 
-			return 1;
+			return id;
 		}
 
-		void monitoring(std::function< mouse_msg(void) > monitor) {
-			_msg = monitor();
-			_Tflag _flag = _msg.flags & (_Tflag)_msg.msg;
+		// events unbinding
+		// 事件解绑
+		// unbinding some event if id equal 0, or else unbinding event's functional
+		// 当id为0是解绑事件，否则解绑绑定事件的某一方法
+		size_t off(z_size_t opt, size_t id = 0) {
+			size_t count = _ops[opt].size();
 
-			if (!(_ops[_msg.flags].size()))
+			if (count) {
+				if (id) {
+					_ops[opt].erase(_ops[opt].begin() + (id - 1U));
+					if (count != _ops[opt].size()) {
+						count = 1;
+					}
+				} else {
+					_ops[opt].clear();
+					// count = size of _ops[opt]
+				}
+			}
+
+			return count;
+		}
+
+		// events monitoring
+		// 事件监视
+		void monitoring(std::function< mouse_status(mouse_status &) > monitor) {
+			_msg = monitor(_msg);
+
+			if (_ops[_msg.flags].size())
 				for (auto op : _ops[_msg.flags])
 					op(_msg);
 		}

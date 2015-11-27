@@ -175,43 +175,78 @@ void test_3d_scene() {
 		[](ZGL::surface::Targ a) { return a[1] / 5; },
 	});
 	char cid = scene.add_camera(&cm);
-	scene.add_solid(&sf);
-
-	scene.modeling_trans();
-	scene.viewing_trans(cid);
-	scene.projection_trans(2);
-	scene.viewport_trans(100, 800, 600);
+	scene.add_solid(sf);
 
 	ZGL::mouse _mouse;
-	ZGL::mouse::mouse_msg _old_msg;
-	_mouse.on(mouse_flag_left | mouse_msg_move, [&](ZGL::mouse::mouse_msg msg) {
-		cm.traverse((msg.x - _old_msg.x) / 100);
-		cm.lift((msg.y - _old_msg.y) / 100);
+	ZGL::mouse::mouse_status _old_msg;
+	_mouse.on(ZGL::ZGL_MOUSE_TYPE::LEFT_CLICK | ZGL::ZGL_MOUSE_TYPE::MOVE, [&](ZGL::mouse::mouse_status msg) {
+		printf("tip!\n");
+		/*
+		if (_old_msg.x != 0 && _old_msg.y != 0) {
+			cm.traverse((msg.x - _old_msg.x) / 1000);
+			cm.lift((msg.y - _old_msg.y) / 1000);
+
+			scene.modeling_trans();
+			scene.viewing_trans(cid);
+			scene.projection_trans(2);
+			scene.viewport_trans(100, 800, 600);
+		}
 		_old_msg = msg;
-		printf("%d", msg.x);
-		printf("%d", msg.y);
+		*/
 	});
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
+		ege::mouse_msg emsg;
 		if (mousemsg()) {
-			_mouse.monitoring([&]() {
-				ZGL::mouse::mouse_msg _msg;
-				auto emsg = getmouse();
-				_msg.x = emsg.x;
-				_msg.y = emsg.y;
-				_msg.flags = emsg.flags;
-				_msg.msg = (ZGL::mouse::mouse_msg::mouse_msg_type)emsg.msg;
-				_msg.wheel = emsg.wheel;
-
-				printf("%d %d %d %d %d\n", _msg.x, _msg.y, _msg.flags, _msg.msg, ((UINT)_msg.flags | (UINT)_msg.msg));
-
-				return STD_MOVE(_msg);
-			});
+			emsg = getmouse();
 		}
+		/*
+		_mouse.monitoring([&](ZGL::mouse::mouse_status _msg) {
+			_msg.x = emsg.x;
+			_msg.y = emsg.y;
+			_msg.wheel = emsg.wheel;
+
+			if (emsg.is_down()) {
+				if (emsg.is_left())
+					_msg.set_left();
+				if (emsg.is_right())
+					_msg.set_right();
+				if (emsg.is_mid())
+					_msg.set_mid();
+			}
+
+			if (emsg.is_up()) {
+				if (emsg.is_left())
+					_msg.reset_left();
+				if (emsg.is_right())
+					_msg.reset_right();
+				if (emsg.is_mid())
+					_msg.reset_mid();
+			}
+
+			if (emsg.is_move()) {
+				_msg.set_move();
+			} else {
+				_msg.reset_move();
+			}
+
+			if (emsg.is_wheel())
+				_msg.set_wheel();
+			else
+				_msg.reset_wheel();
+
+			return STD_MOVE(_msg);
+		});
+		*/
+
+		scene.modeling_trans();
+		scene.viewing_trans(cid);
+		scene.projection_trans(2);
+		scene.viewport_trans(100, 800, 600);
 
 		std::vector< ZGL::surface::segment > rs;
 		for (auto grids : scene.material_grids) {
-			grids->each(rs);
+			grids.each(rs);
 		}
 
 		auto i = 0;

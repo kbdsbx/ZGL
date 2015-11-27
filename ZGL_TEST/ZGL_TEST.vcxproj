@@ -163,6 +163,7 @@
     <ClCompile Include="camera_test.cpp" />
     <ClCompile Include="graph_test.cpp" />
     <ClCompile Include="gridding_test.cpp" />
+    <ClCompile Include="mouse_interface_test.cpp" />
     <ClCompile Include="square_test.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
