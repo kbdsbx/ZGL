@@ -43,8 +43,8 @@ _ZGL_BEGIN
 	public :
 		class segment{
 		public :
-			const _Tv& frist;
-			const _Tv& last;
+			_Tv frist;
+			_Tv last;
 
 			segment() { }
 
@@ -231,13 +231,13 @@ _ZGL_BEGIN
 			delete[] _root;
 		}
 
-		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval) > funcs[dim])
+		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval) > funcs[dim - 1])
 			: gridding() {
 			z_size_t i = d_dim, c = 1;
 			while (i--)
 				_data[i] = data[i];
 
-			i = dim;
+			i = dim - 1;
 			while (i--)
 				_funcs[i] = funcs[i];
 
@@ -274,6 +274,48 @@ _ZGL_BEGIN
 			_root = new _Tv[c];
 
 			_dis();
+		}
+
+		gridding(const _Tself& src) {
+			z_size_t i = d_dim, c = 1;
+			while (i--)
+				_data[i] = src._data[i];
+			
+			i = dim - 1;
+			while (i--)
+				_funcs[i] = src._funcs[i];
+
+			i = d_dim;
+			while (i--) {
+				c *= _data[i].len();
+				_max[i] = _data[i].len();
+			}
+
+			_root = new _Tv[c];
+
+			_dis();
+		}
+
+		_Tself& operator = (const _Tself& src) {
+			z_size_t i = d_dim, c = 1;
+			while (i--)
+				_data[i] = src._data[i];
+
+			i = dim - 1;
+			while (i--)
+				_funcs[i] = src._funcs[i];
+
+			i = d_dim;
+			while (i--) {
+				c *= _data[i].len();
+				_max[i] = _data[i].len();
+			}
+
+			_root = new _Tv[c];
+
+			_dis();
+
+			return *this;
 		}
 
 		void _dis() {

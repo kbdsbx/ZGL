@@ -21,13 +21,7 @@ _ZGL_BEGIN
 
 		std::vector< surface > material_grids;
 
-		~scene_grid() {
-			/*
-			// Why it mustn't be delete ?
-			for (auto grids : material_grids)
-				delete grids;
-			*/
-		}
+		~scene_grid() { }
 
 		int add_camera(const camera* cm) {
 			for (_Tid i = INT8_MIN; i < INT8_MAX; i++) {
@@ -48,7 +42,7 @@ _ZGL_BEGIN
 			material_grids.clear();
 
 			for (decltype(auto) grid : grids)
-				material_grids.push_back(surface(grid));
+				material_grids.push_back(grid);
 
 			return 0;
 		}
@@ -61,6 +55,16 @@ _ZGL_BEGIN
 			for (decltype(auto) grid : material_grids) {
 				for (decltype(auto) p : grid) {
 					p = p * _m;
+				}
+			}
+
+			return 0;
+		}
+
+		int viewing_trans(const camera::Tm& cm_m) {
+			for (decltype(auto) grid : material_grids) {
+				for (decltype(auto) p : grid) {
+					p = p * cm_m;
 				}
 			}
 

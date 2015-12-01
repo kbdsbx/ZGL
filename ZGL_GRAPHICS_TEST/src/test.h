@@ -179,65 +179,64 @@ void test_3d_scene() {
 
 	ZGL::mouse _mouse;
 	ZGL::mouse::mouse_status _old_msg;
-	_mouse.on(ZGL::ZGL_MOUSE_TYPE::LEFT_CLICK | ZGL::ZGL_MOUSE_TYPE::MOVE, [&](ZGL::mouse::mouse_status msg) {
-		printf("tip!\n");
-		/*
+	_mouse.on(ZGL::ZGL_MOUSE_TYPE::LEFT_CLICK | ZGL::ZGL_MOUSE_TYPE::MOVE, [&scene, &_old_msg, &cm](ZGL::mouse::mouse_status msg) {
 		if (_old_msg.x != 0 && _old_msg.y != 0) {
-			cm.traverse((msg.x - _old_msg.x) / 1000);
-			cm.lift((msg.y - _old_msg.y) / 1000);
-
-			scene.modeling_trans();
-			scene.viewing_trans(cid);
-			scene.projection_trans(2);
-			scene.viewport_trans(100, 800, 600);
+			cm.traverse((msg.x - _old_msg.x) / -100.0);
+			cm.lift((msg.y - _old_msg.y) / 100.0);
 		}
 		_old_msg = msg;
-		*/
 	});
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
-		ege::mouse_msg emsg;
-		if (mousemsg()) {
+		ege::mouse_msg emsg = { 0 };
+		while (mousemsg()) {
 			emsg = getmouse();
+
+			_mouse.monitoring([&](ZGL::mouse::mouse_status _msg) {
+				_msg.x = emsg.x;
+				_msg.y = emsg.y;
+				_msg.wheel = emsg.wheel;
+
+				if (emsg.is_down()) {
+					if (emsg.is_left())
+						_msg.set_left();
+					if (emsg.is_right())
+						_msg.set_right();
+					if (emsg.is_mid())
+						_msg.set_mid();
+				}
+
+				if (emsg.is_up()) {
+					if (emsg.is_left())
+						_msg.reset_left();
+					if (emsg.is_right())
+						_msg.reset_right();
+					if (emsg.is_mid())
+						_msg.reset_mid();
+				}
+
+				if (emsg.is_move()) {
+					_msg.set_move();
+				} else {
+					_msg.reset_move();
+				}
+
+				if (emsg.is_wheel()) {
+					_msg.set_wheel();
+				} else {
+					_msg.reset_wheel();
+				}
+
+				{
+					char str[50];
+					sprintf(str, "Flag: %d, %d, %d, %d", _msg.flags, emsg.flags, emsg.x, emsg.y);
+					outtextxy(0, 30, str);
+				}
+
+				return STD_MOVE(_msg);
+			});
 		}
-		/*
-		_mouse.monitoring([&](ZGL::mouse::mouse_status _msg) {
-			_msg.x = emsg.x;
-			_msg.y = emsg.y;
-			_msg.wheel = emsg.wheel;
-
-			if (emsg.is_down()) {
-				if (emsg.is_left())
-					_msg.set_left();
-				if (emsg.is_right())
-					_msg.set_right();
-				if (emsg.is_mid())
-					_msg.set_mid();
-			}
-
-			if (emsg.is_up()) {
-				if (emsg.is_left())
-					_msg.reset_left();
-				if (emsg.is_right())
-					_msg.reset_right();
-				if (emsg.is_mid())
-					_msg.reset_mid();
-			}
-
-			if (emsg.is_move()) {
-				_msg.set_move();
-			} else {
-				_msg.reset_move();
-			}
-
-			if (emsg.is_wheel())
-				_msg.set_wheel();
-			else
-				_msg.reset_wheel();
-
-			return STD_MOVE(_msg);
-		});
-		*/
+		_old_msg = ZGL::mouse::mouse_status();
 
 		scene.modeling_trans();
 		scene.viewing_trans(cid);
@@ -245,7 +244,7 @@ void test_3d_scene() {
 		scene.viewport_trans(100, 800, 600);
 
 		std::vector< ZGL::surface::segment > rs;
-		for (auto grids : scene.material_grids) {
+		for (decltype(auto) grids : scene.material_grids) {
 			grids.each(rs);
 		}
 
@@ -257,6 +256,12 @@ void test_3d_scene() {
 			auto y2 = (r.last[1]);
 			ege_line(x1, y1, x2, y2);
 			i++;
+		}
+
+		{// 画帧率文字
+			char str[20];
+			sprintf(str, "fps %.02f", getfps()); //调用getfps取得当前帧率
+			outtextxy(0, 0, str);
 		}
 	}
 }

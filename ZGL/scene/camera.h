@@ -24,6 +24,10 @@ _ZGL_BEGIN
 		_Tv4 _rightward;
 
 	public :
+		// Type of transition matrix
+		// ±ä»»¾ØÕóÀàÐÍ
+		typedef _Tm4 Tm;
+
 		camera(const _Tv4& position, const _Tv4& forward, const _Tv4& upward)
 			: _position(position), _forward(forward), _upward(upward) {
 			normalize();
@@ -99,41 +103,68 @@ _ZGL_BEGIN
 
 		// Yaw
 		// Æ«º½
-		void yaw(_Titem rad) {
-			_forward = _forward * _Tv4::rotate(_Tline(_position, _upward), rad);
+		_Tm4 yaw(_Titem rad) {
+			_Tm4 m = _Tv4::rotate(_Tline(_position, _upward), rad);
+			_forward = _forward * m;
 			normalize();
+			return STD_MOVE(m ^ -1);
 		}
 
 		// Roll
 		// ·­¹ö
-		void roll(_Titem rad) {
-			_upward = _upward * _Tv4::rotate(_Tline(_position, _forward), rad);
+		_Tm4 roll(_Titem rad) {
+			_Tm4 m = _Tv4::rotate(_Tline(_position, _forward), rad);
+			_upward = _upward * m;
 			normalize();
+			return STD_MOVE(m ^ -1);
 		}
 
 		// Pitch
 		// ¸©Ñö
-		void pitch(_Titem rad) {
-			_forward = _forward * _Tv4::rotate(_Tline(_position, _rightward), rad);
+		_Tm4 pitch(_Titem rad) {
+			_Tm4 m = _Tv4::rotate(_Tline(_position, _rightward), rad);
+			_forward = _forward * m;
 			normalize();
+			return STD_MOVE(m ^ -1);
 		}
 
 		// Traverse
 		// ºáÒÆ
-		void traverse(_Titem len) {
-			_position = _position + _rightward * len;
+		_Tm4 traverse(_Titem len) {
+			_Tv4 m = _rightward * len;
+			_position = _position + m;
+			return STD_MOVE(_Tm4{
+				{ 1, 0, 0, 0 },
+				{ 0, 1, 0, 0 },
+				{ 0, 0, 1, 0 },
+				{ m[0] * -1, m[1] * -1, m[2] * -1, 1 },
+			});
 		}
 
 		// Lift
 		// Éý½µ
-		void lift(_Titem len) {
-			_position = _position + _upward * len;
+		_Tm4 lift(_Titem len) {
+			_Tv4 m = _upward * len;
+			_position = _position + m;
+			return STD_MOVE(_Tm4{
+				{ 1, 0, 0, 0 },
+				{ 0, 1, 0, 0 },
+				{ 0, 0, 1, 0 },
+				{ m[0] * -1, m[1] * -1, m[2] * -1, 1 },
+			});
 		}
 
 		// Retreat
 		// ½øÍË
-		void retreat(_Titem len) {
-			_position = _position + _forward * len;
+		_Tm4 retreat(_Titem len) {
+			_Tv4 m = _forward * len;
+			_position = _position + m;
+			return STD_MOVE(_Tm4{
+				{ 1, 0, 0, 0 },
+				{ 0, 1, 0, 0 },
+				{ 0, 0, 1, 0 },
+				{ m[0] * -1, m[1] * -1, m[2] * -1, 1 },
+			});
 		}
 	};
 
