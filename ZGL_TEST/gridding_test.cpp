@@ -44,9 +44,9 @@ namespace ZGL_TEST
 			ZGL::gridding< 4, 1, double > g1({
 				ZGL::gridding< 4, 1, double >::grid_data(0, 2, 10)
 			}, {
-				[](ZGL::vector< 1, double > v) { return sin(v[0]); },
-				[](ZGL::vector< 1, double > v) { return cos(v[0]); },
-				[](ZGL::vector< 1, double > v) { return 0.0; }
+				[](ZGL::vector< 1, double > v, ZGL::z_size_t idx) { return sin(v[0]); },
+				[](ZGL::vector< 1, double > v, ZGL::z_size_t idx) { return cos(v[0]); },
+				[](ZGL::vector< 1, double > v, ZGL::z_size_t idx) { return 0.0; }
 			});
 		}
 
@@ -55,9 +55,9 @@ namespace ZGL_TEST
 			ZGL::gridding< 4, 1, double > g1({
 				ZGL::gridding< 4, 1, double >::grid_data(0, 2, 10)
 			}, {
-				[](ZGL::vector< 1, double > v) { return v[0]; },
-				[](ZGL::vector< 1, double > v) { return v[0]; },
-				[](ZGL::vector< 1, double > v) { return 0.0; }
+				[](ZGL::vector< 1, double > v, ZGL::z_size_t idx) { return v[0]; },
+				[](ZGL::vector< 1, double > v, ZGL::z_size_t idx) { return v[0]; },
+				[](ZGL::vector< 1, double > v, ZGL::z_size_t idx) { return 0.0; }
 			});
 
 			int i = 0;
@@ -102,9 +102,9 @@ namespace ZGL_TEST
 				ZGL::gridding< 4, 3, double >::grid_data(-5, 1, 5), // 11
 				ZGL::gridding< 4, 3, double >::grid_data(d, 10),	// 10
 			}, {
-				[](ZGL::vector< 3, double > v) { return v[0]; },
-				[](ZGL::vector< 3, double > v) { return v[1]; },
-				[](ZGL::vector< 3, double > v) { return v[2]; },
+				[](ZGL::vector< 3, double > v, ZGL::z_size_t idx) { return v[0]; },
+				[](ZGL::vector< 3, double > v, ZGL::z_size_t idx) { return v[1]; },
+				[](ZGL::vector< 3, double > v, ZGL::z_size_t idx) { return v[2]; },
 			});
 
 			i = 0;

@@ -9,6 +9,11 @@
 
 _ZGL_BEGIN
 
+	/**
+	 * macros
+	 * 宏
+	 **/
+
 	// about type
 	// 类型相关
 #ifdef _WIN64
@@ -24,7 +29,7 @@ _ZGL_BEGIN
 #define RIGHT_HANDED_SYSTEM
 
 
-	// debug and rvalue references
+	// debugging situation and rvalue references
 	// 调试环境与右值
 #if defined _DEBUG || !define __cpp_rvalue_references
 
@@ -38,6 +43,10 @@ _ZGL_BEGIN
 	#define STD_MOVE std::move
 	#define ZGL_RVALUE(T) (T&&)
 
+#endif
+
+#if defined _DEBUG
+#define private public
 #endif
 
 

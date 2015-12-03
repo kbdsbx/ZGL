@@ -147,8 +147,8 @@ void test_2d_gridding_line() {
 	Curved2 c1({
 		Curved2::grid_data(-PI * 2, .1, PI * 2)
 	}, {
-		[](Curved2::Targ a) { return a[0]; },
-		[](Curved2::Targ a) { return sin(a[0]); }
+		[](Curved2::Targ a, ZGL::z_size_t idx) { return a[0]; },
+		[](Curved2::Targ a, ZGL::z_size_t idx) { return sin(a[0]); }
 	});
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
@@ -170,9 +170,9 @@ void test_3d_scene() {
 		ZGL::surface::grid_data(0, PI / 15, PI),
 		ZGL::surface::grid_data(0, PI / 15, PI * 10),
 	}, {
-		[](ZGL::surface::Targ a) { return a[0] * sin(a[1]); },
-		[](ZGL::surface::Targ a) { return a[0] * cos(a[1]); },
-		[](ZGL::surface::Targ a) { return a[1] / 5; },
+		[](ZGL::surface::Targ a, ZGL::z_size_t idx) { return a[0] * sin(a[1]); },
+		[](ZGL::surface::Targ a, ZGL::z_size_t idx) { return a[0] * cos(a[1]); },
+		[](ZGL::surface::Targ a, ZGL::z_size_t idx) { return a[1] / 5; },
 	});
 	char cid = scene.add_camera(&cm);
 	scene.add_solid(sf);
@@ -185,6 +185,10 @@ void test_3d_scene() {
 			cm.lift((msg.y - _old_msg.y) / 100.0);
 		}
 		_old_msg = msg;
+	});
+
+	_mouse.on(ZGL::ZGL_MOUSE_TYPE::WHEEL, [&](ZGL::mouse::mouse_status msg) {
+		cm.retreat(msg.wheel / 100.0);
 	});
 
 	for (; is_run(); delay_fps(60), cleardevice()) {

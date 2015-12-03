@@ -41,6 +41,8 @@ _ZGL_BEGIN
 		typedef _Tidx Tidx;
 
 	public :
+		// segment result of gridding
+		// 表格段结构
 		class segment{
 		public :
 			_Tv frist;
@@ -154,57 +156,6 @@ _ZGL_BEGIN
 			}
 		};
 
-		/*
-		// Iterator in gridding
-		// 网格迭代器
-		class iterator {
-			typedef iterator _Tit;
-		public :
-			_Tidx _idx;
-			const _Tself* _grid;
-
-			iterator(const _Tself* grid) :
-				_grid(grid) { }
-
-			iterator(const _Tidx& idx, const _Tself* grid)
-				: _idx(idx), _grid(grid) { }
-
-			iterator(_Tidx&& idx, const _Tself* grid)
-				: _idx(idx), _grid(grid) { }
-
-			iterator(const _Tit& it)
-				: _idx(it._idx), _grid(it._grid) { }
-
-			iterator(_Tit&& it)
-				: _idx(it._idx), _grid(it._grid) { }
-
-			_Tv& operator * () {
-				z_size_t c = 0;
-				for (z_size_t i = 0; i < d_dim - 1; i++)
-					c += _idx[i] * _grid->_data[i].len();
-				c += _idx[d_dim - 1];
-				return _grid->_root[c];
-			}
-
-			iterator& operator ++ () {
-				for (z_size_t i = 0; i < d_dim; i++) {
-					if ((_idx[i] + 1) < _grid->_data[i].len()) {
-						_idx[i]++;
-						goto end;
-					}
-					_idx[i] = 0;
-				}
-				_idx[d_dim] = 1;
-			end :
-				return *this;
-			}
-
-			bool operator != (const _Tit& it) const {
-				return _idx != it._idx;
-			}
-		};
-		*/
-
 		///** Result **///
 
 		// root node
@@ -219,7 +170,7 @@ _ZGL_BEGIN
 
 		// equation in coordinate
 		// 坐标函数
-		std::function< _Titem(_Tval) > _funcs[dim - 1];
+		std::function< _Titem(_Tval, z_size_t) > _funcs[dim - 1];
 
 		_Tidx _max;
 
@@ -231,7 +182,7 @@ _ZGL_BEGIN
 			delete[] _root;
 		}
 
-		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval) > funcs[dim - 1])
+		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval, z_size_t = 0) > funcs[dim - 1])
 			: gridding() {
 			z_size_t i = d_dim, c = 1;
 			while (i--)
@@ -252,7 +203,7 @@ _ZGL_BEGIN
 			_dis();
 		}
 
-		gridding(const std::initializer_list< grid_data > data, const std::initializer_list< std::function< _Titem(_Tval) > > funcs) {
+		gridding(const std::initializer_list< grid_data > data, const std::initializer_list< std::function< _Titem(_Tval, z_size_t = 0) > > funcs) {
 			z_size_t i = 0, c = 1;
 			for (auto d : data) {
 				_data[i] = d;
@@ -330,7 +281,7 @@ _ZGL_BEGIN
 				// Sent params into coordinate function to compute.
 				// 将参数传递至坐标方程进行计算
 				for (z_size_t i = 0; i < dim - 1; i++) {
-					_dt[i] = _funcs[i](val);
+					_dt[i] = _funcs[i](val, i);
 				}
 				// Set 1 because it is the dot.
 				// 设置节点为点元素
