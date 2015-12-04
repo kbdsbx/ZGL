@@ -134,8 +134,16 @@ _ZGL_BEGIN
 		void _dis() {
 		}
 
-		void _loop(const _Tgrid& rect, z_size_t deep) {
+		void _loop(const grid_range range[d_dim], z_size_t deep) {
+			_Tgrid rect = make_range(range);
 			if (!deep) {
+				_Tv t;
+				z_size_t i = dim - 1;
+				while (i--)
+					t[i] = range[i].mini() + (range[i].maxi() - range[i].mini()) / 2;
+
+				_root.push_back(t);
+				return;
 			}
 			for (auto it = rect.begin(); it != rect.end(); ++it) {
 				// 计算规范网格点的梯度信息
@@ -146,11 +154,22 @@ _ZGL_BEGIN
 					_Titem nv = _func(*nit);
 					// 若点与相邻的点不同时在隐式曲面一侧，则隐式曲面的边与两点之间的线段相交
 					if (v <= _Titem(0) && nv > _Titem(0) || v > _Titem(0) && nv <= _Titem(0)) {
-						; // TODO; // 使用二分法继续划分
+						// 缩小范围
+						grid_range nrange[d_dim];
+						for (z_size_t d = 0; d < d_dim; d++) {
+							if (nit._idx[d]) {
+								auto len = range[d].maxi() - range[d].mini();
+								nrange[d] = grid_range(range[d].mini(), range[d].maxi() - len);
+							} else {
+								nrange[d] = grid_range(range[d].mini() + len, range[d].maxi());
+							}
+						}
+						_loop(nrange, deep - 1);	// 使用二分法继续划分
 					}
 				}
 
 				// 若点与相邻的所有点都在隐式曲面的一侧，则隐式曲面的边不与此区域相交，放弃继续划分
+				// 如果需要计算体素内外，则还需进一步判断
 			}
 		}
 
