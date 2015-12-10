@@ -43,15 +43,14 @@ _ZGL_BEGIN
 	public :
 		// segment result of gridding
 		// 表格段结构
-		class segment{
-		public :
-			_Tv frist;
+		struct segment{
+			_Tv first;
 			_Tv last;
 
 			segment() { }
 
 			segment(const _Tv& sFrist, const _Tv& sLast)
-				: frist(sFrist), last(sLast) { }
+				: first(sFrist), last(sLast) { }
 		};
 
 		// Data for making Gridding, The count equal of d_dim param.

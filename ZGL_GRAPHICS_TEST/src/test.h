@@ -162,6 +162,29 @@ void test_2d_gridding_line() {
 	}
 }
 
+void test_2d_gridding_implicitly() {
+	ImpCurved2 c1({
+		ImpCurved2::grid_range(-2, 2),
+		ImpCurved2::grid_range(-2, 2),
+	}, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1, 3) - a[0] * a[0] * pow(a[1], 3); });
+	/*
+	ImpCurved2 c1({
+		ImpCurved2::grid_range(-2, 2),
+		ImpCurved2::grid_range(-2, 2),
+	}, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
+	*/
+
+	c1.set_step(.01);
+	c1._dis();
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		for (auto c : c1._root) {
+			putpixel(X(c[0]), X(c[1] * -1), EGERGBA(0, 0, 0, 1));
+		}
+	}
+}
+
 void test_3d_scene() {
 	ZGL::scene_grid scene;
 
@@ -254,8 +277,8 @@ void test_3d_scene() {
 
 		auto i = 0;
 		for (auto r : rs) {
-			auto x1 = (r.frist[0]);
-			auto y1 = (r.frist[1]);
+			auto x1 = (r.first[0]);
+			auto y1 = (r.first[1]);
 			auto x2 = (r.last[0]);
 			auto y2 = (r.last[1]);
 			ege_line(x1, y1, x2, y2);

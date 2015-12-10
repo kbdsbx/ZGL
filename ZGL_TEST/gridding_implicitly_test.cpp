@@ -49,5 +49,32 @@ namespace ZGL_TEST
 			++it;
 			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 2, 4, 6, 1 });
 		}
+
+		TEST_METHOD(gridding_implicitly__dis)
+		{
+			ZGL::gridding_implicitly< 4, 3, double > g({
+				ZGL::gridding_implicitly< 4, 3, double >::grid_range(-2, 2),
+				ZGL::gridding_implicitly< 4, 3, double >::grid_range(-2, 2),
+				ZGL::gridding_implicitly< 4, 3, double >::grid_range(-2, 2),
+			}, [](ZGL::gridding_implicitly< 4, 3, double >::Targ arg) {
+				return arg[0] * arg[0] + arg[1] * arg[1] + arg[2] * arg[2] - 1;
+			});
+
+			Assert::AreEqual(g._root.size(), 1878U);
+		}
+
+		/*
+		TEST_METHOD(gridding_implicitly__loop) {
+			ZGL::gridding_implicitly< 4, 3, double > g({
+				ZGL::gridding_implicitly< 4, 3, double >::grid_range(-2, 2),
+				ZGL::gridding_implicitly< 4, 3, double >::grid_range(-2, 2),
+				ZGL::gridding_implicitly< 4, 3, double >::grid_range(-2, 2),
+			}, [](ZGL::gridding_implicitly< 4, 3, double >::Targ arg) {
+				return arg[0] * arg[0] + arg[1] * arg[1] + arg[2] * arg[2] - 1;
+			});
+			g._loop(g._range, 5);
+			Assert::AreEqual(g._root.size(), 15U);
+		}
+		*/
 	};
 }

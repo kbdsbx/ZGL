@@ -8,6 +8,7 @@
 #include "geometry/affine_vector.h"
 #include "geometry/graph.h"
 #include "geometry/gridding.h"
+#include "geometry/gridding-implicitly.h"
 
 #include "scene/camera.h"
 #include "scene/scene_grid.h"
@@ -29,6 +30,9 @@ typedef ZGL::graph< 3, 0, zgl_item > Point2;
 
 typedef ZGL::gridding< 3, 2, zgl_item > Surface2;
 typedef ZGL::gridding< 3, 1, zgl_item > Curved2;
+
+typedef ZGL::gridding_implicitly< 3, 2, zgl_item > ImpSurface2;
+typedef ZGL::gridding_implicitly< 3, 1, zgl_item > ImpCurved2;
 
 // 3D
 

@@ -26,11 +26,11 @@ _ZGL_BEGIN
 		typedef gridding_implicitly< dim, d_dim, _Titem > _Tself;
 		typedef affine_vector < dim, _Titem > _Targ;
 		typedef affine_vector < dim, _Titem > _Tv;
-		typedef gridding< dim, d_dim, _Titem > _Tgrid;
+		typedef gridding< dim, dim - 1, _Titem > _Tgrid;
 
 		const z_size_t _peak_count = (z_size_t)pow(d_dim, 2);
 
-		z_size_t _deep = 5;
+		_Titem _step = _Titem(0.1);
 
 	public :
 
@@ -40,9 +40,22 @@ _ZGL_BEGIN
 
 	public :
 
+		// segment result of gridding
+		// 表格段结构
+		struct segment {
+			_Tv first;
+			_Tv last;
+
+			segment() { }
+
+			segment(const _Tv& sFrist, const _Tv& sLast)
+				: first(sFrist), last(sLast) { }
+		};
+
 		// Range for making Gridding
 		// 用于生成网格的范围范围
 		class grid_range {
+
 			// range of coordinate in implicit function graphic.
 			// 隐式方程的图形范围
 			_Titem _range[2];
@@ -88,7 +101,7 @@ _ZGL_BEGIN
 
 		// Range of coordinate in implicit function
 		// 隐式方法的坐标范围
-		grid_range _range[d_dim];
+		grid_range _range[dim - 1];
 
 		// implicit function
 		// 隐式函数
@@ -98,9 +111,9 @@ _ZGL_BEGIN
 		gridding_implicitly() { }
 
 	public :
-		gridding_implicitly(const grid_range range[d_dim], const std::function< _Titem(_Targ) > func)
+		gridding_implicitly(const grid_range range[dim - 1], const std::function< _Titem(_Targ) > func)
 			: gridding() {
-			z_size_t i = d_dim;
+			z_size_t i = dim - 1;
 			while (i--)
 				_range[i] = range[i];
 
@@ -122,7 +135,7 @@ _ZGL_BEGIN
 		}
 
 		_Tself& operator = (const _Tself& src) {
-			z_size_t i = d_dim;
+			z_size_t i = dim - 1;
 			while (i--)
 				_range[i] = src._range[i];
 
@@ -132,33 +145,46 @@ _ZGL_BEGIN
 		}
 
 		void _dis() {
+			if (_root.size()) {
+				_root.clear();
+			}
+
+			_Tgrid rect = make_range(_range);
+			for (auto it = rect.begin(); it != rect.end(); ++it) {
+				_Titem v = _func(*it);
+				for (z_size_t i = 0; i < dim - 1; i++) {
+					auto nit(it);
+					nit._idx[i] = nit._idx[i] + 1;
+					if (nit._idx[i] >= nit._max[i]) {
+						continue;
+					}
+					_Titem nv = _func(*nit);
+					if (v <= _Titem(0) && nv > _Titem(0) || v > _Titem(0) && nv <= _Titem(0)) {
+						_Tv t(*it);
+						t[i] = t[i] + _step * .5;
+						_root.push_back(t);
+					}
+				}
+			}
 		}
 
-		void _loop(const grid_range range[d_dim], z_size_t deep) {
+		void _loop(const grid_range range[dim - 1], z_size_t deep) {
 			_Tgrid rect = make_range(range);
-			if (!deep) {
-				_Tv t;
-				z_size_t i = dim - 1;
-				while (i--)
-					t[i] = range[i].mini() + (range[i].maxi() - range[i].mini()) / 2;
 
-				_root.push_back(t);
-				return;
-			}
 			for (auto it = rect.begin(); it != rect.end(); ++it) {
 				// 计算规范网格点的梯度信息
 				_Titem v = _func(*it);
 				for (z_size_t i = 0; i < d_dim; i++) {
 					auto nit(it);
-					nit._idx[i] = (nit.idx[i] == 0 ? 1 : 0);
+					nit._idx[i] = (nit._idx[i] == 0 ? 1 : 0);
 					_Titem nv = _func(*nit);
 					// 若点与相邻的点不同时在隐式曲面一侧，则隐式曲面的边与两点之间的线段相交
 					if (v <= _Titem(0) && nv > _Titem(0) || v > _Titem(0) && nv <= _Titem(0)) {
 						// 缩小范围
 						grid_range nrange[d_dim];
 						for (z_size_t d = 0; d < d_dim; d++) {
+							_Titem len = range[d].maxi() - range[d].mini();
 							if (nit._idx[d]) {
-								auto len = range[d].maxi() - range[d].mini();
 								nrange[d] = grid_range(range[d].mini(), range[d].maxi() - len);
 							} else {
 								nrange[d] = grid_range(range[d].mini() + len, range[d].maxi());
@@ -173,12 +199,16 @@ _ZGL_BEGIN
 			}
 		}
 
+		void set_step(_Titem step) {
+			_step = step;
+		}
+
 	private :
 
-		_Tgrid make_range(const grid_range range[d_dim]) {
-			_Tgrid::grid_data data[d_dim];
-			for (z_size_t i = 0; i < d_dim; i++)
-				data[i] = _Tgrid::grid_data(_range[i]._range, 2);
+		_Tgrid make_range(const grid_range range[dim - 1]) {
+			_Tgrid::grid_data data[dim - 1];
+			for (z_size_t i = 0; i < dim - 1; i++)
+				data[i] = _Tgrid::grid_data(_range[i].mini(), _step, _range[i].maxi());
 
 			std::function< _Titem(typename _Tgrid::Targ, z_size_t) > funcs[dim - 1];
 			for (z_size_t i = 0; i < dim - 1; i++)
