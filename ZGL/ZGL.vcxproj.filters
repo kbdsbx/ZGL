@@ -67,6 +67,9 @@
     <ClInclude Include="io\mouse.h">
       <Filter>scene</Filter>
     </ClInclude>
+    <ClInclude Include="geometry\patch.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="geometry">
@@ -83,6 +86,9 @@
     </Filter>
     <Filter Include="scene\unit">
       <UniqueIdentifier>{61c5b909-093a-4658-a00e-cc90547c50d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="io">
+      <UniqueIdentifier>{08405584-6811-4545-9f4b-1ff327a638c8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

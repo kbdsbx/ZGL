@@ -78,11 +78,8 @@ _ZGL_BEGIN
 		//      p : the point that out of this plane
 		//          平面外的一点
 		// [exception] : this point is in the plane.
-		//          点再平面内
-		_Tv n(const _Tv& p) const {
-			if ((dim - d_dim) != 2)
-				throw "";
-
+		//          点在平面内
+		virtual _Tv n(const _Tv& p) const {
 			_Tv _t(pos);
 			_Tself _plane(*this);
 
@@ -95,7 +92,7 @@ _ZGL_BEGIN
 			if (_t == _Tv{ _Titem(0), _Titem(0), _Titem(0), _Titem(1) })
 				throw "this point is in the plane.";
 
-			return STD_MOVE(_Tv::normalize(_t));
+			return STD_MOVE(_Tv::normalize(p - _t));
 		}
 	};
 

@@ -23,6 +23,7 @@
     <ClInclude Include="geometry\graph.h" />
     <ClInclude Include="geometry\gridding-implicitly.h" />
     <ClInclude Include="geometry\gridding.h" />
+    <ClInclude Include="geometry\patch.h" />
     <ClInclude Include="inc.h" />
     <ClInclude Include="interface\Icamera.h" />
     <ClInclude Include="interface\Igeometry.h" />

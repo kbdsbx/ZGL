@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <vector>
 #include "gridding.h"
+#include "patch.h"
 
 #ifndef ZGL_GRIDDING_IMPLICITLY
 #define ZGL_GRIDDING_IMPLICITLY

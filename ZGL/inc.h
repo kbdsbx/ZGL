@@ -36,7 +36,7 @@ _ZGL_BEGIN
 	#define ZGL_DISABLE_RVALUE
 	#define STD_MOVE
 	#define ZGL_RVALUE(T) ((T)&)
-
+	
 #else
 
 	#define ZGL_ENABLE_RVALUE

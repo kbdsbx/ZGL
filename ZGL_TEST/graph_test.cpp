@@ -21,7 +21,7 @@ namespace ZGL_TEST
 
 		TEST_METHOD(graph_n)
 		{
-			ZGL::graph< 4, 2, double > g({ 1, 1, 1, 0 }, { { -5, .3, 2, 0 }, { 1.5, -3, -5, 0 } });
+			ZGL::graph< 4, 2, double > g({ 1, 1, 1, 1 }, { { -5, .3, 2, 0 }, { 1.5, -3, -5, 0 } });
 
 			auto v = ZGL::affine_vector< 4, double >::normalize(ZGL::affine_vector< 4, double >::cross({
 				ZGL::affine_vector< 4, double >{ -5, .3, 2, 0 },
@@ -30,7 +30,7 @@ namespace ZGL_TEST
 
 			auto n = g.n({ 0, 0, 0, 1 });
 
-			Assert::IsTrue(n == v * -1);
+			Assert::IsTrue(n == v);
 		}
 	};
 }
