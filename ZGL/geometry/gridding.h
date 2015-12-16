@@ -1,5 +1,6 @@
 #include "../inc.h"
 #include "../interface/Iseparable.h"
+#include "iterator.h"
 #include <math.h>
 #include <functional>
 #include <initializer_list>

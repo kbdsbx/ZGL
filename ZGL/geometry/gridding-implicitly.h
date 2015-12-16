@@ -150,9 +150,54 @@ _ZGL_BEGIN
 				_root.clear();
 			}
 
+			// 创建均质网格
 			_Tgrid rect = make_range(_range);
-			for (auto it = rect.begin(); it != rect.end(); ++it) {
+
+			// 创建网格迭代器
+			auto it = rect.begin();
+			for (z_size_t i = 0; i < dim - 1; i++) {
+				it._max[i] = it._max[i] - 1;
+			}
+			// 迭代每一个标准网格
+			for (; it != rect.end(); ++it) {
+				// 当前点的内外检测
 				_Titem v = _func(*it);
+				if (v > _Titem(0)) {
+					continue;
+				}
+				// 遍历网格所有顶点，顶点个数为2 ^ dim个
+				vector< dim, z_size_t > rect_idx;
+				for (z_size_t i = 0; i < dim - 1; i++) {
+					rect_idx[i] = 1;
+				}
+				iterator< dim - 1, _Tv > rect_it(rect_idx, it._root);
+				iterator< dim - 1, _Tv > rect_it_end(rect_idx, it._root);
+				rect_it_end._idx[dim] = 1;
+				for (; rect_it != rect_it_end; ++rect_it) {
+				}
+
+				for (z_size_t i = 0; i < (z_size_t)pow(2, dim - 1); i++) {
+					for (z_size_t d = 0; d < dim - 1; d++) {
+						_Tv t;
+
+						auto nit(it);
+						if (nit._idx[d]) {
+							nit._idx[d] = 1;
+						}
+						nit._idx[d] = nit._idx[d] + 1;
+						if (nit._idx[d] >= nit._max[d]) {
+							continue;
+						}
+
+						// 相邻点的内外检测
+						_Titem nv = _func(*nit);
+
+						if (nv >= _Titem(0)) {
+							// 线性插值计算网格间点的位置
+							t = (*it) + ((*nit) - (*it)) / (nv - v) * v;
+						}
+					}
+				}
 				for (z_size_t i = 0; i < dim - 1; i++) {
 					auto nit(it);
 					nit._idx[i] = nit._idx[i] + 1;

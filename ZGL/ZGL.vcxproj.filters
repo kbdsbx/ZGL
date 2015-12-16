@@ -64,10 +64,13 @@
     <ClInclude Include="interface\Ishadowable.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="io\mouse.h">
-      <Filter>scene</Filter>
-    </ClInclude>
     <ClInclude Include="geometry\patch.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="io\mouse.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\iterator.h">
       <Filter>geometry</Filter>
     </ClInclude>
   </ItemGroup>
