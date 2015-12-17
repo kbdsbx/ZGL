@@ -4,6 +4,7 @@
 #include <functional>
 #include <initializer_list>
 #include <vector>
+#include <map>
 #include "gridding.h"
 #include "patch.h"
 
@@ -28,6 +29,8 @@ _ZGL_BEGIN
 		typedef affine_vector < dim, _Titem > _Targ;
 		typedef affine_vector < dim, _Titem > _Tv;
 		typedef gridding< dim, dim - 1, _Titem > _Tgrid;
+		typedef iterator< dim - 1, _Tv > _Tit;
+		typedef unsigned int _Tmk;
 
 		const z_size_t _peak_count = (z_size_t)pow(d_dim, 2);
 
@@ -145,6 +148,44 @@ _ZGL_BEGIN
 			_dis();
 		}
 
+		// it : 网格迭代器
+		// rect_it : 均质网格迭代器
+		// res : 当前路径点的集合
+		// used : 已使用过的点
+		void _path_find(const _Tit& it, const _Tit& rect_it, std::map< _Tmk, _Tv >& res, std::vector< _Tmk >& used) {
+			_Titem v = _func(*it);
+			auto nit = it + rect_it;
+			_Tmk k(0); // 使用位标记代替迭代器记录
+			for (z_size_t i = 0; i < dim - 1; i++) {
+				k |= ((_Tmk)(nit._idx[i]) << i);
+			}
+
+			// 若当前点已被使用（当前路径或总寻路），则中止
+			if (std::find(used.begin(), used.end(), k) != used.end() || res[k] != _Tv()) {
+				continue;
+			}
+
+			_Titem nv = _func(*nit);
+
+			// 若当前点在图形外部，则计算点的位置并中止此搜索
+			if (nv >= _Titem(0)) {
+				// 线性插值计算网格间点的位置
+				_Tv t = (*it) + ((*nit) - (*it)) / (nv - v) * v;
+				res[k] = t;
+				used.push_back(k);
+			}
+
+			// 若当前点在图形内部，则迭代相邻点
+			if (nv < _Titem(0)) {
+				for (z_size_t i = 0; i < dim - 1; i++) {
+					auto nrect_it(rect_it);
+					nrect_it._idx[i] ^= 1;
+
+					_path_find(it, nrect_it, res, used);
+				}
+			}
+		}
+
 		void _dis() {
 			if (_root.size()) {
 				_root.clear();
@@ -165,39 +206,26 @@ _ZGL_BEGIN
 				if (v > _Titem(0)) {
 					continue;
 				}
-				// 遍历网格所有顶点，顶点个数为2 ^ dim个
 				vector< dim, z_size_t > rect_idx;
 				for (z_size_t i = 0; i < dim - 1; i++) {
-					rect_idx[i] = 1;
+					rect_idx[i] = 2;
 				}
+				// 创建顶点迭代器
 				iterator< dim - 1, _Tv > rect_it(rect_idx, it._root);
 				iterator< dim - 1, _Tv > rect_it_end(rect_idx, it._root);
 				rect_it_end._idx[dim] = 1;
+				std::vector< std::map< _Tmk, _Tv > >& res;
+				std::vector< _Tmk >& used;
+				// 遍历网格所有顶点，顶点个数为2 ^ dim个
 				for (; rect_it != rect_it_end; ++rect_it) {
-				}
-
-				for (z_size_t i = 0; i < (z_size_t)pow(2, dim - 1); i++) {
-					for (z_size_t d = 0; d < dim - 1; d++) {
-						_Tv t;
-
-						auto nit(it);
-						if (nit._idx[d]) {
-							nit._idx[d] = 1;
-						}
-						nit._idx[d] = nit._idx[d] + 1;
-						if (nit._idx[d] >= nit._max[d]) {
-							continue;
-						}
-
-						// 相邻点的内外检测
-						_Titem nv = _func(*nit);
-
-						if (nv >= _Titem(0)) {
-							// 线性插值计算网格间点的位置
-							t = (*it) + ((*nit) - (*it)) / (nv - v) * v;
-						}
+					std::map< _Tmk, _Tv > re;
+					_path_find(it, rect_it, re, used);
+					if (re.size()) {
+						res.push_back(re);
 					}
 				}
+
+				/*
 				for (z_size_t i = 0; i < dim - 1; i++) {
 					auto nit(it);
 					nit._idx[i] = nit._idx[i] + 1;
@@ -211,6 +239,7 @@ _ZGL_BEGIN
 						_root.push_back(t);
 					}
 				}
+				*/
 			}
 		}
 
