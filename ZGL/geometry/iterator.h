@@ -7,16 +7,15 @@ _ZGL_BEGIN
 
 	// Iterator in gridding
 	// 网格迭代器
-	/// d_dim: elements' dimension
+	/// dim: elements' dimension
 	///	      元素维度
 	/// Tv: Type of element
 	///       元素类型
-	template < z_size_t d_dim, typename Tv >
+	template < z_size_t dim, typename Tv >
 	class iterator
 		: public std::iterator< std::input_iterator_tag, Tv > {
-		typedef iterator _Tit;
-		typedef vector< d_dim + 1, z_size_t > _Tidx;
-		typedef iterator< d_dim, Tv > _Tself;
+		typedef vector< dim + 1, z_size_t > _Tidx;
+		typedef iterator< dim, Tv > _Tself;
 	public:
 		typedef _Tidx Tidx;
 	public:
@@ -33,10 +32,10 @@ _ZGL_BEGIN
 		_Tself(_Tidx&& idx, const _Tidx& max, Tv* root)
 			: _idx(idx), _max(max), _root(root) { }
 
-		_Tself(const _Tit& it)
+		_Tself(const _Tself& it)
 			: _idx(it._idx), _max(it._max), _root(it._root) { }
 
-		_Tself(_Tit&& it)
+		_Tself(_Tself&& it)
 			: _idx(it._idx), _max(it._max), _root(it._root) { }
 
 		_Tself& operator = (const _Tself& src) {
@@ -47,15 +46,19 @@ _ZGL_BEGIN
 			return *this;
 		}
 
-		_Tself operator + (const _Tself& opt) const {
-			if (_root != opt._root) {
-				throw "Can not adding two different iterators about iteratively object.";
-			}
+		_Tself& operator = (_Tself&& src) {
+			_root = STD_MOVE(src._root);
+			_max = STD_MOVE(src._max);
+			_idx = STD_MOVE(src._idx);
+		}
 
+		// The iterator addition
+		// 迭代器相加
+		_Tself operator + (const _Tself& opt) const {
 			_Tself _t(*this);
 
 			_t._idx = _idx + opt._idx;
-			for (z_size_t i = 0; i < d_dim; i++) {
+			for (z_size_t i = 0; i < dim; i++) {
 				if (_t._idx[i] >= _t._max[i]) {
 					// 不会进位 ?
 					throw std::out_of_range("The index of iterator is out of range.");
@@ -70,10 +73,26 @@ _ZGL_BEGIN
 			return *this;
 		}
 
+		_Tself operator ^ (const _Tself& opt) const {
+			_Tself _t(_max, _root);
+			for (z_size_t i = 0; i < dim + 1; i++) {
+				_t._idx[i] = (_idx[i] != opt._idx[i] ? _Titem(1) : _Titem(0));
+			}
+
+			return STD_MOVE(_t);
+		}
+
+		_Tself& operator ^= (const _Tself& opt) {
+			(*this) = (*this) ^ opt;
+			return *this;
+		}
+
+		// Value for iterator
+		// 迭代器取值
 		Tv& operator * () {
 			z_size_t c = 0, _t;
 			// 计数器进制
-			for (z_size_t i = 0; i < d_dim; i++) {
+			for (z_size_t i = 0; i < dim; i++) {
 				_t = _idx[i];
 				// 如果不是个位数，则循环累乘低位进制
 				if (i) {
@@ -87,21 +106,31 @@ _ZGL_BEGIN
 			return _root[c];
 		}
 
+		// Index incresing
+		// 索引自增
 		_Tself& operator ++ () {
-			for (z_size_t i = 0; i < d_dim; i++) {
+			for (z_size_t i = 0; i < dim; i++) {
 				if ((_idx[i] + 1) < _max[i]) {
 					_idx[i]++;
 					goto end;
 				}
 				_idx[i] = 0;
 			}
-			_idx[d_dim] = 1;
+			_idx[dim] = 1;
 		end:
 			return *this;
 		}
 
-		bool operator != (const _Tit& it) const {
+		bool operator != (const _Tself& it) const {
 			return _idx != it._idx;
+		}
+
+		bool operator == (const _Tself& it) const {
+			return _idx == it._idx;
+		}
+
+		operator bool() const {
+			return _idx == Tv();
 		}
 	};
 

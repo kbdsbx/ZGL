@@ -31,10 +31,12 @@ _ZGL_BEGIN
 		typedef gridding< dim, dim - 1, _Titem > _Tgrid;
 		typedef iterator< dim - 1, _Tv > _Tit;
 		typedef unsigned int _Tmk;
+		typedef patch< dim, 2, _Titem > _Tsegment;
 
-		const z_size_t _peak_count = (z_size_t)pow(d_dim, 2);
-
-		_Titem _step = _Titem(0.1);
+	private :
+		_Titem _start;
+		_Titem _step;
+		_Titem _end;
 
 	public :
 
@@ -43,58 +45,6 @@ _ZGL_BEGIN
 		typedef _Targ Targ;
 
 	public :
-
-		// segment result of gridding
-		// 表格段结构
-		struct segment {
-			_Tv first;
-			_Tv last;
-
-			segment() { }
-
-			segment(const _Tv& sFrist, const _Tv& sLast)
-				: first(sFrist), last(sLast) { }
-		};
-
-		// Range for making Gridding
-		// 用于生成网格的范围范围
-		class grid_range {
-
-			// range of coordinate in implicit function graphic.
-			// 隐式方程的图形范围
-			_Titem _range[2];
-
-			friend class gridding_implicitly< dim, d_dim, _Titem >;
-
-		private :
-			grid_range() { }
-
-		public:
-			grid_range(_Titem min, _Titem max) {
-				_range[0] = min;
-				_range[1] = max;
-			}
-
-			grid_range& operator = (const grid_range& src) {
-				_range[0] = src._range[0];
-				_range[1] = src._range[1];
-
-				return *this;
-			}
-
-			// Min of coordinate
-			// 坐标最小值
-			_Titem mini() const {
-				return _range[0];
-			}
-
-			// Max of coordinate
-			// 坐标最大值
-			_Titem maxi() const {
-				return _range[1];
-			}
-		};
-
 		///** Result **///
 		
 		// nodes
@@ -103,47 +53,28 @@ _ZGL_BEGIN
 
 		///** coordinate Range and implicit function **///
 
-		// Range of coordinate in implicit function
-		// 隐式方法的坐标范围
-		grid_range _range[dim - 1];
-
 		// implicit function
 		// 隐式函数
 		std::function< _Titem(_Targ) > _func;
 
 	private :
-		gridding_implicitly() { }
+		_Tself() { }
 
 	public :
-		gridding_implicitly(const grid_range range[dim - 1], const std::function< _Titem(_Targ) > func)
-			: gridding() {
-			z_size_t i = dim - 1;
-			while (i--)
-				_range[i] = range[i];
-
-			_func = func;
-
-			_dis();
-		}
-
-		gridding_implicitly(const std::initializer_list< grid_range > range, const std::function< _Titem(_Targ) > func) {
-			z_size_t i = 0;
-			for (auto r : range) {
-				_range[i] = r;
-				i++;
-			}
-
+		_Tself(_Titem start, _Titem step, _Titem end, const std::function< _Titem(_Targ) > func) {
+			_start = start;
+			_step = step;
+			_end = end;
 			_func = func;
 
 			_dis();
 		}
 
 		_Tself& operator = (const _Tself& src) {
-			z_size_t i = dim - 1;
-			while (i--)
-				_range[i] = src._range[i];
-
 			_func = src._func;
+			_start = src._start;
+			_end = src._end;
+			_step = src._step;
 
 			_dis();
 		}
@@ -162,7 +93,7 @@ _ZGL_BEGIN
 
 			// 若当前点已被使用（当前路径或总寻路），则中止
 			if (std::find(used.begin(), used.end(), k) != used.end() || res[k] != _Tv()) {
-				continue;
+				return;
 			}
 
 			_Titem nv = _func(*nit);
@@ -192,7 +123,7 @@ _ZGL_BEGIN
 			}
 
 			// 创建均质网格
-			_Tgrid rect = make_range(_range);
+			_Tgrid rect = make_range();
 
 			// 创建网格迭代器
 			auto it = rect.begin();
@@ -223,6 +154,9 @@ _ZGL_BEGIN
 					if (re.size()) {
 						res.push_back(re);
 					}
+				}
+
+				for (decltype(auto) mp : res) {
 				}
 
 				/*
@@ -274,16 +208,12 @@ _ZGL_BEGIN
 			}
 		}
 
-		void set_step(_Titem step) {
-			_step = step;
-		}
-
 	private :
 
-		_Tgrid make_range(const grid_range range[dim - 1]) {
+		_Tgrid make_range() {
 			_Tgrid::grid_data data[dim - 1];
 			for (z_size_t i = 0; i < dim - 1; i++)
-				data[i] = _Tgrid::grid_data(_range[i].mini(), _step, _range[i].maxi());
+				data[i] = _Tgrid::grid_data(_start, _step, _end);
 
 			std::function< _Titem(typename _Tgrid::Targ, z_size_t) > funcs[dim - 1];
 			for (z_size_t i = 0; i < dim - 1; i++)
