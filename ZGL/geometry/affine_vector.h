@@ -1,5 +1,6 @@
 #include "../inc.h"
 #include "../linear/vector.h"
+#include "../geometry/graph.h"
 #include <math.h>
 
 #ifndef ZGL_AFFINE_VECTOR
@@ -139,9 +140,7 @@ _ZGL_BEGIN
 		}
 
 		// Cross product
-		// only 3 dimension or 7 dimension
-		// 向量积
-		// 仅用于三维或七维
+		// 向量积，外积，混合积，楔积
 		static _Tself cross(const _Tself opt[dim - 2]) {
 			vector< dim - 1, _Titem > _t[dim - 2], _r;
 			for (z_size_t i = 0; i < dim - 2; i++) {
@@ -152,9 +151,7 @@ _ZGL_BEGIN
 		}
 
 		// Cross product
-		// only 3 dimension and 7 dimension
-		// 向量积
-		// 仅用于三维或七维
+		// 向量积，外积，混合积，楔积
 		static _Tself cross(const std::initializer_list< _Tself >& opt) {
 			_Tself _t[dim - 2];
 			z_size_t i = 0;

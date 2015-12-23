@@ -75,24 +75,18 @@ _ZGL_BEGIN
 
 		// normal vector for plane
 		// 计算平面法向量
-		//      p : the point that out of this plane
-		//          平面外的一点
-		// [exception] : this point is in the plane.
-		//          点在平面内
-		virtual _Tv n(const _Tv& p) const {
-			_Tv _t(pos);
-			_Tself _plane(*this);
+		// [exception] : Just only 'plane' in any dimensional space.
+		//          仅允许多维中的平面
+		_Tv n() const {
+			if (d_dim != dim - 2)
+				throw "Just only 'plane' in any dimensional space.";
 
-			_plane.orthogonalize();
-
+			_Tv vectors[d_dim];
 			for (z_size_t i = 0; i < d_dim; i++) {
-				_t = _t + ((p - _plane.pos) PRO_PARALLEL _Tv(_plane.dirs[i]));
+				vectors[i] = _Tv(dirs[i]);
 			}
 
-			if (_t == _Tv{ _Titem(0), _Titem(0), _Titem(0), _Titem(1) })
-				throw "this point is in the plane.";
-
-			return STD_MOVE(_Tv::normalize(p - _t));
+			return STD_MOVE(_Tv::normalize(_Tv::cross(vectors)));
 		}
 	};
 

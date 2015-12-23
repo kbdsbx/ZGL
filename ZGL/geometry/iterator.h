@@ -1,4 +1,5 @@
 #include "../inc.h"
+#include "../linear/vector.h"
 
 #ifndef ZGL_ITERATOR
 #define ZGL_ITERATOR
@@ -11,9 +12,8 @@ _ZGL_BEGIN
 	///	      元素维度
 	/// Tv: Type of element
 	///       元素类型
-	template < z_size_t dim, typename Tv >
-	class iterator
-		: public std::iterator< std::input_iterator_tag, Tv > {
+	template < z_size_t dim, typename Tv = size_t >
+	class iterator {
 		typedef vector< dim + 1, z_size_t > _Tidx;
 		typedef iterator< dim, Tv > _Tself;
 	public:
@@ -23,8 +23,16 @@ _ZGL_BEGIN
 		_Tidx _max;
 		Tv* _root;
 
-		_Tself(const _Tidx& max, Tv* root) :
-			_max(max), _root(root) { }
+		_Tself(z_size_t max = 0, Tv* root = nullptr)
+			: _idx(), _max(), _root(root) {
+			z_size_t i = dim;
+			while (i--) {
+				_max[i] = max;
+			}
+		}
+
+		_Tself(const _Tidx& max, Tv* root)
+			: _idx(), _max(max), _root(root) { }
 
 		_Tself(const _Tidx& idx, const _Tidx& max, Tv* root)
 			: _idx(idx), _max(max), _root(root) { }
@@ -36,7 +44,7 @@ _ZGL_BEGIN
 			: _idx(it._idx), _max(it._max), _root(it._root) { }
 
 		_Tself(_Tself&& it)
-			: _idx(it._idx), _max(it._max), _root(it._root) { }
+			: _idx(STD_MOVE(it._idx)), _max(STD_MOVE(it._max)), _root(STD_MOVE(it._root)) { }
 
 		_Tself& operator = (const _Tself& src) {
 			_root = src._root;
@@ -50,6 +58,8 @@ _ZGL_BEGIN
 			_root = STD_MOVE(src._root);
 			_max = STD_MOVE(src._max);
 			_idx = STD_MOVE(src._idx);
+
+			return *this;
 		}
 
 		// The iterator addition
@@ -73,6 +83,8 @@ _ZGL_BEGIN
 			return *this;
 		}
 
+		// Xor
+		// 异或
 		_Tself operator ^ (const _Tself& opt) const {
 			_Tself _t(_max, _root);
 			for (z_size_t i = 0; i < dim + 1; i++) {
@@ -87,9 +99,9 @@ _ZGL_BEGIN
 			return *this;
 		}
 
-		// Value for iterator
-		// 迭代器取值
-		Tv& operator * () {
+		// Position of current index in collective object
+		// 当前索引在集合对象的位置
+		z_size_t operator & () const {
 			z_size_t c = 0, _t;
 			// 计数器进制
 			for (z_size_t i = 0; i < dim; i++) {
@@ -102,6 +114,33 @@ _ZGL_BEGIN
 				}
 				c += _t;
 			}
+
+			return c;
+		}
+
+		const Tv& operator *() const {
+			auto c = &(*this);
+			return _root[c];
+		}
+
+		// Value of current index in collective object
+		// 当前索引在集合对象的取值
+		Tv& operator *() {
+			/*
+			z_size_t c = 0, _t;
+			// 计数器进制
+			for (z_size_t i = 0; i < dim; i++) {
+				_t = _idx[i];
+				// 如果不是个位数，则循环累乘低位进制
+				if (i) {
+					for (z_size_t j = (i - 1); j >= 0; j--) {
+						_t *= _max[j];
+					}
+				}
+				c += _t;
+			}
+			*/
+			auto c = &(*this);
 
 			return _root[c];
 		}
@@ -121,6 +160,12 @@ _ZGL_BEGIN
 			return *this;
 		}
 
+		_Tself operator ++ (int) {
+			_Tself _t(*this);
+			++(*this);
+			return STD_MOVE(_t);
+		}
+
 		bool operator != (const _Tself& it) const {
 			return _idx != it._idx;
 		}
@@ -130,7 +175,18 @@ _ZGL_BEGIN
 		}
 
 		operator bool() const {
-			return _idx == Tv();
+			return _idx == _Tidx();
+		}
+
+		_Tself begin() const {
+			_Tself _t(_max, _root);
+			return STD_MOVE(_t);
+		}
+
+		_Tself end() const {
+			_Tself _t(_max, _root);
+			_t._idx[dim] = 1;
+			return STD_MOVE(_t);
 		}
 	};
 

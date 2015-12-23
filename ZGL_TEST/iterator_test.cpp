@@ -11,6 +11,18 @@ namespace ZGL_TEST
 	{
 	public:
 
+		TEST_METHOD(iterator_test_init)
+		{
+			ZGL::iterator< 3, ZGL::affine_vector< 4, double > > it(2, nullptr);
+			ZGL::vector< 4, ZGL::z_size_t > v;
+			for (int i = 0; i < 3; i++) {
+				v[i] = 2;
+			}
+			Assert::IsTrue(it._max == v);
+			Assert::IsTrue(it._root == nullptr);
+			Assert::IsTrue(it._idx == ZGL::vector< 4, ZGL::z_size_t >());
+		}
+
 		TEST_METHOD(iterator_operator)
 		{
 			ZGL::vector< 4, ZGL::z_size_t > max;

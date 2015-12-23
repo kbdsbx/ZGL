@@ -6,12 +6,14 @@
 #include <vector>
 #include <map>
 #include "gridding.h"
+#include "iterator.h"
 #include "patch.h"
 
 #ifndef ZGL_GRIDDING_IMPLICITLY
 #define ZGL_GRIDDING_IMPLICITLY
 
 _ZGL_BEGIN
+
 	/// Gridding Implicitly
 	/// 隐式网格
 	///
@@ -30,7 +32,7 @@ _ZGL_BEGIN
 		typedef affine_vector < dim, _Titem > _Tv;
 		typedef gridding< dim, dim - 1, _Titem > _Tgrid;
 		typedef iterator< dim - 1, _Tv > _Tit;
-		typedef unsigned int _Tmk;
+		typedef iterator< Pow< 2, dim >::result, _Tv > _Tkey;
 		typedef patch< dim, 2, _Titem > _Tsegment;
 
 	private :
@@ -83,16 +85,12 @@ _ZGL_BEGIN
 		// rect_it : 均质网格迭代器
 		// res : 当前路径点的集合
 		// used : 已使用过的点
-		void _path_find(const _Tit& it, const _Tit& rect_it, std::map< _Tmk, _Tv >& res, std::vector< _Tmk >& used) {
+		void _path_find(const _Tit& it, const _Tit& rect_it, std::map< _Tkey, _Tv >& res, std::vector< _Tit >& used) {
 			_Titem v = _func(*it);
-			auto nit = it + rect_it;
-			_Tmk k(0); // 使用位标记代替迭代器记录
-			for (z_size_t i = 0; i < dim - 1; i++) {
-				k |= ((_Tmk)(nit._idx[i]) << i);
-			}
+			_Tit nit = it + rect_it;
 
-			// 若当前点已被使用（当前路径或总寻路），则中止
-			if (std::find(used.begin(), used.end(), k) != used.end() || res[k] != _Tv()) {
+			// 若当前点已被使用，则中止
+			if (std::find(used.begin(), used.end(), rect_it) != used.end()) {
 				return;
 			}
 
@@ -100,17 +98,23 @@ _ZGL_BEGIN
 
 			// 若当前点在图形外部，则计算点的位置并中止此搜索
 			if (nv >= _Titem(0)) {
+				_Tkey k(2);
+				// 线段从第&it个点..
+				k._idx[&it] = z_size_t(1);
+				// ..到第&nit个点
+				k._idx[&nit] = z_size_t(1);
+
 				// 线性插值计算网格间点的位置
 				_Tv t = (*it) + ((*nit) - (*it)) / (nv - v) * v;
 				res[k] = t;
-				used.push_back(k);
+				used.push_back(rect_it);
 			}
 
 			// 若当前点在图形内部，则迭代相邻点
 			if (nv < _Titem(0)) {
 				for (z_size_t i = 0; i < dim - 1; i++) {
 					auto nrect_it(rect_it);
-					nrect_it._idx[i] ^= 1;
+					nrect_it._idx[i] ^= z_size_t(1);
 
 					_path_find(it, nrect_it, res, used);
 				}
@@ -128,7 +132,7 @@ _ZGL_BEGIN
 			// 创建网格迭代器
 			auto it = rect.begin();
 			for (z_size_t i = 0; i < dim - 1; i++) {
-				it._max[i] = it._max[i] - 1;
+				it._max[i]--;
 			}
 			// 迭代每一个标准网格
 			for (; it != rect.end(); ++it) {
@@ -137,19 +141,14 @@ _ZGL_BEGIN
 				if (v > _Titem(0)) {
 					continue;
 				}
-				vector< dim, z_size_t > rect_idx;
-				for (z_size_t i = 0; i < dim - 1; i++) {
-					rect_idx[i] = 2;
-				}
 				// 创建顶点迭代器
-				iterator< dim - 1, _Tv > rect_it(rect_idx, it._root);
-				iterator< dim - 1, _Tv > rect_it_end(rect_idx, it._root);
-				rect_it_end._idx[dim] = 1;
-				std::vector< std::map< _Tmk, _Tv > >& res;
-				std::vector< _Tmk >& used;
-				// 遍历网格所有顶点，顶点个数为2 ^ dim个
+				iterator< dim - 1, _Tv > rect_it(2, it._root);
+				iterator< dim - 1, _Tv > rect_it_end = rect_it.end();
+				std::vector< std::map< _Tkey, _Tv > > res;
+				std::vector< _Tit > used;
+				// 遍历网格所有顶点，顶点个数为ZGL::Pow( 2, dim - 1 )个
 				for (; rect_it != rect_it_end; ++rect_it) {
-					std::map< _Tmk, _Tv > re;
+					std::map< _Tkey, _Tv > re;
 					_path_find(it, rect_it, re, used);
 					if (re.size()) {
 						res.push_back(re);
@@ -177,6 +176,7 @@ _ZGL_BEGIN
 			}
 		}
 
+		/*
 		void _loop(const grid_range range[dim - 1], z_size_t deep) {
 			_Tgrid rect = make_range(range);
 
@@ -207,17 +207,20 @@ _ZGL_BEGIN
 				// 如果需要计算体素内外，则还需进一步判断
 			}
 		}
+		*/
 
 	private :
 
 		_Tgrid make_range() {
 			_Tgrid::grid_data data[dim - 1];
-			for (z_size_t i = 0; i < dim - 1; i++)
+			for (z_size_t i = 0; i < dim - 1; i++) {
 				data[i] = _Tgrid::grid_data(_start, _step, _end);
+			}
 
 			std::function< _Titem(typename _Tgrid::Targ, z_size_t) > funcs[dim - 1];
-			for (z_size_t i = 0; i < dim - 1; i++)
+			for (z_size_t i = 0; i < dim - 1; i++) {
 				funcs[i] = [](typename _Tgrid::Targ arg, z_size_t idx) { return arg[idx]; };
+			}
 
 			return STD_MOVE(_Tgrid(data, funcs));
 		}

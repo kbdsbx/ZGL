@@ -28,7 +28,7 @@ namespace ZGL_TEST
 				ZGL::affine_vector< 4, double >{ 1.5, -3, -5, 0 },
 			}));
 
-			auto n = g.n({ 0, 0, 0, 1 });
+			auto n = g.n();
 
 			Assert::IsTrue(n == v);
 		}

@@ -31,7 +31,7 @@ _ZGL_BEGIN
 
 	// debugging situation and rvalue references
 	// 调试环境与右值
-#if defined _DEBUG || !define __cpp_rvalue_references
+#if defined _DEBUG || ! defined __cpp_rvalue_references
 
 	#define ZGL_DISABLE_RVALUE
 	#define STD_MOVE
@@ -169,8 +169,34 @@ _ZGL_BEGIN
 	template < z_size_t dim, z_size_t d_dim, typename Titem >
 	class graph;
 
+	template < z_size_t dim, z_size_t d_dim, typename Titem >
+	class gridding;
+
+	template < z_size_t dim, z_size_t d_dim, typename Titem >
+	class gridding_implicitly;
+
+	template < z_size_t dim, typename Titem >
+	class iterator;
+
+	template < z_size_t dim, z_size_t d_dim, typename Titem >
+	class patch;
+
 	// Interface
 	// 接口
+
+	// Math
+	// 数学
+	template < z_size_t Base, z_size_t Exp >
+	class Pow {
+	public :
+		enum { result = Base * Pow < Base, Exp - 1 >::result };
+	};
+
+	template < z_size_t Base >
+	class Pow < Base, 0 > {
+	public :
+		enum { result = 1 };
+	};
 
 _ZGL_END
 

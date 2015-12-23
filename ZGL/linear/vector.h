@@ -132,13 +132,8 @@ _ZGL_BEGIN
 		}
 
 		// Cross product
-		// only 3 dimension and 7 dimension
-		// 向量积
-		// 仅用于三维或七维
+		// 向量积，外积，混合积，楔积
 		static _Tself cross(const _Tself opt[dim - 1]) {
-			if (dim != 3 && dim != 7)
-				throw "";
-
 			_Tsquare _t[dim][dim];
 
 			for (z_size_t i = 0; i < dim; i++)
@@ -168,9 +163,7 @@ _ZGL_BEGIN
 		}
 
 		// Cross product
-		// only 3 dimension and 7 dimension
-		// 向量积
-		// 仅用于三维或七维
+		// 向量积，外积，混合积，楔积
 		static _Tself cross(const std::initializer_list< _Tself >& opt) {
 			_Tself _t[dim - 1];
 			z_size_t i = 0;

@@ -1,5 +1,4 @@
 #include "../inc.h"
-#include "graph.h"
 #include <initializer_list>
 
 #ifndef ZGL_PATCH
@@ -30,12 +29,10 @@ _ZGL_BEGIN
 		// 顶点
 		_Tv verts[d_dim + 1];
 
-		_Tdot out_p;
-
 	public :
 		_Tself() { }
 
-		_Tself(const _Tv vertexes[d_dim + 1], _Tdot out_point) {
+		_Tself(const _Tv vertexes[d_dim + 1]) {
 			for (z_size_t i = 0; i < d_dim + 1; i++) {
 				verts[i] = vertexes[i];
 
@@ -48,12 +45,10 @@ _ZGL_BEGIN
 				}
 			}
 
-			out_p = out_point;
-
 			normalize();
 		}
 
-		_Tself(const std::initializer_list< _Tv >& vertexes, _Tdot out_point) {
+		_Tself(const std::initializer_list< _Tv >& vertexes) {
 			z_size_t i = 0;
 			for (decltype(auto) v : vertexes) {
 				if (!i) {
@@ -67,23 +62,13 @@ _ZGL_BEGIN
 				i++;
 			}
 
-			out_p = out_point;
-
 			normalize();
 		}
 
 		// normal vector for plane
 		// 计算平面法向量
-		//      p : the point that out of this plane
-		//          平面外的一点
-		_Tv n(const _Tv& p) const {
-			return _Tbase::n(p);
-		}
-
-		// normal vector for plane
-		// 计算平面法向量
 		_Tv n() const {
-			return n(out_p);
+			return _Tbase::n();
 		}
 	};
 

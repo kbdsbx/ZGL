@@ -164,6 +164,7 @@
     <ClCompile Include="graph_test.cpp" />
     <ClCompile Include="gridding_implicitly_test.cpp" />
     <ClCompile Include="gridding_test.cpp" />
+    <ClCompile Include="inc_test.cpp" />
     <ClCompile Include="iterator_test.cpp" />
     <ClCompile Include="mouse_interface_test.cpp" />
     <ClCompile Include="patch_test.cpp" />
