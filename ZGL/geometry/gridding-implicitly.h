@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <vector>
 #include <map>
+#include <array>
 #include "gridding.h"
 #include "iterator.h"
 #include "patch.h"
@@ -33,7 +34,7 @@ _ZGL_BEGIN
 		typedef gridding< dim, dim - 1, _Titem > _Tgrid;
 		typedef iterator< dim - 1, _Tv > _Tit;
 		typedef iterator< Pow< 2, dim >::result, _Tv > _Tkey;
-		typedef patch< dim, 2, _Titem > _Tsegment;
+		typedef patch< dim, dim - 2, _Titem > _Tpat;
 
 	private :
 		_Titem _start;
@@ -51,7 +52,7 @@ _ZGL_BEGIN
 		
 		// nodes
 		// 节点
-		std::vector< _Tv > _root;
+		std::vector< _Tpat > _root;
 
 		///** coordinate Range and implicit function **///
 
@@ -121,6 +122,45 @@ _ZGL_BEGIN
 			}
 		}
 
+		void _petching(const std::map< _Tkey, _Tv >& dots, std::vector< _Tpat >& res) {
+			_Tpat first_pat;
+			z_size_t i = 0;
+			vector < dim, _Tv > vecs[dim - 1];
+			for (decltype(auto) dot : dots) {
+				if (i < dim - 1) {
+					// 使用前 dim - 1 个点创造第一个patch
+					vecs[i] = dot.second;
+					if (i == dim - 2) {
+						first_pat = _Tpat(vecs);
+						res.push_back(first_pat);
+					}
+				} else {
+					// 从第 dim 个点起，计算当前点分别与第一个patch所构成的点组成的 dim 个petch所组成的夹角，去夹角最大值作为新的patch
+					_Tv temp;		// 上下文压栈
+					_Tpat next_pat;	// 新patch
+					_Titem arc(0);	// 新patch与第一个patch的二面角
+					for (z_size_t j = 0; j < dim - 1; j++) {
+						temp = vecs[j];
+
+						vecs[j] = dot.second;
+						_Tpat t_pat(vecs);
+						// 两个平面的夹角等同于其法向量的夹角，适用于更高维度的“平面”
+						_Titem narc = first_pat.n().angle(t_pat.n());
+						// 夹角最大的patch为新的patch，以保证其拼接的完整性
+						if (!arc || narc > arc) {
+							next_pat = t_pat;
+							arc = narc;
+						}
+
+						vecs[j] = temp;
+					}
+
+					res.push_back(next_pat);
+				}
+				i++;
+			}
+		}
+
 		void _dis() {
 			if (_root.size()) {
 				_root.clear();
@@ -144,70 +184,19 @@ _ZGL_BEGIN
 				// 创建顶点迭代器
 				iterator< dim - 1, _Tv > rect_it(2, it._root);
 				iterator< dim - 1, _Tv > rect_it_end = rect_it.end();
-				std::vector< std::map< _Tkey, _Tv > > res;
+
 				std::vector< _Tit > used;
 				// 遍历网格所有顶点，顶点个数为ZGL::Pow( 2, dim - 1 )个
 				for (; rect_it != rect_it_end; ++rect_it) {
 					std::map< _Tkey, _Tv > re;
 					_path_find(it, rect_it, re, used);
 					if (re.size()) {
-						res.push_back(re);
+						// 计算顶点组组成的petch
+						_petching(re, _root);
 					}
 				}
-
-				for (decltype(auto) mp : res) {
-				}
-
-				/*
-				for (z_size_t i = 0; i < dim - 1; i++) {
-					auto nit(it);
-					nit._idx[i] = nit._idx[i] + 1;
-					if (nit._idx[i] >= nit._max[i]) {
-						continue;
-					}
-					_Titem nv = _func(*nit);
-					if (v <= _Titem(0) && nv > _Titem(0) || v > _Titem(0) && nv <= _Titem(0)) {
-						_Tv t(*it);
-						t[i] = t[i] + _step * .5;
-						_root.push_back(t);
-					}
-				}
-				*/
 			}
 		}
-
-		/*
-		void _loop(const grid_range range[dim - 1], z_size_t deep) {
-			_Tgrid rect = make_range(range);
-
-			for (auto it = rect.begin(); it != rect.end(); ++it) {
-				// 计算规范网格点的梯度信息
-				_Titem v = _func(*it);
-				for (z_size_t i = 0; i < d_dim; i++) {
-					auto nit(it);
-					nit._idx[i] = (nit._idx[i] == 0 ? 1 : 0);
-					_Titem nv = _func(*nit);
-					// 若点与相邻的点不同时在隐式曲面一侧，则隐式曲面的边与两点之间的线段相交
-					if (v <= _Titem(0) && nv > _Titem(0) || v > _Titem(0) && nv <= _Titem(0)) {
-						// 缩小范围
-						grid_range nrange[d_dim];
-						for (z_size_t d = 0; d < d_dim; d++) {
-							_Titem len = range[d].maxi() - range[d].mini();
-							if (nit._idx[d]) {
-								nrange[d] = grid_range(range[d].mini(), range[d].maxi() - len);
-							} else {
-								nrange[d] = grid_range(range[d].mini() + len, range[d].maxi());
-							}
-						}
-						_loop(nrange, deep - 1);	// 使用二分法继续划分
-					}
-				}
-
-				// 若点与相邻的所有点都在隐式曲面的一侧，则隐式曲面的边不与此区域相交，放弃继续划分
-				// 如果需要计算体素内外，则还需进一步判断
-			}
-		}
-		*/
 
 	private :
 
