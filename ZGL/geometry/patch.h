@@ -19,8 +19,12 @@ _ZGL_BEGIN
 	class patch
 		: public graph < dim, d_dim, Titem > {
 		typedef Titem _Titem;
-		typedef graph< dim, d_dim, Titem > _Tbase;
-		typedef patch< dim, d_dim, Titem > _Tself;
+		// The rank of affine vector
+		// 仿射向量的秩
+		const static z_size_t rank = dim + 1;
+
+		typedef graph< dim, d_dim, _Titem > _Tbase;
+		typedef patch< dim, d_dim, _Titem > _Tself;
 		typedef affine_vector< dim, _Titem > _Tv;
 		typedef affine_vector< dim, _Titem > _Tdot;
 
@@ -28,37 +32,37 @@ _ZGL_BEGIN
 		// patch vertexes
 		// 顶点
 #ifdef ZGL_DISABLE_RVALUE
-		_Tv verts[d_dim + 1];
+		_Tv vertexes[d_dim + 1];
 #endif
 #ifdef ZGL_ENABLE_RVALUE
-		_Tv verts*;
+		_Tv vertexes*;
 #endif
 
 	public :
 		~patch(){
 #ifdef ZGL_ENABLE_RVALUE
-			if (verts) {
-				delete[] verts;
+			if (vertexes) {
+				delete[] vertexes;
 			}
 #endif
 		}
 
 		_Tself() {
 #ifdef ZGL_ENABLE_RVALUE
-			verts = new _Tv[d_dim + 1];
+			vertexes = new _Tv[d_dim + 1];
 #endif
 		}
 
-		_Tself(const _Tv vertexes[d_dim + 1])
+		_Tself(const _Tv vert[d_dim + 1])
 			: _Tself() {
 			for (z_size_t i = 0; i < d_dim + 1; i++) {
-				verts[i] = vertexes[i];
+				vertexes[i] = vert[i];
 
 				if (!i) {
-					pos = vertexes[i];
+					pos = vert[i];
 				} else {
-					for (z_size_t j = 0; j < dim; j++) {
-						dirs[i - 1][j] = vertexes[i][j] - pos[j];
+					for (z_size_t j = 0; j < rank; j++) {
+						dirs[i - 1][j] = vert[i][j] - pos[j];
 					}
 				}
 			}
@@ -66,17 +70,18 @@ _ZGL_BEGIN
 			normalize();
 		}
 
-		_Tself(const std::initializer_list< _Tv >& vertexes)
+		_Tself(const std::initializer_list< _Tv >& vert)
 			: _Tself() {
 			z_size_t i = 0;
-			for (decltype(auto) v : vertexes) {
+			for (decltype(auto) v : vert) {
+				vertexes[i] = v;
+
 				if (!i) {
 					pos = v;
 				} else {
-					for (z_size_t j = 0; j < dim; j++) {
+					for (z_size_t j = 0; j < rank; j++) {
 						dirs[i - 1][j] = v[j] - pos[j];
 					}
-					verts[i - 1] = v;
 				}
 				i++;
 			}
@@ -96,7 +101,7 @@ _ZGL_BEGIN
 
 		_Tself& operator = (const _Tself& src) {
 			for (z_size_t i = 0; i < d_dim + 1; i++) {
-				vects[i] = src.verts[i]
+				vertexes[i] = src.vertexes[i];
 			}
 			pos = src.pos;
 			dirs = src.dirs;
@@ -106,8 +111,8 @@ _ZGL_BEGIN
 
 #ifdef ZGL_ENABLE_RVALUE
 		_Tself& operator = (_Tself&& src) {
-			verts = src.verts;
-			src.verts = nullptr;
+			vertexes = src.vertexes;
+			src.vertexes = nullptr;
 			pos = STD_MOVE(src.pos);
 			dirs = STD_MOVE(src.dirs);
 

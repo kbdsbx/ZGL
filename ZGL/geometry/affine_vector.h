@@ -17,18 +17,20 @@ _ZGL_BEGIN
 	///       向量项或点项类型
 	template < z_size_t dim, typename Titem >
 	class affine_vector
-		: public vector< dim, Titem > {
+		: public vector< dim + 1, Titem > {
 		typedef Titem _Titem;
+		// The rank of base vector
+		// 父级向量的秩
+		const static z_size_t rank = dim + 1;
 		typedef affine_vector< dim, _Titem > _Tself;
-		typedef vector< dim, _Titem > _Tbase;
-		typedef vector< dim, _Titem > _Tvt;
-		typedef square< dim, _Titem > _Tsqu;
-		typedef square< dim - 1, _Titem > _Tm11;
-		typedef matrix< dim - 1, 1, _Titem > _Tm12;
-		typedef matrix< 1, dim - 1, _Titem > _Tm21;
+		typedef vector< rank, _Titem > _Tbase;
+		typedef square< rank, _Titem > _Tsqu;
+		typedef square< rank - 1, _Titem > _Tm11;
+		typedef matrix< rank - 1, 1, _Titem > _Tm12;
+		typedef matrix< 1, rank - 1, _Titem > _Tm21;
 		typedef square< 1, _Titem > _Tm22;
-		typedef graph< dim, dim - 2, _Titem > _Tpl;
-		typedef graph< dim, dim - 3, _Titem > _Taxis;
+		typedef graph< dim, dim - 1, _Titem > _Tpl;
+		typedef graph< dim, dim - 2, _Titem > _Taxis;
 
 	public :
 		// default constructor
@@ -38,7 +40,7 @@ _ZGL_BEGIN
 
 		// constructor that using item array
 		// 使用数组的构造函数
-		_Tself(const _Titem src[dim])
+		_Tself(const _Titem src[rank])
 			: _Tbase(src) { }
 
 		// constructor that using type of itself
@@ -64,7 +66,7 @@ _ZGL_BEGIN
 		}
 
 		virtual _Tself& operator = (const _Tself& opt) {
-			for (z_size_t i = 0; i < dim; i++)
+			for (z_size_t i = 0; i < rank; i++)
 				v[0][i] = opt[i];
 			return *this;
 		}
@@ -105,7 +107,7 @@ _ZGL_BEGIN
 		}
 
 		template < z_size_t rows >
-		_Tself operator * (const matrix < dim, rows, _Titem >& opt) const {
+		_Tself operator * (const matrix < rank, rows, _Titem >& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
@@ -141,19 +143,19 @@ _ZGL_BEGIN
 
 		// Cross product
 		// 向量积，外积，混合积，楔积
-		static _Tself cross(const _Tself opt[dim - 2]) {
-			vector< dim - 1, _Titem > _t[dim - 2], _r;
-			for (z_size_t i = 0; i < dim - 2; i++) {
-				_t[i] = (vector< dim - 1, _Titem >)affine_vector< dim, _Titem >::cofactor(opt[i], dim - 1);
+		static _Tself cross(const _Tself opt[dim - 1]) {
+			vector< rank - 1, _Titem > _t[dim - 1], _r;
+			for (z_size_t i = 0; i < dim - 1; i++) {
+				_t[i] = (vector< rank - 1, _Titem >)affine_vector< dim, _Titem >::cofactor(opt[i], rank - 1);
 			}
-			_r = vector< dim - 1, _Titem >::cross(_t);
+			_r = vector< rank - 1, _Titem >::cross(_t);
 			return STD_MOVE(_Tself::affine(_r, _Titem(0)));
 		}
 
 		// Cross product
 		// 向量积，外积，混合积，楔积
 		static _Tself cross(const std::initializer_list< _Tself >& opt) {
-			_Tself _t[dim - 2];
+			_Tself _t[dim - 1];
 			z_size_t i = 0;
 			for (const _Tself& o : opt) {
 				_t[i] = o;
@@ -164,7 +166,7 @@ _ZGL_BEGIN
 
 		// determinant value for vector array
 		// 向量组行列式值
-		static _Titem determinant(const _Tself opt[dim]) {
+		static _Titem determinant(const _Tself opt[rank]) {
 			return _Tbase::determinant(opt);
 		}
 
@@ -182,12 +184,12 @@ _ZGL_BEGIN
 
 		// To be affine vector
 		// 转换为仿射向量
-		static _Tself affine(const vector< dim - 1, _Titem > opt, _Titem w) {
+		static _Tself affine(const vector< rank - 1, _Titem > opt, _Titem w) {
 			_Tself _r;
-			for (z_size_t i = 0; i < dim - 1; i++) {
+			for (z_size_t i = 0; i < rank - 1; i++) {
 				_r[i] = opt[i];
 			}
-			_r[dim - 1] = w;
+			_r[rank - 1] = w;
 			return STD_MOVE(_r);
 		}
 
@@ -196,14 +198,14 @@ _ZGL_BEGIN
 		static _Tself normalize(const _Tself& opt) {
 			_Tself t;
 
-			if (opt[dim - 1]) {
-				for (z_size_t i = 0; i < dim - 1; i++) {
-					t[i] = opt[i] / opt[dim - 1];
+			if (opt[rank - 1]) {
+				for (z_size_t i = 0; i < rank - 1; i++) {
+					t[i] = opt[i] / opt[rank - 1];
 				}
 			} else {
 				_Titem _m = opt.module();
 				if (_m) {
-					for (z_size_t i = 0; i < dim - 1; i++) {
+					for (z_size_t i = 0; i < rank - 1; i++) {
 						t[i] = opt[i] / _m;
 					}
 				}
@@ -238,7 +240,7 @@ _ZGL_BEGIN
 			return STD_MOVE(_Tsqu(
 				_Tm11(IDENTITY),
 				_Tm12(),
-				_Tm21(cofactor(trans_vector, dim - 1)),
+				_Tm21(cofactor(trans_vector, rank - 1)),
 				_Tm22(IDENTITY)
 			));
 		}
@@ -247,14 +249,14 @@ _ZGL_BEGIN
 
 		// vector rotate for 3-dim
 		// 3D向量旋转
-		static square< 4, _Titem > rotate(const graph< 4, 1, _Titem >& axis, double radian) {
+		static _Tsqu rotate(const _Taxis& axis, double radian) {
 			typedef square< 4, _Titem > _Tsqu;
 			typedef square< 3, _Titem > _Tm11;
 			typedef matrix< 3, 1, _Titem > _Tm12;
 			typedef matrix< 1, 3, _Titem > _Tm21;
 			typedef square< 1, _Titem > _Tm22;
-			typedef affine_vector< 4, double > _Tv4;
-			typedef affine_vector< 3, double > _Tv3;
+			typedef affine_vector< 3, double > _Tv4;
+			typedef affine_vector< 2, double > _Tv3;
 
 			_Tv3 dir = STD_MOVE((_Tv3&)matrix< 1, 4, double >::cofactor< 0, 4 >(axis.dirs));
 			_Tm11 _x;
@@ -278,13 +280,21 @@ _ZGL_BEGIN
 		// vector scaling or dot scaling relative origin
 		// 向量缩放或点相对原点缩放
 		static _Tsqu scale(const _Titem& scaling) {
-			return scale(scaling, graph< dim, dim, _Titem >(_Tself(), _Tsqu(IDENTITY)));
+			matrix < dim, dim + 1, _Titem > vis;
+			for (z_size_t i = 0; i < dim; i++)
+				vis[i][i] = _Titem(1);
+
+			return scale(scaling, graph< dim, dim, _Titem >(_Tself(), vis));
 		}
 
 		// vector or dot scaling relative other dot
 		// 向量点相对于另一点缩放
 		static _Tsqu scale(const _Titem& scaling, const _Tself& fixed_point) {
-			return scale(scaling, graph< dim, dim, _Titem >(fixed_point, _Tsqu(IDENTITY)));
+			matrix < dim, dim + 1, _Titem > vis;
+			for (z_size_t i = 0; i < dim; i++)
+				vis[i][i] = _Titem(1);
+
+			return scale(scaling, graph< dim, dim, _Titem >(fixed_point, vis));
 		}
 
 		// vector or dot scaling to directions relative other dot
@@ -295,9 +305,9 @@ _ZGL_BEGIN
 			_Tsqu _sm(IDENTITY);
 
 			for (z_size_t i = 0; i < d_dim; i++) {
-				affine_vector< dim - 1, _Titem > _w = _Tself::cofactor(_Tself(scaling_params.dirs[i]), dim - 1);
+				affine_vector< dim - 1, _Titem > _w = _Tself::cofactor(_Tself(scaling_params.dirs[i]), dim);
 				_sm = _sm * _Tsqu(
-					_Tm11(IDENTITY) + STD_MOVE((_Tm11&)(matrix< dim - 1, dim - 1, _Titem >::transpose(_w) * _w * (scaling - _Titem(1)))),
+					_Tm11(IDENTITY) + STD_MOVE((_Tm11&)(matrix< dim, dim, _Titem >::transpose(_w) * _w * (scaling - _Titem(1)))),
 					_Tm12(),
 					_Tm21(),
 					_Tm22(IDENTITY)
@@ -309,15 +319,15 @@ _ZGL_BEGIN
 		// vector or dot mirror with one plane
 		// 向量或点相对于某一平面的镜像
 		static _Tsqu mirror(const _Tpl& mpl) {
-			typedef matrix < dim - 2, dim - 1, _Titem > _mtx;
-			typedef square < dim - 2, _Titem > _sqr;
+			typedef matrix < rank - 2, rank - 1, _Titem > _mtx;
+			typedef square < rank - 2, _Titem > _sqr;
 			// translate matrix
 			// 平移矩阵
 			_Tsqu _tm = translate(mpl.pos);
 			// I + 2 A^{T}(AA^{T})^{-1}A
 			// mirror matrix
 			// 镜像矩阵
-			_mtx _a = matrix < dim - 2, dim, _Titem >::cofactor < 0, dim >(mpl.dirs);
+			_mtx _a = matrix < rank - 2, rank, _Titem >::cofactor < 0, rank >(mpl.dirs);
 
 			_Tsqu _mm (
 				STD_MOVE((_Tm11&)(_mtx::transpose(_a) * STD_MOVE((_sqr&)(_a * _mtx::transpose(_a)) ^ -1) * _a)) * 2 - _Tm11(IDENTITY),
@@ -337,15 +347,15 @@ _ZGL_BEGIN
 		// vector or dot orthogonal projection to one plane
 		// 向量或点正交投影至某一平面
 		static _Tsqu orthogonal(const _Tpl& opl) {
-			typedef matrix < dim - 2, dim - 1, _Titem > _mtx;
-			typedef square < dim - 2, _Titem > _sqr;
+			typedef matrix < rank - 2, rank - 1, _Titem > _mtx;
+			typedef square < rank - 2, _Titem > _sqr;
 			// translate matrix
 			// 平移矩阵
 			_Tsqu _tm = translate(opl.pos);
 			// A^{T}(AA^{T})^{-1}A
 			// mirror matrix
 			// 镜像矩阵
-			_mtx _a = matrix < dim - 2, dim, _Titem >::cofactor < 0, dim >(opl.dirs);
+			_mtx _a = matrix < rank - 2, rank, _Titem >::cofactor < 0, rank >(opl.dirs);
 			_Tsqu _om(
 				STD_MOVE((_Tm11&)(_mtx::transpose(_a) * STD_MOVE((_sqr&)(_a * _mtx::transpose(_a)) ^ -1) * _a)),
 				_Tm12(),
@@ -360,13 +370,13 @@ _ZGL_BEGIN
 		// 向量或点透视投影至某一平面
 		static _Tsqu perspective(const _Tpl& persp_plane, const _Tself& view) {
 			affine_vector< dim - 1, _Titem >
-				_n = _Tself::cofactor(persp_plane.n(view), dim - 1),
-				_v = _Tself::cofactor(view, dim - 1),
-				_p = _Tself::cofactor(persp_plane.pos, dim - 1);
+				_n = _Tself::cofactor(persp_plane.n(view), rank - 1),
+				_v = _Tself::cofactor(view, rank - 1),
+				_p = _Tself::cofactor(persp_plane.pos, rank - 1);
 
 			_Tsqu _pm(
-				STD_MOVE((_Tm11&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * _v) * _Titem(-1) + _Tm11(IDENTITY) * ((_v - _p) PRO_DOT _n)),
-				STD_MOVE((_Tm12&)(matrix< 1, dim - 1, _Titem >::transpose(_n) * -1)),
+				STD_MOVE((_Tm11&)(matrix< 1, rank - 1, _Titem >::transpose(_n) * _v) * _Titem(-1) + _Tm11(IDENTITY) * ((_v - _p) PRO_DOT _n)),
+				STD_MOVE((_Tm12&)(matrix< 1, rank - 1, _Titem >::transpose(_n) * -1)),
 				STD_MOVE((_Tm21&)(_v * (_p PRO_DOT _n))),
 				_Tm22 { { _v PRO_DOT _n } }
 			);

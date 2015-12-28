@@ -125,7 +125,7 @@ _ZGL_BEGIN
 				return _Tself(ZGL_SQUARE_MATRIX_TYPE::IDENTITY);
 			} else {
 				_Tself _s(*this);
-				for (z_size_t i = 1; i < abs(opt); i++)
+				for (z_size_t i = 1; i < (z_size_t)abs(opt); i++)
 					_s = _s * *this;
 				return STD_MOVE(opt > 0 ? _s : _Tself::inverse(_s));
 			}

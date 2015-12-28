@@ -8,16 +8,22 @@ _ZGL_BEGIN
 
 	// Iterator in gridding
 	// 网格迭代器
-	/// dim: elements' dimension
-	///	      元素维度
+	/// dim: iterator's dimension
+	///	      迭代器维度
 	/// Tv: Type of element
 	///       元素类型
 	template < z_size_t dim, typename Tv = size_t >
 	class iterator {
-		typedef vector< dim + 1, z_size_t > _Tidx;
+		// The rank of index vector
+		// 索引向量的秩
+		const static z_size_t idx_rank = dim + 1;
+
+		typedef vector< idx_rank, z_size_t > _Tidx;
 		typedef iterator< dim, Tv > _Tself;
+
 	public:
 		typedef _Tidx Tidx;
+
 	public:
 		_Tidx _idx;
 		_Tidx _max;
@@ -87,7 +93,7 @@ _ZGL_BEGIN
 		// 异或
 		_Tself operator ^ (const _Tself& opt) const {
 			_Tself _t(_max, _root);
-			for (z_size_t i = 0; i < dim + 1; i++) {
+			for (z_size_t i = 0; i < idx_rank; i++) {
 				_t._idx[i] = (_idx[i] != opt._idx[i] ? _Titem(1) : _Titem(0));
 			}
 
@@ -108,7 +114,7 @@ _ZGL_BEGIN
 				_t = _idx[i];
 				// 如果不是个位数，则循环累乘低位进制
 				if (i) {
-					for (z_size_t j = (i - 1); j >= 0; j--) {
+					for (z_size_t j = (i - 1); j >= 0; --j) {
 						_t *= _max[j];
 					}
 				}

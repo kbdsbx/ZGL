@@ -33,7 +33,7 @@ _ZGL_BEGIN
 		typedef affine_vector < dim, _Titem > _Tv;
 		typedef gridding< dim, dim - 1, _Titem > _Tgrid;
 		typedef iterator< dim - 1, _Tv > _Tit;
-		typedef iterator< Pow< 2, dim >::result, _Tv > _Tkey;
+		typedef iterator< Pow< 2, dim - 1 >::result, _Tv > _Tkey;
 		typedef patch< dim, dim - 2, _Titem > _Tpat;
 
 	private :
@@ -87,37 +87,41 @@ _ZGL_BEGIN
 		// res : 当前路径点的集合
 		// used : 已使用过的点
 		void _path_find(const _Tit& it, const _Tit& rect_it, std::map< _Tkey, _Tv >& res, std::vector< _Tit >& used) {
-			_Titem v = _func(*it);
-			_Tit nit = it + rect_it;
+			_Tit _begin_it = it + rect_it;
+			_Titem _begin = _func(*_begin_it);
 
-			// 若当前点已被使用，则中止
-			if (std::find(used.begin(), used.end(), rect_it) != used.end()) {
-				return;
-			}
+			// 迭代相邻点
+			for (z_size_t i = 0; i < dim - 1; i++) {
+				// 创建相邻点的迭代器
+				_Tit n_rect_it(rect_it);
+				n_rect_it._idx[i] ^= z_size_t(1);
 
-			_Titem nv = _func(*nit);
+				// 若当前点已被使用，则中止
+				if (std::find(used.begin(), used.end(), n_rect_it) != used.end()) {
+					return;
+				}
 
-			// 若当前点在图形外部，则计算点的位置并中止此搜索
-			if (nv >= _Titem(0)) {
-				_Tkey k(2);
-				// 线段从第&it个点..
-				k._idx[&it] = z_size_t(1);
-				// ..到第&nit个点
-				k._idx[&nit] = z_size_t(1);
+				_Tit _end_it = it + n_rect_it;
+				_Titem _end = _func(*_end_it);
 
-				// 线性插值计算网格间点的位置
-				_Tv t = (*it) + ((*nit) - (*it)) / (nv - v) * v;
-				res[k] = t;
-				used.push_back(rect_it);
-			}
+				// 若当前点在图形外部，则计算点的位置并中止此搜索
+				if (_end >= _Titem(0)) {
+					_Tkey k(2);
+					// 线段从第&rect_it个点..
+					k._idx[&rect_it] = z_size_t(1);
+					// ..到第&n_rect_it个点
+					k._idx[&n_rect_it] = z_size_t(1);
 
-			// 若当前点在图形内部，则迭代相邻点
-			if (nv < _Titem(0)) {
-				for (z_size_t i = 0; i < dim - 1; i++) {
-					auto nrect_it(rect_it);
-					nrect_it._idx[i] ^= z_size_t(1);
+					// 线性插值计算网格间点的位置
+					_Tv t = (*_begin_it) + ((*_end_it) - (*_begin_it)) / (_end - _begin) * (_Titem(0) - _begin);
 
-					_path_find(it, nrect_it, res, used);
+					res[k] = t;
+					used.push_back(n_rect_it);
+				}
+
+				// 若当前点在图形内部，则迭代相邻点
+				if (_end < _Titem(0)) {
+					_path_find(it, n_rect_it, res, used);
 				}
 			}
 		}
@@ -125,7 +129,7 @@ _ZGL_BEGIN
 		void _petching(const std::map< _Tkey, _Tv >& dots, std::vector< _Tpat >& res) {
 			_Tpat first_pat;
 			z_size_t i = 0;
-			vector < dim, _Tv > vecs[dim - 1];
+			_Tv vecs[dim - 1];
 			for (decltype(auto) dot : dots) {
 				if (i < dim - 1) {
 					// 使用前 dim - 1 个点创造第一个patch
@@ -182,14 +186,17 @@ _ZGL_BEGIN
 					continue;
 				}
 				// 创建顶点迭代器
-				iterator< dim - 1, _Tv > rect_it(2, it._root);
-				iterator< dim - 1, _Tv > rect_it_end = rect_it.end();
+				_Tit rect_it(2, it._root);
+				_Tit rect_it_end = rect_it.end();
 
 				std::vector< _Tit > used;
+				used.push_back(rect_it);
 				// 遍历网格所有顶点，顶点个数为ZGL::Pow( 2, dim - 1 )个
 				for (; rect_it != rect_it_end; ++rect_it) {
 					std::map< _Tkey, _Tv > re;
-					_path_find(it, rect_it, re, used);
+					if (std::find(used.begin(), used.end(), rect_it) == used.end()) {
+						_path_find(it, rect_it, re, used);
+					}
 					if (re.size()) {
 						// 计算顶点组组成的petch
 						_petching(re, _root);

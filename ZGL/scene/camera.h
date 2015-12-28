@@ -14,9 +14,9 @@ _ZGL_BEGIN
 		: Icamera {
 		typedef camera _Tself;
 		typedef z_item_t _Titem;
-		typedef affine_vector< 4, _Titem > _Tv4;
+		typedef affine_vector< 3, _Titem > _Tv4;
 		typedef square< 4, _Titem > _Tm4;
-		typedef graph< 4, 1, _Titem > _Tline;
+		typedef graph< 3, 1, _Titem > _Tline;
 
 		_Tv4 _position;
 		_Tv4 _upward;
@@ -93,12 +93,12 @@ _ZGL_BEGIN
 		// Camera transformation matrix
 		// Ïà»ú±ä»»¾ØÕó
 		_Tm4 view() const {
-			return STD_MOVE(_Tm4 {
+			return STD_MOVE((_Tm4 {
 				{ _rightward[0], _rightward[1], _rightward[2], 0 },
 				{ _upward[0], _upward[1], _upward[2], 0 },
 				{ _forward[0], _forward[1], _forward[2], 0 },
-				{ _position[0], _position[1], _position[2], 1 },
-			} ^ -1);
+				{ 0, 0, 0, 1 },
+			} ^ -1) * _Tv4::translate(_position * -1));
 		}
 
 		// Yaw

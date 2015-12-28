@@ -13,7 +13,7 @@ namespace ZGL_TEST
 
 		TEST_METHOD(graph_orthogonalize)
 		{
-			ZGL::graph< 4, 3, double > g({ 0, 0, 0, 1 }, { { 1, 0, 0, 0 }, { 2, 2, 0, 0 }, { 1, 2, 3, 0 } });
+			ZGL::graph< 3, 3, double > g({ 0, 0, 0, 1 }, { { 1, 0, 0, 0 }, { 2, 2, 0, 0 }, { 1, 2, 3, 0 } });
 			g.orthogonalize();
 				
 			Assert::IsTrue(g.dirs == ZGL::matrix< 3, 4, double >{ { 1, 0, 0, 0 }, { 0, 1, 0, 0 }, { 0, 0, 1, 0 } });
@@ -21,11 +21,11 @@ namespace ZGL_TEST
 
 		TEST_METHOD(graph_n)
 		{
-			ZGL::graph< 4, 2, double > g({ 1, 1, 1, 1 }, { { -5, .3, 2, 0 }, { 1.5, -3, -5, 0 } });
+			ZGL::graph< 3, 2, double > g({ 1, 1, 1, 1 }, { { -5, .3, 2, 0 }, { 1.5, -3, -5, 0 } });
 
-			auto v = ZGL::affine_vector< 4, double >::normalize(ZGL::affine_vector< 4, double >::cross({
-				ZGL::affine_vector< 4, double >{ -5, .3, 2, 0 },
-				ZGL::affine_vector< 4, double >{ 1.5, -3, -5, 0 },
+			auto v = ZGL::affine_vector< 3, double >::normalize(ZGL::affine_vector< 3, double >::cross({
+				ZGL::affine_vector< 3, double >{ -5, .3, 2, 0 },
+				ZGL::affine_vector< 3, double >{ 1.5, -3, -5, 0 },
 			}));
 
 			auto n = g.n();

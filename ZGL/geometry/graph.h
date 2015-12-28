@@ -18,9 +18,12 @@ _ZGL_BEGIN
 	template < z_size_t dim, z_size_t d_dim, typename Titem >
 	class graph {
 		typedef Titem _Titem;
+		// The rank of base vector
+		// 父级向量的秩
+		const static z_size_t rank = dim + 1;
 		typedef graph< dim, d_dim, Titem > _Tself;
 		typedef affine_vector< dim, _Titem > _Tv;
-		typedef matrix< d_dim, dim, _Titem, void > _Tax;
+		typedef matrix< d_dim, rank, _Titem, void > _Tax;
 
 	public :
 		// fixed point that is position of elements at
@@ -66,7 +69,7 @@ _ZGL_BEGIN
 				_Tv t(dirs[i]);
 				for (z_size_t j = (i - 1); j >= 0; j--)
 					t = t PRO_UPRIGHT _Tv(dirs[j]);
-				for (z_size_t j = 0; j < dim; j++)
+				for (z_size_t j = 0; j < rank; j++)
 					dirs[i][j] = t[j];
 			}
 
@@ -78,7 +81,7 @@ _ZGL_BEGIN
 		// [exception] : Just only 'plane' in any dimensional space.
 		//          仅允许多维中的平面
 		_Tv n() const {
-			if (d_dim != dim - 2)
+			if (d_dim != dim - 1)
 				throw "Just only 'plane' in any dimensional space.";
 
 			_Tv vectors[d_dim];
@@ -100,8 +103,9 @@ _ZGL_BEGIN
 	template < z_size_t dim, typename Titem >
 	class graph < dim, 0, Titem > {
 		typedef Titem _Titem;
+		const static z_size_t rank = dim + 1;
 		typedef affine_vector< dim, _Titem > _Tv;
-		typedef matrix< 1, dim, _Titem > _Tax;
+		typedef matrix< 1, rank, _Titem > _Tax;
 
 	public:
 		// fixed point that is position of elements at

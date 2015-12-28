@@ -1,10 +1,11 @@
 #include "../inc.h"
-#include "../interface/Iseparable.h"
-#include "iterator.h"
 #include <math.h>
 #include <functional>
 #include <initializer_list>
 #include <vector>
+#include "../interface/Iseparable.h"
+#include "iterator.h"
+#include "patch.h"
 
 #ifndef ZGL_GRIDDING
 #define ZGL_GRIDDING
@@ -28,6 +29,7 @@ _ZGL_BEGIN
 		typedef vector< d_dim, _Titem > _Tval;
 
 		typedef iterator< d_dim, _Tv > _Tit;
+		typedef patch< dim, 1, _Titem > _Tseg;
 		typedef typename _Tit::Tidx _Tidx;
 
 	public :
@@ -41,18 +43,9 @@ _ZGL_BEGIN
 		// 迭代器索引类型
 		typedef _Tidx Tidx;
 
+		typedef _Tseg Tsegment;
+
 	public :
-		// segment result of gridding
-		// 表格段结构
-		struct segment{
-			_Tv first;
-			_Tv last;
-
-			segment() { }
-
-			segment(const _Tv& sFrist, const _Tv& sLast)
-				: first(sFrist), last(sLast) { }
-		};
 
 		// Data for making Gridding, The count equal of d_dim param.
 		// 用于生成网格的数据
@@ -313,13 +306,13 @@ _ZGL_BEGIN
 			return STD_MOVE(_it);
 		}
 
-		void each(std::vector< segment >& res) const {
+		void each(std::vector< _Tseg >& res) const {
 			for (_Tit it = begin(); it != end(); ++it) {
 				for (z_size_t d = 0; d < d_dim; d++) {
 					_Tidx _idx = it._idx;
 					_idx[d] = _idx[d] + 1;
 					if (_idx[d] < _max[d]) {
-						res.push_back(segment(*it, *_Tit(_idx, _max, _root)));
+						res.push_back(_Tseg{ *it, *_Tit(_idx, _max, _root) });
 					}
 				}
 			}
