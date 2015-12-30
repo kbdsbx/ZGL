@@ -163,13 +163,10 @@ void test_2d_gridding_line() {
 }
 
 void test_2d_gridding_implicitly() {
-	ImpCurved2 c1(-2.0, .2, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
-	/*
-	ImpCurved2 c1({
-		ImpCurved2::grid_range(-2, 2),
-		ImpCurved2::grid_range(-2, 2),
-	}, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
 
+	ImpCurved2 c1(-2.0, .02, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
+	/*
+	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
 	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return a[0] * a[0] + a[1] * a[1] - 1.5; });
 	*/
 	

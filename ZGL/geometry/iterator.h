@@ -24,9 +24,11 @@ _ZGL_BEGIN
 	public:
 		typedef _Tidx Tidx;
 
+	private:
+		_Tidx _max;
+
 	public:
 		_Tidx _idx;
-		_Tidx _max;
 		Tv* _root;
 
 		_Tself(z_size_t max = 0, Tv* root = nullptr)
@@ -75,7 +77,7 @@ _ZGL_BEGIN
 
 			_t._idx = _idx + opt._idx;
 			for (z_size_t i = 0; i < dim; i++) {
-				if (_t._idx[i] > _t._max[i]) {
+				if (_t._idx[i] >= _t._max[i]) {
 					// 不会进位 ?
 					throw std::out_of_range("The index of iterator is out of range.");
 				}
@@ -210,6 +212,10 @@ _ZGL_BEGIN
 			_Tself _t(_max, _root);
 			_t._idx[dim] = 1;
 			return STD_MOVE(_t);
+		}
+
+		z_size_t maxi(z_size_t i) const {
+			return _max[i];
 		}
 	};
 

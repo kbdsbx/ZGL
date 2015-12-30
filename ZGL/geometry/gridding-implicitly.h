@@ -94,23 +94,29 @@ _ZGL_BEGIN
 			// 创建均质网格
 			_Tgrid rect = make_range();
 
-			// 创建网格迭代器
-			auto it = rect.begin();
-			for (z_size_t i = 0; i < dim; i++) {
-				it._max[i]--;
-			}
 			// 迭代每一个标准网格
-			for (; it != rect.end(); ++it) {
+			for (auto it = rect.begin(); it != rect.end(); ++it) {
 				// 创建顶点迭代器
 				_Tit rect_it(2);
 				_Tit rect_it_end = rect_it.end();
-
 				std::vector< _Tit > used;
+
+				z_size_t i = dim;
+				while (i--) {
+					if (it._idx[i] == it.maxi(i) - 1) {
+						goto it_continue;
+					}
+				}
+
 				// 遍历网格所有顶点，顶点个数为ZGL::Pow( 2, dim )个
 				for (; rect_it != rect_it_end; ++rect_it) {
 					std::map< _Tkey, _Tv > re;
 
-					if (std::find(used.begin(), used.end(), rect_it) == used.end() && _func(*(it + rect_it)) <= _Titem(0)) {
+					_Titem v = _func(*(it + rect_it));
+					if (v == _Titem(0)) {
+						continue;
+					}
+					if (std::find(used.begin(), used.end(), rect_it) == used.end() && v < _Titem(0)) {
 						_path_find(it, rect_it, re, used);
 					}
 					if (re.size()) {
@@ -118,6 +124,9 @@ _ZGL_BEGIN
 						_petching(re, _root);
 					}
 				}
+
+			it_continue :
+				;
 			}
 		}
 
@@ -153,120 +162,12 @@ _ZGL_BEGIN
 					k._idx[&n_rect_it] = z_size_t(1);
 
 					// 线性插值计算网格间点的位置
-					_Tv t = *_end_it;
-					/*
-					if (floating_eq(_end, _begin)) {
-						t = *_end_it;
-					} else {
-						t = (*_begin_it) + ((*_end_it) - (*_begin_it)) * (_Titem(0) - _begin) / (_end - _begin);
-					}
-					*/
-
-					res[k] = t;
+					res[k] = (*_begin_it) + ((*_end_it) - (*_begin_it)) * (_Titem(0) - _begin) / (_end - _begin);
 				} else {
 					// 若当前点在图形内部，则迭代相邻点
 					used.push_back(n_rect_it);
-
 					_path_find(it, n_rect_it, res, used);
 				}
-
-				/*
-				// 起始点在图形上
-				// 将点看做内部点，继续搜索
-				if (floating_eq(_begin, _Titem(0))) {
-					used.push_back(rect_it);
-
-					_path_find(it, n_rect_it, res, used);
-
-				// 结束点在图形上
-				// 将点看做外部点，中止搜索
-				} else if (floating_eq(_end, _Titem(0))) {
-
-					_Tkey k(2);
-					// 线段从第&rect_it个点..
-					k._idx[&rect_it] = z_size_t(1);
-					// ..到第&n_rect_it个点
-					k._idx[&n_rect_it] = z_size_t(1);
-
-					// 线性插值计算网格间点的位置
-					_Tv t = *_end_it;
-
-					res[k] = t;
-
-					used.push_back(n_rect_it);
-
-				// 若结束点在图形外部
-				// 则计算点的位置并中止此搜索
-				} else if (_end > _Titem(0)) {
-
-					_Tkey k(2);
-					// 线段从第&rect_it个点..
-					k._idx[&rect_it] = z_size_t(1);
-					// ..到第&n_rect_it个点
-					k._idx[&n_rect_it] = z_size_t(1);
-
-					// 线性插值计算网格间点的位置
-					_Tv t;
-					if (floating_eq(_end, _begin)) {
-						t = *_end_it;
-					} else {
-						t = (*_begin_it) + ((*_end_it) - (*_begin_it)) / (_end - _begin) * (_Titem(0) - _begin);
-					}
-
-					res[k] = t;
-
-				// 若结束点在图形内部
-				// 则迭代相邻点
-				} else if (_end < _Titem(0)) {
-					used.push_back(n_rect_it);
-
-					_path_find(it, n_rect_it, res, used);
-				}
-				*/
-
-				/*
-				if (_end > _Titem(0)) {
-					// 若当前点在图形外部，则计算点的位置并中止此搜索
-
-					_Tkey k(2);
-					// 线段从第&rect_it个点..
-					k._idx[&rect_it] = z_size_t(1);
-					// ..到第&n_rect_it个点
-					k._idx[&n_rect_it] = z_size_t(1);
-
-					// 线性插值计算网格间点的位置
-					_Tv t;
-					if (floating_eq(_end, _begin)) {
-						t = *_end_it;
-					} else if (floating_eq(_begin, _Titem(0))) {
-						t = *_begin_it;
-					} else {
-						t = (*_begin_it) + ((*_end_it) - (*_begin_it)) / (_end - _begin) * (_Titem(0) - _begin);
-					}
-
-					res[k] = t;
-				} else if (_end < _Titem(0)) {
-					// 若当前点在图形内部，则迭代相邻点
-					used.push_back(n_rect_it);
-
-					_path_find(it, n_rect_it, res, used);
-				} else {
-
-					_Tkey k(2);
-					// 线段从第&rect_it个点..
-					k._idx[&rect_it] = z_size_t(1);
-					// ..到第&n_rect_it个点
-					k._idx[&n_rect_it] = z_size_t(1);
-
-					// 线性插值计算网格间点的位置
-					_Tv t = *_end_it;
-
-					res[k] = t;
-
-					// 若当前点在图形内部，则迭代相邻点
-					used.push_back(n_rect_it);
-				}
-				*/
 			}
 		}
 
