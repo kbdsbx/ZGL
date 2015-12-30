@@ -370,7 +370,7 @@ _ZGL_BEGIN
 		// 向量或点透视投影至某一平面
 		static _Tsqu perspective(const _Tpl& persp_plane, const _Tself& view) {
 			affine_vector< dim - 1, _Titem >
-				_n = _Tself::cofactor(persp_plane.n(view), rank - 1),
+				_n = _Tself::cofactor(persp_plane.n(), rank - 1),
 				_v = _Tself::cofactor(view, rank - 1),
 				_p = _Tself::cofactor(persp_plane.pos, rank - 1);
 

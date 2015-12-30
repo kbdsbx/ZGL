@@ -13,36 +13,36 @@ namespace ZGL_TEST
 
 		TEST_METHOD(gridding_implicitly_make_range)
 		{
-			ZGL::gridding_implicitly< 4, 3, double > g(1, 1, 2, [](ZGL::gridding_implicitly< 4, 3, double >::Targ arg) {
+			ZGL::gridding_implicitly< 3, 3, double > g(1, 1, 2, [](ZGL::gridding_implicitly< 3, 3, double >::Targ arg) {
 				return arg[0] * arg[0] + arg[1] * arg[1] + arg[2] * arg[2] - 1;
 			});
 
-			ZGL::gridding< 4, 3, double > gd = g.make_range();
+			ZGL::gridding< 3, 3, double > gd = g.make_range();
 			auto it = gd.begin();
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 1, 1, 1, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 1, 1, 1, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 2, 1, 1, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 2, 1, 1, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 1, 2, 1, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 1, 2, 1, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 2, 2, 1, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 2, 2, 1, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 1, 1, 2, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 1, 1, 2, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 2, 1, 2, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 2, 1, 2, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 1, 2, 2, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 1, 2, 2, 1 });
 			++it;
-			Assert::IsTrue(*it == ZGL::affine_vector< 4, double >{ 2, 2, 2, 1 });
+			Assert::IsTrue(*it == ZGL::affine_vector< 3, double >{ 2, 2, 2, 1 });
 		}
 
 		TEST_METHOD(gridding_implicitly__dis)
 		{
-			ZGL::gridding_implicitly< 4, 3, double > g(-2, .1, 2, [](ZGL::gridding_implicitly< 4, 3, double >::Targ arg) {
-				return arg[0] * arg[0] + arg[1] * arg[1] + arg[2] * arg[2] - 1;
+			ZGL::gridding_implicitly< 3, 3, double > g(-2, .5, 2, [](ZGL::gridding_implicitly< 3, 3, double >::Targ arg) {
+				return arg[0] * arg[0] + arg[1] * arg[1] + arg[2] * arg[2] - 2;
 			});
 
-			Assert::AreEqual(g._root.size(), 1878U);
+			Assert::AreEqual(g._root.size(), 130U);
 		}
 
 		/*

@@ -75,7 +75,7 @@ _ZGL_BEGIN
 
 			_t._idx = _idx + opt._idx;
 			for (z_size_t i = 0; i < dim; i++) {
-				if (_t._idx[i] >= _t._max[i]) {
+				if (_t._idx[i] > _t._max[i]) {
 					// 不会进位 ?
 					throw std::out_of_range("The index of iterator is out of range.");
 				}
@@ -182,6 +182,23 @@ _ZGL_BEGIN
 
 		operator bool() const {
 			return _idx == _Tidx();
+		}
+
+		bool operator < (const _Tself& it) const {
+			z_size_t i = idx_rank;
+			while (i--) {
+				if (_idx[i] < it._idx[i]) {
+					return true;
+				} else if (_idx[i] > it._idx[i]) {
+					return false;
+				}
+			}
+
+			return false;
+		}
+
+		bool operator > (const _Tself& it) const {
+			return (*this) != it && !((*this) < it);
 		}
 
 		_Tself begin() const {

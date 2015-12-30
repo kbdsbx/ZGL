@@ -163,21 +163,30 @@ void test_2d_gridding_line() {
 }
 
 void test_2d_gridding_implicitly() {
-	ImpCurved2 c1(-2, .01, 2, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1, 3) - a[0] * a[0] * pow(a[1], 3); });
+	ImpCurved2 c1(-2.0, .2, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
 	/*
 	ImpCurved2 c1({
 		ImpCurved2::grid_range(-2, 2),
 		ImpCurved2::grid_range(-2, 2),
 	}, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
+
+	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return a[0] * a[0] + a[1] * a[1] - 1.5; });
 	*/
-
-	c1._dis();
-
+	
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		axis();
-		for (auto c : c1._root) {
-			putpixel(X(c.vertexes[0][0]), X(c.vertexes[0][1] * -1), EGERGBA(0, 0, 0, 1));
+		for (decltype(auto) c : c1._root) {
+			ege_line(X(c.vertexes[0][0]), Y(c.vertexes[0][1]), X(c.vertexes[1][0]), Y(c.vertexes[1][1]));
 		}
+
+		setcolor(EGERGBA(150, 150, 150, 255));
+		std::vector< Surface2::Tsegment > vs;
+		auto c2 = c1.make_range();
+		c2.each(vs);
+		for (decltype(auto) v : vs) {
+			ege_line(X(v.vertexes[0][0]), Y(v.vertexes[0][1]), X(v.vertexes[1][0]), Y(v.vertexes[1][1]));
+		}
+		setcolor(EGERGBA(0, 0, 0, 255));
 	}
 }
 

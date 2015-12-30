@@ -11,7 +11,7 @@ _ZGL_BEGIN
 		: public scene {
 		typedef __int8 _Tid;
 		typedef __int32 _Tpx;
-		typedef affine_vector< 4, z_item_t > _Tv4;
+		typedef affine_vector< 3, z_item_t > _Tv4;
 		// Cameras in scene
 		// 场景中的摄像机
 		std::map< _Tid, const camera* > cameras;
@@ -77,7 +77,7 @@ _ZGL_BEGIN
 		}
 
 		int projection_trans(z_item_t zMin) {
-			graph< 4, 2, z_item_t > plane({ 0, 0, zMin, 1 }, {
+			graph< 3, 2, z_item_t > plane({ 0, 0, zMin, 1 }, {
 				{ 1, 0, 0, 0 },
 				{ 0, 1, 0, 0 },
 			});

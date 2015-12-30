@@ -24,6 +24,10 @@ _ZGL_BEGIN
 	class gridding
 		: public Iseparable {
 		typedef Titem _Titem;
+		// The rank of affine vector
+		// 仿射向量的秩
+		const static z_size_t rank = dim + 1;
+
 		typedef gridding< dim, d_dim, _Titem > _Tself;
 		typedef affine_vector < dim, _Titem > _Tv;
 		typedef vector< d_dim, _Titem > _Tval;
@@ -163,7 +167,7 @@ _ZGL_BEGIN
 
 		// equation in coordinate
 		// 坐标函数
-		std::function< _Titem(_Tval, z_size_t) > _funcs[dim - 1];
+		std::function< _Titem(_Tval, z_size_t) > _funcs[dim];
 
 		_Tidx _max;
 
@@ -175,15 +179,17 @@ _ZGL_BEGIN
 			delete[] _root;
 		}
 
-		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval, z_size_t = 0) > funcs[dim - 1])
+		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval, z_size_t = 0) > funcs[dim])
 			: gridding() {
 			z_size_t i = d_dim, c = 1;
-			while (i--)
+			while (i--) {
 				_data[i] = data[i];
+			}
 
-			i = dim - 1;
-			while (i--)
+			i = dim;
+			while (i--) {
 				_funcs[i] = funcs[i];
+			}
 
 			i = d_dim;
 			while (i--) {
@@ -225,9 +231,10 @@ _ZGL_BEGIN
 			while (i--)
 				_data[i] = src._data[i];
 			
-			i = dim - 1;
-			while (i--)
+			i = dim;
+			while (i--) {
 				_funcs[i] = src._funcs[i];
+			}
 
 			i = d_dim;
 			while (i--) {
@@ -242,12 +249,14 @@ _ZGL_BEGIN
 
 		_Tself& operator = (const _Tself& src) {
 			z_size_t i = d_dim, c = 1;
-			while (i--)
+			while (i--) {
 				_data[i] = src._data[i];
+			}
 
-			i = dim - 1;
-			while (i--)
+			i = dim;
+			while (i--) {
 				_funcs[i] = src._funcs[i];
+			}
 
 			i = d_dim;
 			while (i--) {
@@ -273,12 +282,12 @@ _ZGL_BEGIN
 				}
 				// Sent params into coordinate function to compute.
 				// 将参数传递至坐标方程进行计算
-				for (z_size_t i = 0; i < dim - 1; i++) {
+				for (z_size_t i = 0; i < rank - 1; i++) {
 					_dt[i] = _funcs[i](val, i);
 				}
 				// Set 1 because it is the dot.
 				// 设置节点为点元素
-				_dt[dim - 1] = 1;
+				_dt[rank - 1] = 1;
 				(*it) = _dt;
 			}
 		}
