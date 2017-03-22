@@ -154,6 +154,8 @@ _ZGL_BEGIN
 			return _v;
 		}
 
+		// determinant value for square matrix
+		// 方阵行列式值
 		template <>
 		static _Titem determinant (const square < 1, _Titem > & opt) {
 			return opt[0][0];

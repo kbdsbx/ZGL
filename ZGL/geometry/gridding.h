@@ -5,7 +5,6 @@
 #include <vector>
 #include "../interface/Iseparable.h"
 #include "iterator.h"
-#include "patch.h"
 
 #ifndef ZGL_GRIDDING
 #define ZGL_GRIDDING
@@ -21,8 +20,8 @@ _ZGL_BEGIN
 	/// Titem: Type of item within gridding
 	///       网格项类型
 	template < z_size_t dim, z_size_t d_dim, typename Titem >
-	class gridding
-		: public Iseparable {
+	class gridding {
+	protected :
 		typedef Titem _Titem;
 		// The rank of affine vector
 		// 仿射向量的秩
@@ -33,7 +32,6 @@ _ZGL_BEGIN
 		typedef vector< d_dim, _Titem > _Tval;
 
 		typedef iterator< d_dim, _Tv > _Tit;
-		typedef patch< dim, 1, _Titem > _Tseg;
 		typedef typename _Tit::Tidx _Tidx;
 
 	public :
@@ -47,19 +45,11 @@ _ZGL_BEGIN
 		// 迭代器索引类型
 		typedef _Tidx Tidx;
 
-		typedef _Tseg Tsegment;
-
 	public :
 
 		// Data for making Gridding, The count equal of d_dim param.
 		// 用于生成网格的数据
 		class grid_data {
-			// Discrete data is produced using range
-			// 使用区间生成离散数据
-			_Titem _start;
-			_Titem _end;
-			_Titem _step;
-
 			// Discrete data array
 			// 离散数据数组
 			_Titem* _arr = nullptr;
@@ -68,28 +58,35 @@ _ZGL_BEGIN
 			// 获取或生成的数据量
 			z_size_t _len;
 
-			// Type of data
-			//		1: Array
-			//		2: Range
-			// 数据类型
-			z_size_t _flag;
-
 		public :
+
+			~grid_data() {
+				if (_arr) {
+					delete[] _arr;
+				}
+			}
 
 			grid_data() { }
 
-			grid_data(_Titem start, _Titem step, _Titem end)
-				: _start(start), _end(end), _step(step) {
-				_len = (z_size_t)floor((_end - _start) / _step) + 1;
-				_flag = 2;
+			grid_data(_Titem start, _Titem step, _Titem end) {
+				z_size_t len = (z_size_t)floor((end - start) / step) + 1;
+				_len = len;
+				_arr = new _Titem[_len];
+				for (z_size_t i = 0; i < len; i++) {
+					if (!i) {
+						_arr[i] = start;
+					} else {
+						_arr[i] = _arr[i - 1] + step;
+					}
+				}
 			}
 
 			grid_data(_Titem* arr, z_size_t len) {
 				_len = len;
 				_arr = new _Titem[_len];
-				while (len--)
+				while (len--) {
 					_arr[len] = arr[len];
-				_flag = 1;
+				}
 			}
 
 			grid_data(const grid_data& src) {
@@ -101,30 +98,18 @@ _ZGL_BEGIN
 			}
 
 			grid_data& operator = (const grid_data& src) {
-				_flag = src._flag;
+				z_size_t len = src._len;
 
-				_start = src._start;
-				_end = src._end;
-				_step = src._step;
-
-				_len = src._len;
-				if (src._flag == 1) {
-					_arr = new _Titem[_len];
-					z_size_t i = src._len;
-					while (i--)
-						_arr[i] = src._arr[i];
+				_len = len;
+				_arr = new _Titem[_len];
+				while (len--) {
+					_arr[len] = src._arr[len];
 				}
 
 				return *this;
 			}
 			
 			grid_data& operator = (grid_data&& src) {
-				_flag = src._flag;
-
-				_start = src._start;
-				_end = src._end;
-				_step = src._step;
-
 				_len = src._len;
 				_arr = src._arr;
 				src._arr = nullptr;
@@ -136,14 +121,7 @@ _ZGL_BEGIN
 				if (idx > _len)
 					throw std::out_of_range( "Index of this data is out of range." );
 
-				switch (_flag) {
-				case 1:
-					return _arr[idx];
-				case 2:
-					return _start + idx * _step;
-				default :
-					throw "";
-				}
+				return _arr[idx];
 			}
 
 			// Length of array or making data with range, Readonly
@@ -155,6 +133,7 @@ _ZGL_BEGIN
 
 		///** Result **///
 
+	private :
 		// root node
 		// 根节点
 		_Tv * _root;
@@ -171,16 +150,12 @@ _ZGL_BEGIN
 
 		_Tidx _max;
 
-	private :
-		gridding() { }
-
 	public :
 		~gridding() {
 			delete[] _root;
 		}
 
-		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval, z_size_t = 0) > funcs[dim])
-			: gridding() {
+		gridding(const grid_data data[d_dim], const std::function< _Titem(_Tval, z_size_t = 0) > funcs[dim]) {
 			z_size_t i = d_dim, c = 1;
 			while (i--) {
 				_data[i] = data[i];
@@ -271,6 +246,24 @@ _ZGL_BEGIN
 			return *this;
 		}
 
+		///*** Iterator ***///
+
+		// iterator begin, the index is { 0, 0, 0, 0 } in 3D gridding etc.
+		// 迭代开始位置，例：3D网格索引为idx{ 0, 0, 0, 0 }
+		_Tit begin() const {
+			return _Tit(_max, _root);
+		}
+
+		// iterator end, the index is { 0, 0, 0, 1 } in 3D gridding etc.
+		// 迭代结束位置，例：3D索引为idx{ 0, 0, 0, 1 }
+		const _Tit end() const {
+			_Tit _it(_max, _root);
+			_it._idx[d_dim] = 1;
+
+			return STD_MOVE(_it);
+		}
+
+	private :
 		void _dis() {
 			for (auto it = begin(); it != end(); ++it) {
 				_Tv _dt;
@@ -292,40 +285,6 @@ _ZGL_BEGIN
 			}
 		}
 
-		_Tv operator [] (_Tidx idx) {
-			z_size_t c = 1;
-			for (z_size_t i = 0; i < d_dim; i++)
-				c *= idx[d_dim];
-		}
-
-		///*** Iterator ***///
-
-		// iterator begin, the index is { 0, 0, 0, 0 } in 3D gridding etc.
-		// 迭代开始位置，例：3D网格索引为idx{ 0, 0, 0, 0 }
-		_Tit begin() const {
-			return _Tit(_max, _root);
-		}
-
-		// iterator end, the index is { 0, 0, 0, 1 } in 3D gridding etc.
-		// 迭代结束位置，例：3D索引为idx{ 0, 0, 0, 1 }
-		const _Tit end() const {
-			_Tit _it(_max, _root);
-			_it._idx[d_dim] = 1;
-
-			return STD_MOVE(_it);
-		}
-
-		void each(std::vector< _Tseg >& res) const {
-			for (_Tit it = begin(); it != end(); ++it) {
-				for (z_size_t d = 0; d < d_dim; d++) {
-					_Tidx _idx = it._idx;
-					_idx[d] = _idx[d] + 1;
-					if (_idx[d] < _max[d]) {
-						res.push_back(_Tseg{ *it, *_Tit(_idx, _max, _root) });
-					}
-				}
-			}
-		}
 	};
 _ZGL_END
 

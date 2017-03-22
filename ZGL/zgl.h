@@ -47,3 +47,7 @@ typedef ZGL::graph< 3, 1, zgl_item > Point3;
 typedef ZGL::gridding< 3, 3, zgl_item > Grid3;
 typedef ZGL::gridding< 3, 2, zgl_item > Surface3;
 typedef ZGL::gridding< 3, 1, zgl_item > Curved3;
+
+typedef ZGL::gridding_implicitly< 3, 3, zgl_item > ImpGrid3;
+typedef ZGL::gridding_implicitly< 3, 2, zgl_item > ImpSurface3;
+typedef ZGL::gridding_implicitly< 3, 1, zgl_item > ImpCurved3;

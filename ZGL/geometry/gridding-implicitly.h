@@ -37,8 +37,8 @@ _ZGL_BEGIN
 		typedef affine_vector < dim, _Titem > _Tv;
 		typedef gridding< dim, dim, _Titem > _Tgrid;
 		typedef iterator< dim, _Tv > _Tit;
-		typedef iterator< Pow< 2, dim >::result, _Tv > _Tkey;
 		typedef patch< dim, dim - 1, _Titem > _Tpat;
+		typedef std::vector< _Tpat > _Tcol;
 
 	private :
 		_Titem _start;
@@ -56,7 +56,7 @@ _ZGL_BEGIN
 		
 		// nodes
 		// 节点
-		std::vector< _Tpat > _root;
+		_Tcol _root;
 
 		///** coordinate Range and implicit function **///
 
@@ -103,14 +103,14 @@ _ZGL_BEGIN
 
 				z_size_t i = dim;
 				while (i--) {
-					if (it._idx[i] == it.maxi(i) - 1) {
+					if (it.idxi(i) == it.maxi(i) - 1) {
 						goto it_continue;
 					}
 				}
 
 				// 遍历网格所有顶点，顶点个数为ZGL::Pow( 2, dim )个
 				for (; rect_it != rect_it_end; ++rect_it) {
-					std::map< _Tkey, _Tv > re;
+					std::vector< _Tv > re;
 
 					_Titem v = _func(*(it + rect_it));
 					if (v == _Titem(0)) {
@@ -121,7 +121,8 @@ _ZGL_BEGIN
 					}
 					if (re.size()) {
 						// 计算顶点组组成的petch
-						_petching(re, _root);
+						_petching< _Tv, _Tpat, dim >(re, _root);
+						// _petching(re, _root);
 					}
 				}
 
@@ -136,7 +137,7 @@ _ZGL_BEGIN
 		// rect_it : 均质网格迭代器
 		// res : 当前路径点的集合
 		// used : 已使用过的点
-		void _path_find(const _Tit& it, const _Tit& rect_it, std::map< _Tkey, _Tv >& res, std::vector< _Tit >& used) {
+		void _path_find(const _Tit& it, const _Tit& rect_it, std::vector< _Tv >& res, std::vector< _Tit >& used) {
 			_Tit _begin_it = it + rect_it;
 			_Titem _begin = _func(*_begin_it);
 
@@ -155,14 +156,8 @@ _ZGL_BEGIN
 				_Titem _end = _func(*_end_it);
 
 				if (_end >= _Titem(0)) {
-					_Tkey k(2);
-					// 线段从第&rect_it个点..
-					k._idx[&rect_it] = z_size_t(1);
-					// ..到第&n_rect_it个点
-					k._idx[&n_rect_it] = z_size_t(1);
-
 					// 线性插值计算网格间点的位置
-					res[k] = (*_begin_it) + ((*_end_it) - (*_begin_it)) * (_Titem(0) - _begin) / (_end - _begin);
+					res.push_back((*_begin_it) + ((*_end_it) - (*_begin_it)) * (_Titem(0) - _begin) / (_end - _begin));
 				} else {
 					// 若当前点在图形内部，则迭代相邻点
 					used.push_back(n_rect_it);
@@ -171,7 +166,8 @@ _ZGL_BEGIN
 			}
 		}
 
-		void _petching(const std::map< _Tkey, _Tv >& dots, std::vector< _Tpat >& res) {
+		/*
+		void _petching(const std::vector< _Tv >& dots, std::vector< _Tpat >& res) {
 			_Tpat first_pat;
 			z_size_t i = 0;
 			_Tv vecs[dim];
@@ -209,6 +205,7 @@ _ZGL_BEGIN
 				i++;
 			}
 		}
+		*/
 
 		_Tgrid make_range() {
 			_Tgrid::grid_data data[dim];

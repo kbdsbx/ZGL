@@ -217,6 +217,10 @@ _ZGL_BEGIN
 		z_size_t maxi(z_size_t i) const {
 			return _max[i];
 		}
+
+		z_size_t idxi(z_size_t i) const {
+			return _idx[i];
+		}
 	};
 
 _ZGL_END

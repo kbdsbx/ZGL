@@ -42,7 +42,7 @@ namespace ZGL_TEST
 				return arg[0] * arg[0] + arg[1] * arg[1] + arg[2] * arg[2] - 2;
 			});
 
-			Assert::AreEqual(g._root.size(), 130U);
+			Assert::AreEqual(g._root.size(), 400U);
 		}
 
 		/*

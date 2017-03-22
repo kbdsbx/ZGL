@@ -164,8 +164,9 @@ void test_2d_gridding_line() {
 
 void test_2d_gridding_implicitly() {
 
-	ImpCurved2 c1(-2.0, .02, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
+	ImpCurved2 c1(-2.0, .1, 2.0, [](ImpCurved2::Targ a) { return (abs(pow(a[0], a[0])) - abs(pow(a[1], a[1]))) / (a[0] - a[1]); });
 	/*
+	ImpCurved2 c1(-2.0, .02, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
 	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
 	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return a[0] * a[0] + a[1] * a[1] - 1.5; });
 	*/
@@ -296,7 +297,103 @@ void test_3d_scene(){
 }
 
 void test_3d_gridding_implicitly() {
+	ZGL::scene_grid scene;
+
+	ZGL::camera cm({ 0, 6, PI, 1 }, { 0, -1, 0, 0 }, { 0, 0, 1, 0 });
+
+	ZGL::gridding_implicitly< 3, 2, double > gi(-2, .1, 2, [](ZGL::gridding_implicitly< 3, 2, double >::Targ a) { return a[0] * a[0] + a[1] * a[1] + a[2] * a[2] - 1.5; });
+	char cid = scene.add_camera(&cm);
+	scene.add_solid(sf);
+
+	ZGL::mouse _mouse;
+	ZGL::mouse::mouse_status _old_msg;
+	_mouse.on(ZGL::ZGL_MOUSE_TYPE::LEFT_CLICK | ZGL::ZGL_MOUSE_TYPE::MOVE, [&scene, &_old_msg, &cm](ZGL::mouse::mouse_status msg) {
+		if (_old_msg.x != 0 && _old_msg.y != 0) {
+			cm.traverse((msg.x - _old_msg.x) / -100.0);
+			cm.lift((msg.y - _old_msg.y) / 100.0);
+		}
+		_old_msg = msg;
+	});
+
+	_mouse.on(ZGL::ZGL_MOUSE_TYPE::WHEEL, [&](ZGL::mouse::mouse_status msg) {
+		cm.retreat(msg.wheel / 100.0);
+	});
+
 	for (; is_run(); delay_fps(60), cleardevice()) {
-		axis();
+		ege::mouse_msg emsg = { 0 };
+		while (mousemsg()) {
+			emsg = getmouse();
+
+			_mouse.monitoring([&](ZGL::mouse::mouse_status _msg) {
+				_msg.x = emsg.x;
+				_msg.y = emsg.y;
+				_msg.wheel = emsg.wheel;
+
+				if (emsg.is_down()) {
+					if (emsg.is_left())
+						_msg.set_left();
+					if (emsg.is_right())
+						_msg.set_right();
+					if (emsg.is_mid())
+						_msg.set_mid();
+				}
+
+				if (emsg.is_up()) {
+					if (emsg.is_left())
+						_msg.reset_left();
+					if (emsg.is_right())
+						_msg.reset_right();
+					if (emsg.is_mid())
+						_msg.reset_mid();
+				}
+
+				if (emsg.is_move()) {
+					_msg.set_move();
+				} else {
+					_msg.reset_move();
+				}
+
+				if (emsg.is_wheel()) {
+					_msg.set_wheel();
+				} else {
+					_msg.reset_wheel();
+				}
+
+				{
+					char str[50];
+					sprintf(str, "Flag: %d, %d, %d, %d", _msg.flags, emsg.flags, emsg.x, emsg.y);
+					outtextxy(0, 30, str);
+				}
+
+				return STD_MOVE(_msg);
+			});
+		}
+		_old_msg = ZGL::mouse::mouse_status();
+
+		scene.modeling_trans();
+		scene.viewing_trans(cid);
+		scene.projection_trans(2);
+		scene.viewport_trans(100, 800, 600);
+
+		std::vector< ZGL::surface::Tsegment > rs;
+		for (decltype(auto) grids : scene.material_grids) {
+			grids.each(rs);
+		}
+
+		auto i = 0;
+		for (auto r : rs) {
+			auto x1 = (r.vertexes[0][0]);
+			auto y1 = (r.vertexes[0][1]);
+			auto x2 = (r.vertexes[1][0]);
+			auto y2 = (r.vertexes[1][1]);
+			ege_line(x1, y1, x2, y2);
+			i++;
+		}
+
+		{// 画帧率文字
+			char str[20];
+			sprintf(str, "fps %.02f", getfps()); //调用getfps取得当前帧率
+			outtextxy(0, 0, str);
+		}
 	}
 }
