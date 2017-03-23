@@ -1,4 +1,3 @@
-#include "scene.h"
 #include "unit/surface.h"
 #include <map>
 #include <vector>
@@ -7,8 +6,7 @@
 #define ZGL_SCENE_GRID
 
 _ZGL_BEGIN
-	class scene_grid
-		: public scene {
+	class scene_grid {
 		typedef __int8 _Tid;
 		typedef __int32 _Tpx;
 		typedef affine_vector< 3, z_item_t > _Tv4;

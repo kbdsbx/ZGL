@@ -13,7 +13,7 @@ _ZGL_BEGIN
 	// 3DÇúÃæ
 	template < z_size_t dim, typename Titem >
 	class surface
-		: public gridding< dim, 2, Titem >, public Iseparable {
+		: public gridding< dim, 2, Titem > {
 	protected :
 		typedef Titem _Titem;
 		typedef surface< dim, _Titem > _Tself;

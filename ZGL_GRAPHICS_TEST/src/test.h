@@ -162,14 +162,13 @@ void test_2d_gridding_line() {
 	}
 }
 
+/*
 void test_2d_gridding_implicitly() {
 
 	ImpCurved2 c1(-2.0, .1, 2.0, [](ImpCurved2::Targ a) { return (abs(pow(a[0], a[0])) - abs(pow(a[1], a[1]))) / (a[0] - a[1]); });
-	/*
-	ImpCurved2 c1(-2.0, .02, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
-	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
-	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return a[0] * a[0] + a[1] * a[1] - 1.5; });
-	*/
+//	ImpCurved2 c1(-2.0, .02, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
+//	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
+//	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return a[0] * a[0] + a[1] * a[1] - 1.5; });
 	
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		axis();
@@ -397,3 +396,4 @@ void test_3d_gridding_implicitly() {
 		}
 	}
 }
+*/

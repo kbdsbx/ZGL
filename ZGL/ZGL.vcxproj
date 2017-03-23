@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3d\matrix.h" />
+    <ClInclude Include="3d\vector.h" />
     <ClInclude Include="geometry\affine_vector.h" />
     <ClInclude Include="geometry\graph.h" />
     <ClInclude Include="geometry\gridding-implicitly.h" />
@@ -26,24 +28,12 @@
     <ClInclude Include="geometry\iterator.h" />
     <ClInclude Include="geometry\patch.h" />
     <ClInclude Include="inc.h" />
-    <ClInclude Include="interface\Icamera.h" />
-    <ClInclude Include="interface\Igeometry.h" />
-    <ClInclude Include="interface\Ilight.h" />
-    <ClInclude Include="interface\Iradiantable.h" />
-    <ClInclude Include="interface\Irenderer.h" />
-    <ClInclude Include="interface\Iseparable.h" />
-    <ClInclude Include="interface\Ishadowable.h" />
-    <ClInclude Include="interface\Isolid.h" />
-    <ClInclude Include="interface\Itrackable.h" />
     <ClInclude Include="io\mouse.h" />
     <ClInclude Include="linear\matrix.h" />
     <ClInclude Include="linear\square.h" />
     <ClInclude Include="linear\vector.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scene\camera.h" />
-    <ClInclude Include="scene\scene.h" />
-    <ClInclude Include="scene\scene_grid.h" />
-    <ClInclude Include="scene\unit\surface.h" />
     <ClInclude Include="zgl.h" />
   </ItemGroup>
   <ItemGroup>
@@ -58,26 +48,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>

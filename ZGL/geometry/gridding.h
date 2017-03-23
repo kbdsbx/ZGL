@@ -3,7 +3,6 @@
 #include <functional>
 #include <initializer_list>
 #include <vector>
-#include "../interface/Iseparable.h"
 #include "iterator.h"
 
 #ifndef ZGL_GRIDDING

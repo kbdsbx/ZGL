@@ -1,5 +1,4 @@
 #include "../inc.h"
-#include "../interface/Iseparable.h"
 #include <math.h>
 #include <functional>
 #include <initializer_list>
@@ -25,8 +24,7 @@ _ZGL_BEGIN
 	/// Titem: Type of item within gridding
 	///       网格项类型
 	template < z_size_t dim, z_size_t d_dim, typename Titem >
-	class gridding_implicitly
-		: public Iseparable {
+	class gridding_implicitly {
 		typedef Titem _Titem;
 		// The rank of affine vector
 		// 仿射向量的秩

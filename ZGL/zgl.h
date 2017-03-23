@@ -10,8 +10,10 @@
 #include "geometry/gridding.h"
 #include "geometry/gridding-implicitly.h"
 
+/*
 #include "scene/camera.h"
 #include "scene/scene_grid.h"
+*/
 #include "io/mouse.h"
 
 #endif // !ZGL_H

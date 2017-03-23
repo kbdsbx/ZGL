@@ -7,6 +7,9 @@
 #define _ZGL_BEGIN namespace ZGL {
 #define _ZGL_END }
 
+#define _ZGL_3D_BEGIN namespace ZGL_3D {
+#define _ZGL_3D_END }
+
 _ZGL_BEGIN
 
 	/**
