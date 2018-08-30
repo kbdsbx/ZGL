@@ -1,5 +1,17 @@
 #pragma once
 
+#include "../model/teapot.h"
+#include <iostream>
+
+
+#include "../../ZGL/zgl.h"
+
+typedef ZGL::vec3 vec3;
+typedef ZGL::vec4 vec4;
+typedef ZGL::squ4 squ4;
+typedef ZGL::piece piece;
+typedef ZGL::object model;
+
 #define screen_width 800
 #define screen_height 600
 #define X(x) ( (x) * 100 + ( screen_width / 2 ) )
@@ -11,6 +23,17 @@ void axis() {
 	ege_line(X(0), Y(-screen_height / 2), X(0), Y(screen_height / 2));
 }
 
+void log(squ4& input) {
+	std::cout << input[0][0] << " " << input[0][1] << " " << input[0][2] << " " << input[0][3] << "\n";
+	std::cout << input[1][0] << " " << input[1][1] << " " << input[1][2] << " " << input[1][3] << "\n";
+	std::cout << input[2][0] << " " << input[2][1] << " " << input[2][2] << " " << input[2][3] << "\n";
+	std::cout << input[3][0] << " " << input[3][1] << " " << input[3][2] << " " << input[3][3] << "\n";
+}
+
+void log(vec4& input) {
+	std::cout << input[0] << " " << input[1] << " " << input[2] << " " << input[3] << "\n";
+}
+
 // successful.
 void loop_test () {
 	for (; is_run(); delay_fps(60), cleardevice()) {
@@ -18,8 +41,62 @@ void loop_test () {
 	}
 }
 
-#include "../../ZGL/zgl.h"
 
+void test_2d_vector_translate() {
+	vec3 v1_1{ 1.5, 0.5, 1 };
+	vec3 v1_2 { -0.5, 0.85, 1 };
+	vec3 v2_1 = v1_1 * vec3::translate({ -0.3, -1.5, 0});
+	vec3 v2_2 = v1_2 * vec3::translate({ -0.3, -1.5, 0});
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		axis();
+		ege_line(X(v1_1[0]), Y(v1_1[1]), X(v1_2[0]), Y(v1_2[1]));
+		ege_line(X(v2_1[0]), Y(v2_1[1]), X(v2_2[0]), Y(v2_2[1]));
+	}
+}
+
+void test_3d_teapot() {
+
+	model obj = model(g_teapotPositions, g_teapotPositionNum, g_teapotIndices, g_teapotIndicesNum);
+
+	obj.scale(.04);
+
+	/*
+	vec4 vecs[g_teapotPositionNum / 3];
+	for (int i = 0; i < g_teapotPositionNum; i += 3) {
+		vecs[i / 3] = { g_teapotPositions[i], g_teapotPositions[i + 1], g_teapotPositions[i + 2] };
+	}
+	piece pieces[g_teapotIndicesNum / 3];
+	for (int i = 0; i < g_teapotIndicesNum; i += 3) {
+		pieces[i / 3] = { vecs[g_teapotIndices[i]], vecs[g_teapotIndices[i + 1]], vecs[g_teapotIndices[i + 2]] };
+	}
+
+	auto obj = pieces;
+	*/
+
+	obj.rotate(0, 0, PI / 2);
+
+	float yaw = .03, pitch = .03, roll = .03;
+	for (; is_run(); delay_fps(60), cleardevice()) {
+
+		for (int i = 0; i < obj.count; i++) {
+			// std::cout << obj[i][0][0] << " " << obj[i][0][1] << " " << obj[i][1][0] << " " << obj[i][1][1];
+			ege_line(X(obj[i][0][0]), Y(obj[i][0][1]), X(obj[i][1][0]), Y(obj[i][1][1]));
+			ege_line(X(obj[i][1][0]), Y(obj[i][1][1]), X(obj[i][2][0]), Y(obj[i][2][1]));
+			ege_line(X(obj[i][2][0]), Y(obj[i][2][1]), X(obj[i][0][0]), Y(obj[i][0][1]));
+		}
+
+		obj.rotate( 0, pitch, 0 );
+
+
+		{// 画帧率文字
+			char str[20];
+			sprintf(str, "fps %.02f", getfps()); //调用getfps取得当前帧率
+			outtextxy(0, 0, str);
+		}
+	}
+}
+
+/*
 // 2D-vector translate successfull;
 void test_2d_vector_translate() {
 	Vector2 v1_1{ 1.5, 0.5, 1 };
@@ -169,7 +246,7 @@ void test_2d_gridding_implicitly() {
 	ImpCurved2 c1(-2.0, .02, 2.0, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * a[1] - 1.0, 3.0) - a[0] * a[0] * pow(a[1], 3.0); });
 	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return pow(a[0] * a[0] + a[1] * 2 - 1, 3) - a[0] * a[0] * pow(a[1], 3) - 1; });
 	ImpCurved2 c1(-2, .1, 2, [](ImpCurved2::Targ a) { return a[0] * a[0] + a[1] * a[1] - 1.5; });
-	*/
+	/
 	
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		axis();
@@ -397,3 +474,4 @@ void test_3d_gridding_implicitly() {
 		}
 	}
 }
+*/

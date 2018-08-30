@@ -11,10 +11,16 @@
     <Filter Include="src">
       <UniqueIdentifier>{7503ed6a-0500-4519-abc9-164ecf85ce48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="model">
+      <UniqueIdentifier>{84d580a8-07f4-47cf-bb2a-752e6402169f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\test.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="model\teapot.h">
+      <Filter>model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

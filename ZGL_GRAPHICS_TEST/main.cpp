@@ -14,7 +14,7 @@ int main() {
 	setcolor(EGERGBA(0, 0, 0, 255));
 
 	// loops;
-	test_3d_gridding_implicitly();
+	test_3d_teapot();
 
 	closegraph();
 }

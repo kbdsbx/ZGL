@@ -49,11 +49,11 @@ _ZGL_BEGIN
 			_dis();
 		}
 		
-		_Tcol::iterator begin() {
+		_Tcol::Iterator begin() {
 			return _res.begin();
 		}
 
-		_Tcol::iterator end() {
+		_Tcol::Iterator end() {
 			return _res.end();
 		}
 
@@ -62,7 +62,7 @@ _ZGL_BEGIN
 		}
 
 	private :
-		_dis() {
+		void _dis() {
 			for (typename _Tbase::_Tit it = _Tbase::begin(); it != _Tbase::end(); ++it) {
 				typedef typename _Tbase::_Tit _Tit;
 

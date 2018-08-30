@@ -1,6 +1,6 @@
 #include "../inc.h"
 #include "matrix.h"
-#include <math.h>
+#include <cmath>
 #include <initializer_list>
 #include <ctgmath>
 
@@ -33,34 +33,33 @@ _ZGL_BEGIN
 			_Titem t = _Titem((z_size_t)opt);
 			z_size_t i = dim;
 			while (i--)
-				v[i][i] = t;
+				(*this)[i][i] = t;
 		}
 
-		// constructor that using item array
+		// constructor from array
 		// 使用数组的构造函数
 		template < typename = std::enable_if_t < (dim > 0) > >
 		square(const _Titem src[dim][dim])
 			: _Tbase(src) { }
 
-		// constructor that using type of itself
 		// copy constructor
 		// 拷贝构造函数
 		square(const _Tself& src)
 			: _Tbase(src) { }
 
 #ifdef ZGL_ENABLE_RVALUE
-		// constructor that using Rvalue params
-		// 使用右值构造
+		// move constructor
+		// 转移构造
 		square(_Tself&& src)
 			: _Tbase(src) { }
 #endif
 
-		// constructor that using initializer_list in cpp-11
+		// constructor from initializer_list
 		// 使用C++11的初始化列表
 		square(const std::initializer_list< std::initializer_list< _Titem > >& src)
 			: _Tbase(src) { }
 
-		// constructor that using 4 submatrix to initialize
+		// constructor from 4 submatrix
 		// 使用四个子矩阵构造矩阵
 		template < z_size_t rows_s, z_size_t rows_t, z_size_t cols_u, z_size_t cols_v, typename = std::enable_if_t < (rows_s + rows_t) == dim && (cols_u + cols_v) == dim > >
 		square(const matrix < rows_s, cols_u, _Titem > & m11,
@@ -69,58 +68,56 @@ _ZGL_BEGIN
 			const matrix < rows_t, cols_v, _Titem > & m22)
 			: _Tbase(m11, m12, m21, m22) { }
 
-		_Titem* operator [] (z_size_t opt) const {
+		inline _Titem* operator [] (z_size_t opt) const {
 			return (*(_Tbase*)this)[opt];
 		}
 
-		virtual _Tself& operator = (const _Tself& src) {
-			for (z_size_t i = 0; i < dim; i++)
-				for (z_size_t j = 0; j < dim; j++)
-					v[i][j] = src[i][j];
+		inline _Tself& operator = (const _Tself& src) {
+			(*(const _Tbase*)this) == src;
 
 			return *this;
 		}
 
 #ifdef ZGL_ENABLE_RVALUE
-		virtual const _Tself& operator = (_Tself&& src) {
-			(*(const _Tbase*)this) == opt;
+		inline _Tself& operator = (_Tself&& src) {
+			(*(const _Tbase*)this) == src;
 			return *this;
 		}
 #endif
 
-		bool operator == (const _Tself& opt) const {
+		inline bool operator == (const _Tself& opt) const {
 			return (*(const _Tbase*)this) == opt;
 		}
 
-		bool operator != (const _Tself& opt) const {
+		inline bool operator != (const _Tself& opt) const {
 			return (*(const _Tbase*)this) != opt;
 		}
 
-		_Tself operator + (const _Tself& opt) const {
+		inline _Tself operator + (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this + opt));
 		}
 
-		_Tself operator - (const _Tself& opt) const {
+		inline _Tself operator - (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this - opt));
 		}
 
-		_Tself operator * (const _Titem& opt) const {
+		inline _Tself operator * (const _Titem& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
-		_Tself operator * (const _Tself& opt) const {
+		inline _Tself operator * (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
-		_Tself operator / (const _Titem& opt) const {
+		inline _Tself operator / (const _Titem& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
-		_Tself operator / (const _Tself& opt) const {
+		inline _Tself operator / (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
-		_Tself operator ^ (int opt) const {
+		inline _Tself operator ^ (int opt) const {
 			if (opt == 0) {
 				return _Tself(ZGL_SQUARE_MATRIX_TYPE::IDENTITY);
 			} else {
@@ -133,13 +130,13 @@ _ZGL_BEGIN
 
 		// value of determinant as from as square matrix
 		// 方阵行列式值
-		_Titem determinant() const {
+		inline _Titem determinant() const {
 			return _Tself::determinant(*this);
 		}
 
 		// matrix transpose
 		// 矩阵转置
-		const _Tself& transpose() {
+		inline _Tself& transpose() {
 			return (*this = _Tself::transpose(*this));
 		}
 

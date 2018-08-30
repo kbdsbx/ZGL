@@ -1,7 +1,7 @@
 #include "../inc.h"
 #include "matrix.h"
 #include "square.h"
-#include <math.h>
+#include <cmath>
 #include <initializer_list>
 
 #ifndef ZGL_VECTOR
@@ -35,7 +35,7 @@ _ZGL_BEGIN
 		vector(const _Titem src[dim])
 			: _Tbase() {
 			for (z_size_t i = 0; i < dim; i++)
-				v[0][i] = src[i];
+				(*this)[i] = src[i];
 		}
 
 		// constructor that using type of itself
@@ -45,89 +45,87 @@ _ZGL_BEGIN
 			: _Tbase(src) { }
 
 #ifdef ZGL_ENABLE_RVALUE
-		// constructor that using Rvalue params
-		// 使用右值构造
+		// move constructor
+		// 转移构造
 		vector(_Tself&& src)
 			: _Tbase(src) { }
 #endif
 
-		// constructor that using initializer_list in cpp-11
+		// initializer_list constructor 
 		// 使用C++11的初始化列表
 		vector(std::initializer_list< _Titem > src)
 			: _Tbase({ src }) { }
 
-		_Titem& operator [] (const z_size_t opt) const {
-			return const_cast< _Titem& >(v[0][opt]);
+		inline _Titem& operator [] (const z_size_t opt) const {
+			return (*(const _Tbase*)this)[0][opt];
 		}
 
-		virtual _Tself& operator = (const _Tself& opt) {
-			for (z_size_t i = 0; i < dim; i++)
-				v[0][i] = opt[i];
+		inline _Tself& operator = (const _Tself& opt) {
+			(*(_Tbase*)this) = opt;
 			return *this;
 		}
 
 #ifdef ZGL_ENABLE_RVALUE
-		virtual _Tself& operator = (_Tself&& src) {
-			(*(const _Tbase*)this) == opt;
-
+		inline _Tself& operator = (_Tself&& src) {
+			(_Tbase&)*this = (_Tbase&&)src;
 			return *this;
 		}
 #endif
 
-		bool operator == (const _Tself& opt) const {
+		inline bool operator == (const _Tself& opt) const {
 			return (*(const _Tbase*)this) == opt;
 		}
 
-		bool operator != (const _Tself& opt) const {
+		inline bool operator != (const _Tself& opt) const {
 			return (*(const _Tbase*)this) != opt;
 		}
 
-		_Tself operator + (const _Tself& opt) const {
+		inline _Tself operator + (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this + opt));
 		}
 
-		_Tself operator - (const _Tself& opt) const {
+		inline _Tself operator - (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this - opt));
 		}
 
-		_Tself operator * (const _Titem opt) const {
+		inline _Tself operator * (const _Titem opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this * opt));
 		}
 
 		template < z_size_t rows >
-		vector < rows, _Titem > operator * (const matrix < dim, rows, _Titem >& opt) const {
+		inline vector < rows, _Titem > operator * (const matrix < dim, rows, _Titem >& opt) const {
 			return STD_MOVE((vector< rows, _Titem >&)(*(const _Tbase *)this * opt));
 		}
 
-		_Tself operator / (const _Titem& opt) const {
+		inline _Tself operator / (const _Titem& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
-		_Tself operator / (const _Tself& opt) const {
+		inline _Tself operator / (const _Tself& opt) const {
 			return STD_MOVE((_Tself&)(*(const _Tbase*)this / opt));
 		}
 
-		_Titem operator PRO_DOT (const _Tself& opt) const {
+		inline _Titem operator PRO_DOT (const _Tself& opt) const {
 			return (*this * _Tbase::transpose(opt))[0];
 		}
 
-		_Tself operator PRO_PARALLEL (const _Tself& opt) const {
+		inline _Tself operator PRO_PARALLEL (const _Tself& opt) const {
 			return opt * ((*this PRO_DOT opt) / (opt PRO_DOT opt));
 		}
 
-		_Tself operator PRO_UPRIGHT (const _Tself& opt) const {
+		inline _Tself operator PRO_UPRIGHT (const _Tself& opt) const {
 			return *this - (*this PRO_PARALLEL opt);
 		}
 
 		// Vector module
 		// 向量长度(模)
-		_Titem module() const {
+		inline _Titem module() const {
 			return sqrt(*this PRO_DOT *this);
 		}
 
 		// The angle between the both of vector
 		// 与向量的夹角
-		_Titem angle(const _Tself& opt) const {
+		inline _Titem angle(const _Tself& opt) const {
 			return acos((*this PRO_DOT opt) / (this->module() * opt.module()));
 		}
 

@@ -1,5 +1,4 @@
 #include "../inc.h"
-#include "../interface/Icamera.h"
 #include "../geometry/affine_vector.h"
 #include "../geometry/graph.h"
 
@@ -11,7 +10,7 @@ _ZGL_BEGIN
 	// Camera in 3D
 	// 3DÏà»ú
 	class camera
-		: Icamera {
+		 {
 		typedef camera _Tself;
 		typedef z_item_t _Titem;
 		typedef affine_vector< 3, _Titem > _Tv4;

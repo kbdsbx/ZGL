@@ -1,8 +1,7 @@
+#pragma once
+
 #include <type_traits>
 #include <stdexcept>
-
-#ifndef ZGL_INC
-#define ZGL_INC
 
 #define _ZGL_BEGIN namespace ZGL {
 #define _ZGL_END }
@@ -18,10 +17,10 @@ _ZGL_BEGIN
 	// 类型相关
 #ifdef _WIN64
 	typedef __int64 z_size_t;
-	typedef long double z_item_t;
-#else
-	typedef __int32 z_size_t;
 	typedef double z_item_t;
+#else
+	typedef unsigned __int32 z_size_t;
+	typedef float z_item_t;
 #endif // !_WIN64
 
 	// Right handed system
@@ -200,4 +199,3 @@ _ZGL_BEGIN
 
 _ZGL_END
 
-#endif // !ZGL_INC

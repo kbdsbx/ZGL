@@ -11,27 +11,6 @@
     <ClInclude Include="geometry\gridding.h">
       <Filter>geometry</Filter>
     </ClInclude>
-    <ClInclude Include="interface\Icamera.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Igeometry.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Ilight.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Iradiantable.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Irenderer.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Iseparable.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Itrackable.h">
-      <Filter>interface</Filter>
-    </ClInclude>
     <ClInclude Include="linear\matrix.h">
       <Filter>linear</Filter>
     </ClInclude>
@@ -45,24 +24,12 @@
     <ClInclude Include="scene\camera.h">
       <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include="interface\Isolid.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="scene\scene.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="scene\scene_grid.h">
-      <Filter>scene</Filter>
-    </ClInclude>
     <ClInclude Include="scene\unit\surface.h">
       <Filter>scene\unit</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="geometry\gridding-implicitly.h">
       <Filter>geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="interface\Ishadowable.h">
-      <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="geometry\patch.h">
       <Filter>geometry</Filter>
@@ -73,13 +40,28 @@
     <ClInclude Include="geometry\iterator.h">
       <Filter>geometry</Filter>
     </ClInclude>
+    <ClInclude Include="geometry\vec3.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\squ4.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="3D\piece.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="3D\object.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="3D\vec4.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="3D\squ4.h">
+      <Filter>3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="geometry">
       <UniqueIdentifier>{3d927e97-cdaa-43fd-866b-d44f2b56542f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface">
-      <UniqueIdentifier>{dda15b40-3eab-44cc-9e4c-732c5b5510ed}</UniqueIdentifier>
     </Filter>
     <Filter Include="linear">
       <UniqueIdentifier>{29a6ad06-eb51-48cc-83aa-d8fecd6d8c22}</UniqueIdentifier>
@@ -92,6 +74,9 @@
     </Filter>
     <Filter Include="io">
       <UniqueIdentifier>{08405584-6811-4545-9f4b-1ff327a638c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3D">
+      <UniqueIdentifier>{15706e1a-179c-447e-b554-46960d4a16a7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

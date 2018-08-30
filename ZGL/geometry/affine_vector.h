@@ -1,7 +1,7 @@
 #include "../inc.h"
 #include "../linear/vector.h"
 #include "../geometry/graph.h"
-#include <math.h>
+#include <cmath>
 
 #ifndef ZGL_AFFINE_VECTOR
 #define ZGL_AFFINE_VECTOR

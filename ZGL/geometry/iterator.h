@@ -8,18 +8,18 @@ _ZGL_BEGIN
 
 	// Iterator in gridding
 	// 网格迭代器
-	/// dim: iterator's dimension
+	/// dim: Iterator's dimension
 	///	      迭代器维度
 	/// Tv: Type of element
 	///       元素类型
 	template < z_size_t dim, typename Tv = size_t >
-	class iterator {
+	class Iterator {
 		// The rank of index vector
 		// 索引向量的秩
 		const static z_size_t idx_rank = dim + 1;
 
 		typedef vector< idx_rank, z_size_t > _Tidx;
-		typedef iterator< dim, Tv > _Tself;
+		typedef Iterator< dim, Tv > _Tself;
 
 	public:
 		typedef _Tidx Tidx;
@@ -70,7 +70,7 @@ _ZGL_BEGIN
 			return *this;
 		}
 
-		// The iterator addition
+		// The Iterator addition
 		// 迭代器相加
 		_Tself operator + (const _Tself& opt) const {
 			_Tself _t(*this);
@@ -79,7 +79,7 @@ _ZGL_BEGIN
 			for (z_size_t i = 0; i < dim; i++) {
 				if (_t._idx[i] >= _t._max[i]) {
 					// 不会进位 ?
-					throw std::out_of_range("The index of iterator is out of range.");
+					throw std::out_of_range("The index of Iterator is out of range.");
 				}
 			}
 
