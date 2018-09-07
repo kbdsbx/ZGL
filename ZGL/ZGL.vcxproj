@@ -19,8 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3D\camera.h" />
     <ClInclude Include="3D\object.h" />
     <ClInclude Include="3D\piece.h" />
+    <ClInclude Include="3D\scene.h" />
     <ClInclude Include="3D\squ4.h" />
     <ClInclude Include="3D\vec4.h" />
     <ClInclude Include="geometry\affine_vector.h" />

@@ -89,6 +89,7 @@ public :
 	self& transform(const squ4& squ) {
 		for (size i = 0; i < 3; i++) {
 			dots[i] = dots[i] * squ;
+			dots[i].normalize();
 		}
 
 		return *this;

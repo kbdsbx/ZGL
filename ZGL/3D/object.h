@@ -18,7 +18,14 @@ public :
 	size count;
 
 	~object() {
-		delete[] pieces;
+		if (pieces) {
+			delete[] pieces;
+		}
+	}
+
+	self() {
+		this->count = 0;
+		this->pieces = nullptr;
 	}
 
 	self( size count ) {
@@ -26,11 +33,15 @@ public :
 		this->pieces = new piece[this->count];
 	}
 
-	self(piece* src, size count)
+	self(const piece* src, size count)
 		: self( count ){
 		for (size i = 0; i < count; i++) {
 			this->pieces[i] = src[i];
 		}
+	}
+
+	self(const self& src)
+		: self(src.pieces, src.count) {
 	}
 
 	/**
@@ -43,7 +54,7 @@ public :
 		: self(indiceNum / 3) {
 		vec4* vecs = new vec4[positionNum / 3];
 		for (size i = 0; i < positionNum; i += 3) {
-			vecs[i / 3] = { positions[i], positions[i + 1], positions[i + 2] };
+			vecs[i / 3] = { positions[i], positions[i + 1], positions[i + 2], item(1) };
 		}
 
 		for (size i = 0; i < indiceNum; i += 3) {
@@ -64,11 +75,35 @@ public :
 	}
 #endif
 
+	self& operator = (const self& src) {
+		this->count = src.count;
+		this->pieces = new piece[this->count];
+		for (size i = 0; i < this->count; i++) {
+			this->pieces[i] = src.pieces[i];
+		}
+
+		return *this;
+	}
+
 	piece& operator [] (size opt) {
 		if (opt >= count) {
 			throw "out of range.";
 		}
 		return pieces[opt];
+	}
+
+	const self& translate(const vec4& opt) {
+		squ4 transSqu = vec4::Translate(opt);
+		this->transform(transSqu);
+
+		return *this;
+	}
+
+	const self& rotate(const vec4& position, const vec4& normal, item radian) {
+		squ4 rotateSqu = vec4::Rotate(position, normal, radian);
+		this->transform(rotateSqu);
+		
+		return *this;
 	}
 
 	const self& rotate(item yaw, item pitch, item roll) {

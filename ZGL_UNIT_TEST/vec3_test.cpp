@@ -5,7 +5,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 typedef ZGL::vec3  vec3;
-typedef ZGL::square< 3, double > sqr3;
+typedef ZGL::square< 3, float > sqr3;
 
 namespace ZGL_TEST
 {		
@@ -24,8 +24,8 @@ namespace ZGL_TEST
 		TEST_METHOD(vec3_affine)
 		{
 			vec3 v1{ 2, 3, 1 };
-			ZGL::vector< 2, double> v2{ 2, 3 };
-			Assert::IsTrue(vec3::affine(v2, double(1)) == v1);
+			ZGL::vector< 2, float> v2{ 2, 3 };
+			Assert::IsTrue(vec3::affine(v2, float(1)) == v1);
 		}
 	};
 }

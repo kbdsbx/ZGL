@@ -11,11 +11,13 @@ typedef ZGL::vec4 vec4;
 typedef ZGL::squ4 squ4;
 typedef ZGL::piece piece;
 typedef ZGL::object model;
+typedef ZGL::camera camera;
+typedef ZGL::scene scene;
 
 #define screen_width 800
 #define screen_height 600
-#define X(x) ( (x) * 100 + ( screen_width / 2 ) )
-#define Y(y) ( (-(y)) * 100 + ( screen_height / 2 ) )
+#define X(x) ( (x) * 1 + ( screen_width / 2 ) )
+#define Y(y) ( (-(y)) * 1 + ( screen_height / 2 ) )
 
 void axis() {
 	// X Axis;
@@ -58,7 +60,7 @@ void test_3d_teapot() {
 
 	model obj = model(g_teapotPositions, g_teapotPositionNum, g_teapotIndices, g_teapotIndicesNum);
 
-	obj.scale(.04);
+	// obj.scale(.04);
 
 	/*
 	vec4 vecs[g_teapotPositionNum / 3];
@@ -73,7 +75,10 @@ void test_3d_teapot() {
 	auto obj = pieces;
 	*/
 
-	obj.rotate(0, 0, PI / 2);
+	// obj.rotate(0, 0, PI / 2);
+	// obj.translate({ -43, 0, 0, 1});
+
+	auto axis = vec4::Rotate({ 0, 0, -50, 1 }, { 0, 1, 0, 0 }, .03);
 
 	float yaw = .03, pitch = .03, roll = .03;
 	for (; is_run(); delay_fps(60), cleardevice()) {
@@ -85,7 +90,43 @@ void test_3d_teapot() {
 			ege_line(X(obj[i][2][0]), Y(obj[i][2][1]), X(obj[i][0][0]), Y(obj[i][0][1]));
 		}
 
-		obj.rotate( 0, pitch, 0 );
+		// obj.rotate( 0, pitch, 0 );
+		obj.transform(axis);
+
+
+		{// 画帧率文字
+			char str[20];
+			sprintf(str, "fps %.02f", getfps()); //调用getfps取得当前帧率
+			outtextxy(0, 0, str);
+		}
+	}
+}
+
+void test_3d_scene() {
+	model mdl(g_teapotPositions, g_teapotPositionNum, g_teapotIndices, g_teapotIndicesNum);
+
+	camera cam({ 0, 0, 80, 1 }, { 0, 0, -1, 0 }, { 0, 1, 0, 0 });
+
+	scene sc;
+	sc.add_camera(1, cam);
+	sc.add_object(1, mdl);
+
+	sc.cameras[1].retreat(25);
+
+	for (; is_run(); delay_fps(60), cleardevice()) {
+		sc.transform();
+		auto obj = sc.objects[1];
+
+		for (int i = 0; i < obj.count; i++) {
+			// std::cout << obj[i][0][0] << " " << obj[i][0][1] << " " << obj[i][1][0] << " " << obj[i][1][1];
+			ege_line(X(obj[i][0][0]), Y(obj[i][0][1]), X(obj[i][1][0]), Y(obj[i][1][1]));
+			ege_line(X(obj[i][1][0]), Y(obj[i][1][1]), X(obj[i][2][0]), Y(obj[i][2][1]));
+			ege_line(X(obj[i][2][0]), Y(obj[i][2][1]), X(obj[i][0][0]), Y(obj[i][0][1]));
+		}
+
+		sc._objects[1].rotate(0, 0, .1);
+
+		//sc.cameras[1].retreat(1);
 
 
 		{// 画帧率文字

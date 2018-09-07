@@ -118,10 +118,10 @@ public :
 
 	// Cross product
 	// 向量积，外积，混合积，楔积
-	static self cross(const self opt[3]) {
+	static self cross(const self opt[2]) {
 		// 去掉w
-		vector< 3, item > _t[3], _r;
-		for (size i = 0; i < 3; i++) {
+		vector< 3, item > _t[2], _r;
+		for (size i = 0; i < 2; i++) {
 			_t[i] = (vector< 3, item >)vector< 4, item >::cofactor((base)opt[i], 3);
 		}
 		_r = vector< 3, item >::cross(_t);
@@ -131,7 +131,7 @@ public :
 	// Cross product
 	// 向量积，外积，混合积，楔积
 	static self cross(const std::initializer_list< self >& opt) {
-		self _t[3];
+		self _t[2];
 		size i = 0;
 		for (const self& o : opt) {
 			_t[i] = o;
@@ -157,19 +157,26 @@ public :
 		self t;
 
 		if (opt[3]) {
-			for (size i = 0; i < 3; i++) {
+			for (size i = 0; i < 4; i++) {
 				t[i] = opt[i] / opt[3];
 			}
 		} else {
 			item _m = opt.module();
 			if (_m) {
-				for (size i = 0; i < 3; i++) {
+				for (size i = 0; i < 4; i++) {
 					t[i] = opt[i] / _m;
 				}
 			}
 		}
 
 		return STD_MOVE(t);
+	}
+
+	static squ4 Translate(const self& normal) {
+		return {
+			m11(IDENTITY), m12(),
+			m21(self::cofactor(normal, 3)), m22(IDENTITY)
+		};
 	}
 
 	static squ4 Rotate(item yaw, item pitch, item roll) {
@@ -197,6 +204,30 @@ public :
 		return STD_MOVE(r);
 	}
 
+	static squ4 Rotate(const vec4& position, const vec4& normal, item radian) {
+		typedef vector< 3, item > vec3;
+
+		vec3 dir = vec4::cofactor(normal, 3);
+		m11 x{
+			{0, normal[2], -normal[1]},
+			{-normal[2], 0, normal[0]},
+			{normal[1], -normal[0], 0},
+		};
+		// 0  c  -b
+		// -c 0  a
+		// b  -a 0
+
+		m11 m_11 = m11(IDENTITY) * cos(radian) + ((m11&)(vec3::transpose(dir) * dir)) * (1.0 - cos(radian)) + x * sin(radian);
+		m12 m_12;
+		m21 m_21 = vec4::cofactor(position, 3) * (m_11 * -1 + m11(IDENTITY));
+		m22 m_22(IDENTITY);
+
+		return {
+			m_11, m_12,
+			m_21, m_22
+		};
+	}
+
 	static squ4 Scale(item x, item y, item z) {
 		return squ4{
 			{ x, 0, 0, 0 },
@@ -208,6 +239,21 @@ public :
 
 	static squ4 Scale(item opt) {
 		return vec4::Scale(opt, opt, opt);
+	}
+
+	static squ4 perspective(const self& position, const self& normal, const self& view) {
+		typedef vector< 3, item > vec3;
+		vec3 
+			_p = self::cofactor(position, 3),
+			_n = self::cofactor(normal, 3),
+			_v = self::cofactor(view, 3);
+
+		m11 m_11 = (m11&)(vec3::transpose(_n) * _v) * item(-1) + m11(IDENTITY) * ((_v - _p) PRO_DOT _n);
+		m12 m_12 = vec3::transpose(_n) * -1;
+		m21 m_21 = _v * (_p PRO_DOT _n);
+		m22 m_22{ { _v PRO_DOT _n } };
+
+		return STD_MOVE(squ4(m_11, m_12, m_21, m_22));
 	}
 };
 

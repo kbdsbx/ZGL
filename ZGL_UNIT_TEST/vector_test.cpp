@@ -78,10 +78,11 @@ namespace ZGL_TEST
 		{
 			// Vector cross product
 			// ÏòÁ¿»ý
-			Assert::IsTrue(ZGL::vector< 3, double >::cross({
+			auto m = ZGL::vector< 3, double >::cross({
 				{ 3, -5, 6 },
 				{ 1, 8, -3 },
-			}) == ZGL::vector< 3, double > { -33, 15, 29 });
+			});
+			Assert::IsTrue(m == ZGL::vector< 3, double > { -33, 15, 29 });
 		}
 
 		TEST_METHOD(vector_cofactor)

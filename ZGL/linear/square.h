@@ -73,14 +73,14 @@ _ZGL_BEGIN
 		}
 
 		inline _Tself& operator = (const _Tself& src) {
-			(*(const _Tbase*)this) == src;
+			(*(_Tbase*)this) = src;
 
 			return *this;
 		}
 
 #ifdef ZGL_ENABLE_RVALUE
 		inline _Tself& operator = (_Tself&& src) {
-			(*(const _Tbase*)this) == src;
+			(*(_Tbase*)this) = src;
 			return *this;
 		}
 #endif
@@ -146,7 +146,7 @@ _ZGL_BEGIN
 		static _Titem determinant (const square < dim, _Titem > & opt) {
 			_Titem _v = _Titem(0);
 			for (z_size_t i = 0; i < dim; i++) {
-				_v = _v + (opt[0][i] * square::determinant(square::cofactor(opt, 1, i + 1)) * _Titem(pow(-1, 2 + i)));
+				_v = _v + (opt[0][i] * square::determinant(square::cofactor(opt, 1, i + 1)) * pow(-1, 2 + i));
 			}
 			return _v;
 		}
@@ -192,8 +192,9 @@ _ZGL_BEGIN
 			if (_det != _Titem(0)) {
 				_Tself _t;
 				for (z_size_t i = 0; i < dim; i++)
-					for (z_size_t j = 0; j < dim; j++)
-						_t[j][i] = determinant(cofactor(opt, i + 1, j + 1)) * (z_size_t)pow(-1.0, i + j + 2);
+					for (z_size_t j = 0; j < dim; j++) {
+						_t[j][i] = determinant(cofactor(opt, i + 1, j + 1)) * pow(_Titem(-1.0), i + j + 2);
+					}
 
 				_t = _t * (_Titem(1) / _det);
 				return STD_MOVE(_t);

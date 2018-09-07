@@ -9,6 +9,8 @@
 #include "3D/piece.h"
 #include "3D/vec4.h"
 #include "3D/object.h"
+#include "3D/camera.h"
+#include "3D/scene.h"
 
 // #include "geometry/affine_vector.h"
 // #include "geometry/graph.h"

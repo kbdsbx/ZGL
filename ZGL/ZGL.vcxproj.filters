@@ -58,6 +58,12 @@
     <ClInclude Include="3D\squ4.h">
       <Filter>3D</Filter>
     </ClInclude>
+    <ClInclude Include="3D\camera.h">
+      <Filter>3D</Filter>
+    </ClInclude>
+    <ClInclude Include="3D\scene.h">
+      <Filter>3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="geometry">
