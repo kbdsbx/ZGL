@@ -22,5 +22,8 @@
     <ClInclude Include="model\teapot.h">
       <Filter>model</Filter>
     </ClInclude>
+    <ClInclude Include="src\util.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -20,8 +20,8 @@ class camera {
 	vec4 _rightward;
 
 public :
-	item zoom_in = 300;
-	item zoom_out;
+	item zoom_in = 200;
+	item zoom_out = 9999999;
 
 	camera() {
 	}

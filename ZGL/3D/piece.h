@@ -15,6 +15,8 @@ class piece {
 
 public :
 
+	bool show;
+
 #ifdef ZGL_DISABLE_RVALUE
 	vec4 dots[3];
 #endif
@@ -29,7 +31,8 @@ public :
 	}
 #endif
 
-	self() {
+	self( bool show = true ) {
+		this->show = show;
 #ifdef ZGL_ENABLE_RVALUE
 		dots = new vec4[3];
 #endif
@@ -41,7 +44,7 @@ public :
 		}
 	}
 	self(const self& src)
-		: self() {
+		: self(src.show) {
 		for (size i = 0; i < 3; i++) {
 			dots[i] = src[i];
 		}
@@ -58,12 +61,15 @@ public :
 
 #ifdef ZGL_ENABLE_RVALUE
 	self(self&& src) {
-		dots = src.dots;
+		this->dots = src.dots;
+		this->show = src.show;
 		src.dots = nullptr;
 	}
 #endif
 
 	self& operator = (const self& src) {
+		this->show = src.show;
+
 		for (size i = 0; i < 3; i++) {
 			dots[i] = src[i];
 		}
@@ -72,6 +78,8 @@ public :
 
 #ifdef ZGL_ENABLE_RVALUE
 	self& operator = (self&& src) {
+		this->show = src.show;
+
 		if (this != &src) {
 			delete[] dots;
 			dots = src.dots;
@@ -89,6 +97,13 @@ public :
 	self& transform(const squ4& squ) {
 		for (size i = 0; i < 3; i++) {
 			dots[i] = dots[i] * squ;
+		}
+
+		return *this;
+	}
+
+	self& normalize() {
+		for (size i = 0; i < 3; i++) {
 			dots[i].normalize();
 		}
 

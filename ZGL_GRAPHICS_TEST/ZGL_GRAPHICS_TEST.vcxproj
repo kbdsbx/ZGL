@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="model\teapot.h" />
     <ClInclude Include="src\test.h" />
+    <ClInclude Include="src\util.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="ext\graphics15.lib" />

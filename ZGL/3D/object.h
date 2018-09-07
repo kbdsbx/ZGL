@@ -2,6 +2,8 @@
 #include "./piece.h"
 #include "./vec4.h"
 
+#include <functional>
+
 #ifndef ZGL_OBJECT
 #define ZGL_OBJECT
 
@@ -123,6 +125,22 @@ public :
 	self& transform(const squ4& squ) {
 		for (size i = 0; i < this->count; i++) {
 			this->pieces[i].transform(squ);
+		}
+
+		return *this;
+	}
+
+	self& normalize() {
+		for (size i = 0; i < this->count; i++) {
+			this->pieces[i].normalize();
+		}
+
+		return *this;
+	}
+
+	self& each(std::function< void(piece&) > hide_func) {
+		for (size i = 0; i < this->count; i++) {
+			hide_func(this->pieces[i]);
 		}
 
 		return *this;

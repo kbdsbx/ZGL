@@ -5,6 +5,7 @@
 
 
 #include "../../ZGL/zgl.h"
+#include "./util.h"
 
 typedef ZGL::vec3 vec3;
 typedef ZGL::vec4 vec4;
@@ -13,27 +14,12 @@ typedef ZGL::piece piece;
 typedef ZGL::object model;
 typedef ZGL::camera camera;
 typedef ZGL::scene scene;
-
-#define screen_width 800
-#define screen_height 600
-#define X(x) ( (x) * 1 + ( screen_width / 2 ) )
-#define Y(y) ( (-(y)) * 1 + ( screen_height / 2 ) )
+typedef ZGL::mouse mouse;
 
 void axis() {
 	// X Axis;
 	ege_line(X(-screen_width / 2), Y(0), X(screen_width / 2), Y(0));
 	ege_line(X(0), Y(-screen_height / 2), X(0), Y(screen_height / 2));
-}
-
-void log(squ4& input) {
-	std::cout << input[0][0] << " " << input[0][1] << " " << input[0][2] << " " << input[0][3] << "\n";
-	std::cout << input[1][0] << " " << input[1][1] << " " << input[1][2] << " " << input[1][3] << "\n";
-	std::cout << input[2][0] << " " << input[2][1] << " " << input[2][2] << " " << input[2][3] << "\n";
-	std::cout << input[3][0] << " " << input[3][1] << " " << input[3][2] << " " << input[3][3] << "\n";
-}
-
-void log(vec4& input) {
-	std::cout << input[0] << " " << input[1] << " " << input[2] << " " << input[3] << "\n";
 }
 
 // successful.
@@ -42,7 +28,6 @@ void loop_test () {
 		ege_line(100, 200, 300, 400);
 	}
 }
-
 
 void test_2d_vector_translate() {
 	vec3 v1_1{ 1.5, 0.5, 1 };
@@ -105,35 +90,47 @@ void test_3d_teapot() {
 void test_3d_scene() {
 	model mdl(g_teapotPositions, g_teapotPositionNum, g_teapotIndices, g_teapotIndicesNum);
 
-	camera cam({ 0, 0, 80, 1 }, { 0, 0, -1, 0 }, { 0, 1, 0, 0 });
+	camera cam({ 0, 0, 250, 1 }, { 0, 0, -1, 0 }, { 0, 1, 0, 0 });
 
 	scene sc;
-	sc.add_camera(1, cam);
-	sc.add_object(1, mdl);
+	sc.add_camera(1, &cam);
+	sc.add_object(1, &mdl);
 
-	sc.cameras[1].retreat(25);
+	cam.retreat(25);
+
+	mouse zmouse;
+
+	// 绑定事件
+	zmouse.on(ZGL::ZGL_MOUSE_TYPE::WHEEL, [&cam](const ZGL::mouse_status& zmsg) {
+		cam.retreat(zmsg.wheel / 100);
+	});
+	zmouse.on(ZGL::ZGL_MOUSE_TYPE::LEFT_CLICK, [&cam](const ZGL::mouse_status& zmsg) {
+		cam.traverse(10);
+	});
+	zmouse.on(ZGL::ZGL_MOUSE_TYPE::RIGHT_CLICK, [&cam](const ZGL::mouse_status& zmsg) {
+		cam.traverse(-10);
+	});
+
 
 	for (; is_run(); delay_fps(60), cleardevice()) {
 		sc.transform();
 		auto obj = sc.objects[1];
+		sc.draw_line([](float x1, float y1, float x2, float y2) {
+			ege_line(X(x1), Y(y1), X(x2), Y(y2));
+		});
 
-		for (int i = 0; i < obj.count; i++) {
-			// std::cout << obj[i][0][0] << " " << obj[i][0][1] << " " << obj[i][1][0] << " " << obj[i][1][1];
-			ege_line(X(obj[i][0][0]), Y(obj[i][0][1]), X(obj[i][1][0]), Y(obj[i][1][1]));
-			ege_line(X(obj[i][1][0]), Y(obj[i][1][1]), X(obj[i][2][0]), Y(obj[i][2][1]));
-			ege_line(X(obj[i][2][0]), Y(obj[i][2][1]), X(obj[i][0][0]), Y(obj[i][0][1]));
-		}
+		mouse_bind(zmouse);
 
-		sc._objects[1].rotate(0, 0, .1);
-
-		//sc.cameras[1].retreat(1);
+		// mdl.rotate(0, 0, .1);
 
 
+#ifdef _DEBUG
 		{// 画帧率文字
 			char str[20];
 			sprintf(str, "fps %.02f", getfps()); //调用getfps取得当前帧率
 			outtextxy(0, 0, str);
 		}
+#endif
 	}
 }
 
